@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ვალუტის კურსები</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #1e3a8a; /* Deep blue, like Valuto */
+            --buy-color: #10b981; /* Modern green */
+            --sell-color: #ef4444; /* Modern red */
+            --border: #e2e8f0;
+            --btn-bg: #3b82f6;
+            --btn-hover: #2563eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-lg: 12px;
+            --radius-md: 8px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0 20px 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .nbg-rates-box {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 25px; /* გაზრდილი ჰორიზონტალური სივრცე (განიერი) */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.9em;
+            min-width: 140px; /* მინიმალური სიგანე */
+        }
+
+        .nbg-title {
+            font-size: 0.8em;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+            text-decoration: none;
+            display: block; /* For link */
+        }
+        
+        .nbg-title:hover {
+            color: #3b82f6; /* Link hover color */
+        }
+
+        .nbg-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nbg-currency {
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .nbg-value {
+            font-weight: 700;
+            color: #0056b3; /* Bank color */
+        }
+
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: #e2e8f0;
+            padding: 5px;
+            border-radius: var(--radius-lg);
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            border: none;
+            padding: 10px 25px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background-color: var(--card-bg);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        .tables-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .container {
+            flex: 1;
+            min-width: 450px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 25px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .container:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .header-row h2 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.4em;
+        }
+
+        .market-rate-box {
+            background-color: #2c3e50;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(44, 62, 80, 0.15);
+            color: #ecf0f1;
+        }
+
+        .market-rate-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #ecf0f1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding-bottom: 5px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .market-rate-items {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .market-rate-item {
+            text-align: center;
+            flex: 1;
+            border-right: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .market-rate-item:last-child {
+            border-right: none;
+        }
+
+        .market-rate-label {
+            font-size: 0.8em;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .market-rate-value {
+            font-weight: 700;
+            font-size: 1.25em;
+        }
+
+        .market-rate-value.buy {
+            color: #2ecc71; /* Clean green */
+        }
+
+        .market-rate-value.sell {
+            color: #e74c3c; /* Clean red */
+        }
+
+        .market-rate-value.spread {
+            color: #ecf0f1; /* White for spread to keep it clean */
+        }
+
+        .sort-btn {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sort-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .sort-btn:active {
+            transform: scale(0.95);
+        }
+
+        .sort-best {
+            color: var(--buy-color); /* Green */
+        }
+
+        .sort-worst {
+            color: var(--sell-color); /* Red */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 400px;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--bg-color);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #fcfcfc; }
+
+        .company-name {
+            font-weight: 700;
+            font-size: 1.05em;
+            color: var(--primary);
+        }
+
+        .company-logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company-logo {
+            height: 30px;
+            max-width: 90px;
+            object-fit: contain;
+        }
+
+        /* Kursi.ge logo is white, so we invert it for white bg */
+        .logo-kursige {
+            filter: invert(1);
+        }
+        
+        /* Custom size for Credo logo to make it readable */
+        .logo-credo {
+            height: 50px !important;
+            max-width: 150px !important;
+        }
+
+        .buy { color: var(--buy-color); font-weight: 600; }
+        .sell { color: var(--sell-color); font-weight: 600; }
+        .spread { color: var(--text-muted); font-size: 0.9em; }
+
+        .best-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #e60000;
+            border-radius: 50%;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 1.1em;
+            animation: pulse 1.5s infinite;
+        }
+
+        .error {
+            text-align: center;
+            padding: 30px;
+            color: var(--sell-color);
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            th, td { padding: 10px; font-size: 0.9em; }
+            .header-row { flex-direction: column; gap: 10px; align-items: flex-start; }
+            
+            .nbg-rates-box {
+                position: static;
+                margin: 0 auto 20px auto;
+                width: fit-content;
+                display: flex;
+                flex-direction: row;
+                gap: 15px;
+                justify-content: center;
+                align-items: center;
+            }
+            .nbg-title {
+                border-bottom: none;
+                border-right: 1px solid #e2e8f0;
+                padding-bottom: 0;
+                padding-right: 15px;
+                margin-bottom: 0;
+            }
+        }
+
+        /* მთავარი ნავიგაციის მენიუ */
+        .main-nav {
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 15px 40px;
+            box-shadow: var(--shadow-md);
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            box-sizing: border-box;
+            z-index: 9999;
+        }
+
+        .nav-logo {
+            height: 85px; /* Large but fits the horizontal layout naturally */
+            width: auto;
+            object-fit: contain;
+            cursor: pointer;
+            margin-right: 40px;
+            transition: transform 0.2s ease;
+            mix-blend-mode: multiply;
+        }
+
+        .nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .main-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-right: 15px;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+        }
+
+        .main-nav a:hover {
+            color: var(--primary);
+            background-color: #f0f4f8;
+        }
+
+        .main-nav a.active {
+            color: #ffffff;
+            background-color: var(--primary);
+        }
+
+        .page-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #home-page {
+            padding: 0;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Align center */
+        }
+
+        #home-page h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .home-card-uniform {
+                        background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 25px;
+            flex: 1 1 0; /* Forces them to be exactly equal width */
+            min-width: 250px;
+            /* min-height removed */
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .home-card-uniform:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-uniform-title {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.15em;
+            font-weight: bold;
+        }
+
+        .card-uniform-subtitle {
+            font-weight: normal; 
+            font-size: 0.85em; 
+            color: var(--text-muted);
+        }
+
+        .card-uniform-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .home-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-sizing: border-box;
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rates-flex {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .rate-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .rate-label {
+            font-size: 0.95em;
+            color: var(--text-muted);
+        }
+
+        .rate-value {
+            font-size: 1.25em;
+            font-weight: bold;
+        }
+
+        .intl-rates-list {
+            flex-direction: column;
+            gap: 10px;
+            flex: 1; /* Take up remaining height */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
+        }
+        
+        .intl-rates-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .intl-rates-list::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 5px;
+        }
+        .intl-rates-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 5px;
+        }
+        .intl-rates-list::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        .intl-rate-item {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .intl-pair {
+            font-weight: bold;
+            color: var(--text-muted);
+            font-size: 0.95em;
+            margin-bottom: 0;
+        }
+
+        .intl-value {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.25em;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            display: flex;
+            align-items: baseline;
+        }
+
+    
+        .nbg-items-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 100px; /* ~4 items */
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .nbg-items-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .nbg-items-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 5px;
+        }
+        .nbg-items-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 5px;
+        }
+        .nbg-items-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+</style>
+</head>
+<body>
+
+    <!-- მთავარი ნავიგაცია (პანელით) -->
+    <div style="width: calc(100% + 40px); background-color: var(--card-bg); box-shadow: var(--shadow-sm); display: flex; justify-content: center; margin-bottom: 40px; margin-top: 0; padding: 15px 20px; margin-left: -20px; margin-right: -20px; border-bottom: 1px solid var(--border); box-sizing: border-box; z-index: 10;">
+        <nav style="width: 100%; max-width: 1400px; display: flex; justify-content: flex-start; align-items: center; box-sizing: border-box;">
+            
+            <!-- ახალი ლოგო -->
+            <img src="Logos/logo.jpg" alt="AllRates Logo" style="height: 45px; width: auto; object-fit: contain; object-position: left center; cursor: pointer; mix-blend-mode: multiply; margin-left: 0;" onclick="switchPage('home')" />
+            
+            <!-- მენიუს ბმულები - დატოვებულია თავის ადგილზე (კომპენსირებული margin-ით) -->
+            <div style="display: flex; align-items: center; margin-left: 255px; gap: 30px;">
+                <a id="nav-home" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('home')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">მთავარი</a>
+                <a id="nav-rates" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('rates')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">გაცვლითი კურსები ქართულ ბაზარზე</a>
+                <a id="nav-api" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('api')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">API სერვისი</a>
+                <a id="nav-contact" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('contact')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">კონტაქტი</a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- მთავარი გვერდი -->
+    <div id="home-page" class="page-section" style="display: flex;">
+        <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 30px; align-items: stretch; margin-left: 0;">
+            
+            <!-- Box 1 -->
+            <div class="home-card-uniform">
+                <div class="card-uniform-title">
+                    გაცვლითი კურსები ქართულ ბაზარზე <span class="card-uniform-subtitle">(Top 10 საშუალო)</span>
+                </div>
+                <div class="card-uniform-content" style="justify-content: flex-start;">
+                    
+                    <div class="home-section" style="width: 100%; box-sizing: border-box;">
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/US.png" alt="US Flag" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">USD / აშშ დოლარი</div>
+                        <div class="rates-flex">
+                            <div class="rate-block">
+                                <div class="rate-label">ყიდვა</div>
+                                <div class="rate-value buy" id="home-usd-market-buy">--.---</div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label">გაყიდვა</div>
+                                <div class="rate-value sell" id="home-usd-market-sell">--.---</div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-usd-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-section" style="width: 100%; box-sizing: border-box;">
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/EU.png" alt="EU Flag" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">EUR / ევრო</div>
+                        <div class="rates-flex">
+                            <div class="rate-block">
+                                <div class="rate-label">ყიდვა</div>
+                                <div class="rate-value buy" id="home-eur-market-buy">--.---</div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label">გაყიდვა</div>
+                                <div class="rate-value sell" id="home-eur-market-sell">--.---</div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-eur-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="home-card-uniform">
+                <div class="card-uniform-title">
+                    საერთაშორისო კურსები
+                </div>
+                
+                <div class="card-uniform-content intl-rates-list" id="intl-rates-container" style="justify-content: flex-start;">
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">EUR / USD</span>
+                        <span class="intl-value" id="intl-EUR-USD">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">GBP / USD</span>
+                        <span class="intl-value" id="intl-GBP-USD">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / CHF</span>
+                        <span class="intl-value" id="intl-USD-CHF">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / JPY</span>
+                        <span class="intl-value" id="intl-USD-JPY">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / RUB</span>
+                        <span class="intl-value" id="intl-USD-RUB">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / TRY</span>
+                        <span class="intl-value" id="intl-USD-TRY">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / CNY</span>
+                        <span class="intl-value" id="intl-USD-CNY">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / ILS</span>
+                        <span class="intl-value" id="intl-USD-ILS">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">USD / CAD</span>
+                        <span class="intl-value" id="intl-USD-CAD">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair">AUD / USD</span>
+                        <span class="intl-value" id="intl-AUD-USD">- - -</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 4: Crypto Rates -->
+            <div class="home-card-uniform">
+                <div class="card-uniform-title">
+                    კრიპტოვალუტები (Top 10)
+                </div>
+                
+                <div class="card-uniform-content intl-rates-list" style="justify-content: flex-start;">
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BTC.png" alt="BTC" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Bitcoin (BTC)</span>
+                        <span class="intl-value" id="crypto-btc">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ETH.png" alt="ETH" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Ethereum (ETH)</span>
+                        <span class="intl-value" id="crypto-eth">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDT.png" alt="USDT" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Tether (USDT)</span>
+                        <span class="intl-value" id="crypto-usdt">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BNB.png" alt="BNB" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">BNB (BNB)</span>
+                        <span class="intl-value" id="crypto-bnb">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/SOL.png" alt="SOL" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Solana (SOL)</span>
+                        <span class="intl-value" id="crypto-sol">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDC.png" alt="USDC" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">USDC (USDC)</span>
+                        <span class="intl-value" id="crypto-usdc">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/XRP.png" alt="XRP" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">XRP (XRP)</span>
+                        <span class="intl-value" id="crypto-xrp">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/DOGE.png" alt="DOGE" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Dogecoin (DOGE)</span>
+                        <span class="intl-value" id="crypto-doge">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/TON.png" alt="TON" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Toncoin (TON)</span>
+                        <span class="intl-value" id="crypto-ton">- - -</span>
+                    </div>
+                    <div class="intl-rate-item">
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ADA.png" alt="ADA" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Cardano (ADA)</span>
+                        <span class="intl-value" id="crypto-ada">- - -</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 5: Popular Assets -->
+            <div class="home-card-uniform">
+                <div class="card-uniform-title">სხვა პოპულარული აქტივები</div>
+                <div class="card-uniform-content intl-rates-list" id="popular-assets-list" style="justify-content: flex-start;"></div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- გაცვლითი კურსების გვერდი -->
+    <div id="rates-page" class="page-section" style="display: none;">
+        <div class="header-wrapper">
+        <h1>მიმდინარე კურსები</h1>
+        
+        <div class="nbg-rates-box" id="nbg-rates-box" style="display: none;">
+            <a href="https://nbg.gov.ge/" target="_blank" class="nbg-title" title="გადადით ეროვნული ბანკის საიტზე">
+                ოფიციალური კურსები <span id="nbg-date"></span>
+            </a>
+            <div class="nbg-items-scroll">
+                <div class="nbg-item"><span class="nbg-currency">USD/GEL</span><span class="nbg-value" id="nbg-usd">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">EUR/GEL</span><span class="nbg-value" id="nbg-eur">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">GBP/GEL</span><span class="nbg-value" id="nbg-gbp">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">CHF/GEL</span><span class="nbg-value" id="nbg-chf">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">RUB/GEL</span><span class="nbg-value" id="nbg-rub">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">TRY/GEL</span><span class="nbg-value" id="nbg-try">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">AMD/GEL</span><span class="nbg-value" id="nbg-amd">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">AZN/GEL</span><span class="nbg-value" id="nbg-azn">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">ILS/GEL</span><span class="nbg-value" id="nbg-ils">--.---</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('all')">ყველა კომპანია</button>
+        <button class="tab-btn" onclick="switchTab('mfo')">მისო და სხვა</button>
+        <button class="tab-btn" onclick="switchTab('banks')">ბანკები</button>
+    </div>
+
+    <div id="loader" class="loader" style="font-size: 0.9em; padding: 10px;">⏳ მონაცემები იტვირთება...</div>
+    <div id="error-msg" class="error" style="display: none;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
+
+    <div class="tables-wrapper" id="tables-wrapper" style="display: flex;">
+        
+        <!-- USD Table -->
+        <div class="container">
+            <div class="header-row">
+                <h2>USD / GEL</h2>
+                <button id="btn-usd" class="sort-btn sort-best" onclick="toggleSort('usd')" title="სორტირება სპრედით">&#9650;</button>
+            </div>
+            
+            <div class="market-rate-box" id="usd-market-box">
+                <div class="market-rate-title">საბაზრო კურსები</div>
+                <div class="market-rate-items">
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">ყიდვა</div>
+                        <div class="market-rate-value buy" id="usd-market-buy">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">გაყიდვა</div>
+                        <div class="market-rate-value sell" id="usd-market-sell">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">სპრედი</div>
+                        <div class="market-rate-value spread" id="usd-market-spread">--.---</div>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>კომპანია</th>
+                        <th>ყიდვა</th>
+                        <th>გაყიდვა</th>
+                        <th>სპრედი</th>
+                    </tr>
+                </thead>
+                <tbody id="usd-body"></tbody>
+            </table>
+        </div>
+
+        <!-- EUR Table -->
+        <div class="container">
+            <div class="header-row">
+                <h2>EUR / GEL</h2>
+                <button id="btn-eur" class="sort-btn sort-best" onclick="toggleSort('eur')" title="სორტირება სპრედით">&#9650;</button>
+            </div>
+            
+            <div class="market-rate-box" id="eur-market-box">
+                <div class="market-rate-title">საბაზრო კურსები</div>
+                <div class="market-rate-items">
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">ყიდვა</div>
+                        <div class="market-rate-value buy" id="eur-market-buy">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">გაყიდვა</div>
+                        <div class="market-rate-value sell" id="eur-market-sell">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">სპრედი</div>
+                        <div class="market-rate-value spread" id="eur-market-spread">--.---</div>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>კომპანია</th>
+                        <th>ყიდვა</th>
+                        <th>გაყიდვა</th>
+                        <th>სპრედი</th>
+                    </tr>
+                </thead>
+                <tbody id="eur-body"></tbody>
+            </table>
+        </div>
+
+    </div>
+    </div> <!-- /#rates-page -->
+
+
+    <!-- API სერვისის გვერდი -->
+    <div id="api-page" class="page-section" style="display: none;">
+        <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: column; align-items: flex-start;">
+            <h2 style="color: var(--primary);">API სერვისი</h2>
+            <p style="color: var(--text-muted); font-size: 16px;">მალე დაემატება...</p>
+        </div>
+    </div>
+
+    <!-- კონტაქტის გვერდი -->
+    <div id="contact-page" class="page-section" style="display: none;">
+        <div style="width: 100%; max-width: 680px; padding: 20px 0 60px 0;">
+
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <span style="display: inline-block; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.2rem;">კონტაქტი</span>
+                <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">დაგვიკავშირდით</h2>
+                <div style="width: 48px; height: 3px; background: var(--btn-bg); margin: 1rem auto; border-radius: 2px;"></div>
+                <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.8; max-width: 520px; margin: 0 auto;">
+                    თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია! გაგვიზიარეთ თქვენი
+                    მოთხოვნები, შეკითხვები ან შენიშვნები — ჩვენ მზად ვართ მოვუსმინოთ
+                    და სწრაფი პასუხს გაგცეთ.
+                </p>
+            </div>
+
+            <div style="background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 2.5rem; box-shadow: var(--shadow-lg);">
+
+                <div id="contact-success" style="display:none; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:14px 16px; font-size:14px; color:#065f46; margin-bottom:1.5rem;">
+                    ✓ &nbsp;თქვენი შეტყობინება წარმატებით გაიგზავნა! მადლობთ, რომ დაგვიკავშირდით.
+                </div>
+                <div id="contact-error" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:14px 16px; font-size:14px; color:#991b1b; margin-bottom:1.5rem;"></div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">სახელი და გვარი</label>
+                    <input type="text" id="c-name" placeholder="თქვენი სახელი" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">ელ-ფოსტა <span style="color:var(--btn-bg)">*</span></label>
+                    <input type="email" id="c-email" placeholder="example@gmail.com" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">თემა</label>
+                    <input type="text" id="c-subject" placeholder="შეტყობინების თემა" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.4rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">შეტყობინება <span style="color:var(--btn-bg)">*</span></label>
+                    <textarea id="c-message" placeholder="დაწერეთ თქვენი მოთხოვნა, შეკითხვა ან შენიშვნა..." maxlength="2000" oninput="document.getElementById('c-charcount').textContent=this.value.length" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; min-height:160px; resize:none; line-height:1.6; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''"></textarea>
+                    <div style="text-align:right; font-size:12px; color:var(--text-muted); margin-top:4px;"><span id="c-charcount">0</span> / 2000</div>
+                </div>
+
+                <button id="c-submit-btn" onclick="sendContactForm()" style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:8px; padding:14px 24px; font-size:15px; font-family:inherit; font-weight:600; cursor:pointer; transition:background 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;" onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='var(--primary)'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    გაგზავნა
+                </button>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-top:1.8rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+                    <div style="width:36px; height:36px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    </div>
+                    <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+                        შეტყობინება გაიგზავნება პირდაპირ ჩვენს ელ-ფოსტაზე:<br/>
+                        <strong style="color:var(--text-main);">archilundilashvili@gmail.com</strong>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
+        const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
+        const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
+        
+        // კატეგორიები
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is'];
+        const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
+        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is'];
+
+        let currentTab = 'all';
+
+        function switchPage(page) {
+            ['home-page','rates-page','api-page','contact-page'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            
+            const navHome = document.getElementById('nav-home');
+            const navRates = document.getElementById('nav-rates');
+            const navApi = document.getElementById('nav-api');
+            const navContact = document.getElementById('nav-contact');
+            
+            [navHome, navRates, navApi, navContact].forEach(el => { if(el) el.style.color = '#64748b'; });
+
+            if (page === 'home' && document.getElementById('home-page')) {
+                document.getElementById('home-page').style.display = 'flex';
+                if(navHome) navHome.style.color = '#1e3a8a';
+            } else if (page === 'rates' && document.getElementById('rates-page')) {
+                document.getElementById('rates-page').style.display = 'flex';
+                if(navRates) navRates.style.color = '#1e3a8a';
+            } else if (page === 'api' && document.getElementById('api-page')) {
+                document.getElementById('api-page').style.display = 'flex';
+                if(navApi) navApi.style.color = '#1e3a8a';
+            } else if (page === 'contact' && document.getElementById('contact-page')) {
+                document.getElementById('contact-page').style.display = 'flex';
+                if(navContact) navContact.style.color = '#1e3a8a';
+            }
+            sessionStorage.setItem('activePage', page);
+        }
+
+        async function sendContactForm() {
+            const name    = document.getElementById('c-name').value.trim();
+            const email   = document.getElementById('c-email').value.trim();
+            const subject = document.getElementById('c-subject').value.trim();
+            const message = document.getElementById('c-message').value.trim();
+            const btn     = document.getElementById('c-submit-btn');
+            const success = document.getElementById('contact-success');
+            const error   = document.getElementById('contact-error');
+
+            success.style.display = 'none';
+            error.style.display = 'none';
+
+            if (!email || !message) {
+                error.textContent = '✗   გთხოვთ შეავსოთ სავალდებულო ველები (ელ-ფოსტა და შეტყობინება).';
+                error.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'იგზავნება...';
+
+            try {
+                const res = await fetch('https://formsubmit.co/ajax/archilundilashvili@gmail.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: subject ? `AllRates კონტაქტი: ${subject}` : 'AllRates — ახალი შეტყობინება',
+                        _replyto: email,
+                        name: name || 'მითითებული არ არის',
+                        email: email,
+                        message: message
+                    })
+                });
+                const data = await res.json();
+                if (data.success === 'true' || data.success === true) {
+                    success.style.display = 'block';
+                    document.getElementById('c-name').value = '';
+                    document.getElementById('c-email').value = '';
+                    document.getElementById('c-subject').value = '';
+                    document.getElementById('c-message').value = '';
+                    document.getElementById('c-charcount').textContent = '0';
+                } else { throw new Error(); }
+            } catch {
+                error.textContent = '✗   შეტყობინების გაგზავნა ვერ მოხერხდა. გთხოვთ სცადოთ განმეორებით.';
+                error.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> გაგზავნა';
+                btn.onmouseover = function(){ this.style.background='#1e40af'; };
+                btn.onmouseout = function(){ this.style.background='var(--primary)'; };
+            }
+        }
+
+        const COMPANY_NAMES_KA = {
+            'rico': 'რიკო ჯგუფი',
+            'valuto': 'ვალუტო',
+            'kursige': 'კურსი ჯი',
+            'crystal': 'მიკრო ბანკი კრისტალი',
+            'bog': 'საქართველოს ბანკი',
+            'tbc': 'თიბისი ბანკი',
+            'liberty': 'ლიბერთი ბანკი',
+            'bb': 'ბაზის ბანკი',
+            'credo': 'კრედო ბანკი',
+            'cartu': 'ბანკი ქართუ',
+            'inex': 'ინტელ ექსპრესი',
+            'giro': 'გირო კრედიტი',
+            'goa': 'გოა კრედიტი',
+            'hash': 'ჰეშ ბანკი',
+            'mbc': 'ემ ბი სი',
+            'tera': 'ტერა ბანკი',
+            'halyk': 'ხალიკ ბანკი',
+            'is': 'იშ ბანკი',
+            'paysera': 'პეისერა ბანკი'
+        };
+
+        const COMPANY_URLS = {
+            'rico': 'https://rico.ge/',
+            'valuto': 'https://valuto.ge/',
+            'kursige': 'https://kursi.ge/',
+            'crystal': 'https://crystal.ge/',
+            'bog': 'https://bankofgeorgia.ge/',
+            'tbc': 'https://tbcbank.ge/',
+            'liberty': 'https://libertybank.ge/',
+            'bb': 'https://basisbank.ge/',
+            'credo': 'https://credobank.ge/',
+            'cartu': 'https://cartubank.ge/',
+            'inex': 'http://ge.inteliexpress.net/',
+            'giro': 'https://girocredit.ge/',
+            'goa': 'https://goacredit.ge/',
+            'hash': 'https://hashbank.ge/ka',
+            'mbc': 'https://mbc.com.ge/',
+            'tera': 'https://terabank.ge/ka/retail',
+            'halyk': 'https://halykbank.ge/ka/individuals',
+            'is': 'http://isbank.ge/ka/individual',
+            'paysera': 'https://www.paysera.ge/v2/ka-GE/index'
+        };
+
+        const LOGOS = {
+            'rico': 'Logos/rico.png',
+            'valuto': 'https://valuto.ge/uploads/2021/03/%E1%83%95%E1%83%90%E1%83%9A%E1%83%A3%E1%83%A2%E1%83%9D-%E1%83%9A%E1%83%9D%E1%83%92%E1%83%9D.png',
+            'kursige': 'Logos/kursige.png',
+            'crystal': 'Logos/crystal.png',
+            'bog': 'Logos/bog.png',
+            'tbc': 'https://tbcbank.ge/assets/tbc-ge/favicon.png',
+            'liberty': 'Logos/Liberty.png',
+            'bb': 'Logos/bb.png',
+            'credo': 'Logos/credo.png',
+            'cartu': 'Logos/cartu.png',
+            'inex': 'Logos/Inex.png',
+            'giro': 'Logos/Giro.png',
+            'goa': 'Logos/Goa.png',
+            'hash': 'Logos/Hash.png',
+            'mbc': 'Logos/mbc.png',
+            'tera': 'Logos/TERA.png',
+            'halyk': 'Logos/HALYK.png',
+            'is': 'Logos/IS.png',
+            'paysera': 'Logos/PAYSERA.png'
+        };
+
+        let originalData = [];
+        let usdData = [];
+        let eurData = [];
+
+        // 0: Best (Smallest Spread), 1: Worst (Largest Spread)
+        let sortStates = { usd: 0, eur: 0 };
+        const sortIcons = ["&#9650;", "&#9660;"];
+
+        
+        async function fetchRates() {
+            fetchNBG();
+            fetchCrypto();
+                        fetchCommodities();
+            
+            try {
+                // Fetch unified API (MFOs and Banks together)
+                const resAll = await fetch(API_MFO_URL).catch(() => null);
+                
+                let combinedData = [];
+
+                if (resAll && resAll.ok) {
+                    let rawData = await resAll.json();
+                    if (rawData.data && Array.isArray(rawData.data)) {
+                        let headers = rawData.data[0];
+                        // Skip empty rows and map to objects
+                        combinedData = rawData.data.slice(1)
+                            .filter(row => row && row.length > 0)
+                            .map(row => {
+                                let obj = {};
+                                headers.forEach((h, i) => obj[h] = row[i]);
+                                return obj;
+                            });
+                    } else {
+                        combinedData = rawData;
+                    }
+                }
+
+                // Update International Rates if available
+                let intlRates = [];
+                let popularAssetsRates = [];
+
+                const popularAssetsList = ['Gold', 'Silver', 'Platinium', 'Platinum', 'WTI Crude Oil', 'Brent Crude Oil', 'Natural Gas'];
+
+                combinedData.forEach(item => {
+// მხოლოდ Popular წყვილები "საერთაშორისო კურსები" ბოქსისთვის
+if (item['Pair (Popular)'] && item['Rate (Popular)']) {
+    intlRates.push({ Pair: item['Pair (Popular)'], Rate: item['Rate (Popular)'] });
+}
+
+                    if (item['MEA'] && item['Rate (MEA)']) {
+                        let name = item['MEA'].trim();
+                        let obj = { Pair: name, Rate: item['Rate (MEA)'] };
+                        if (popularAssetsList.includes(name)) popularAssetsRates.push(obj);
+                        // fallback removed
+                    }
+                });
+
+                const intlContainer = document.querySelector('.intl-rates-list'); // first one is FX
+                const popularAssetsContainer = document.getElementById('popular-assets-list');
+
+                
+                if (intlRates.length > 0 || popularAssetsRates.length > 0) {
+                    // Cut the list at GBPJPY
+                    intlRates = intlRates.slice(0, 10); // Keep only the first 10 popular pairs
+
+                    if (intlContainer) {
+                        // Keep previous HTML until we fetch yesterday's rates
+                        let currentHtml = '';
+                        
+                        // We need yesterday's date
+                        const d = new Date();
+                        d.setDate(d.getDate() - 1);
+                        if (d.getDay() === 0) d.setDate(d.getDate() - 2); // if Sunday, go to Friday
+                        else if (d.getDay() === 6) d.setDate(d.getDate() - 1); // if Saturday, go to Friday
+                        const yesterdayStr = d.toISOString().split('T')[0];
+                        
+                        // Let's use fawazahmed0 currency-api for yesterday's rates
+                        // frankfurter base is EUR by default but it misses RUB and other currencies
+                        fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${yesterdayStr}/v1/currencies/eur.json`)
+                            .then(res => res.json())
+                            .then(historicalData => {
+                                // fawazahmed0 has all lowercase keys in eur object
+                                const ratesYday = historicalData.eur;
+                                
+                                // To keep the logic below identical, we just need to ensure uppercase keys
+                                const upperRatesYday = {};
+                                for (let key in ratesYday) {
+                                    upperRatesYday[key.toUpperCase()] = ratesYday[key];
+                                }
+                                upperRatesYday['EUR'] = 1.0; // base just in case
+                                
+                                // Override the old ratesYday variable mapping
+                                const ratesYdayMap = upperRatesYday;
+
+                                function titleCase(str) {
+                                    return str.toLowerCase().split(' ').map(word => {
+                                        return word.charAt(0).toUpperCase() + word.slice(1);
+                                    }).join(' ');
+                                }
+
+                                function renderRates(arr, cont, isFx) {
+                                    if (!cont) return;
+                                    cont.innerHTML = '';
+                                    arr.forEach(rate => {
+                                        let pairName = rate.Pair;
+                                        let currentRate = parseFloat(rate.Rate);
+                                        let changeHtml = '';
+                                        
+                                        if (isFx) {
+                                            let baseCur = pairName.substring(0,3);
+                                            let quoteCur = pairName.substring(3,6);
+                                            
+                                            if (pairName.length === 6 && !pairName.includes('/')) {
+                                                pairName = baseCur + ' / ' + quoteCur;
+                                            } else if (pairName.includes('/')) {
+                                                let parts = pairName.split('/');
+                                                baseCur = parts[0].trim();
+                                                quoteCur = parts[1].trim();
+                                            }
+                                            
+                                            if (ratesYdayMap[baseCur] && ratesYdayMap[quoteCur]) {
+                                                let yesterdayRate = ratesYdayMap[quoteCur] / ratesYdayMap[baseCur];
+                                                let changePercent = ((currentRate - yesterdayRate) / yesterdayRate) * 100;
+                                                let finalChange = changePercent;
+                                                
+                                                if (finalChange > 0) {
+                                                    changeHtml = `<span style="color: var(--buy-color); font-size: 0.65em; margin-left: 8px;">+${finalChange.toFixed(2)}%</span>`;
+                                                } else if (finalChange < 0) {
+                                                    changeHtml = `<span style="color: var(--sell-color); font-size: 0.65em; margin-left: 8px;">${finalChange.toFixed(2)}%</span>`;
+                                                } else {
+                                                    changeHtml = `<span style="color: var(--text-muted); font-size: 0.65em; margin-left: 8px;">0.00%</span>`;
+                                                }
+                                            }
+                                        } else {
+                                            // Non-FX: Title case, no slash splitting
+                                            pairName = titleCase(pairName);
+                                            // Note: since we don't have historical data for commodities from frankfurter, no percent change is calculated here.
+                                            // To calculate percent change for metals we need historical data from elsewhere (not implemented in this block).
+                                            // Leaving changeHtml empty as in fallback or calculate it if provided.
+                                        }
+                                        
+                                        let displayRate = isFx ? currentRate.toFixed(4) : currentRate.toFixed(2);
+
+                                        let logoHtml = '';
+                                        if (!isFx) {
+                                            const lowerPair = pairName.toLowerCase();
+                                            let logoSrc = '';
+                                            if (lowerPair.includes('wti')) logoSrc = 'WTI.png';
+                                            else if (lowerPair.includes('brent')) logoSrc = 'BRENT.png';
+                                            else if (lowerPair.includes('gas')) logoSrc = 'Natural Gas.png';
+                                            else if (lowerPair.includes('gold')) logoSrc = 'GOLD.png';
+                                            else if (lowerPair.includes('silver')) logoSrc = 'SILVER.png';
+                                            else if (lowerPair.includes('platin')) logoSrc = 'PLATINIUM.png';
+                                            
+                                            if (logoSrc) {
+                                                logoHtml = `<img src="Logos/${logoSrc}" alt="${pairName}" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">`;
+                                            }
+                                        }
+
+                                        cont.innerHTML += `
+                                            <div class="intl-rate-item">
+                                                <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
+                                                <span class="intl-value">${displayRate} ${changeHtml}</span>
+                                            </div>
+                                        `;
+                                    });
+                                }
+
+                                renderRates(intlRates, intlContainer, true);
+                                renderRates(popularAssetsRates, popularAssetsContainer, false);
+                            })
+                            .catch(err => {
+                                // Fallback
+                                const renderFallback = (arr, cont, isFx) => {
+                                    if(!cont) return;
+                                    cont.innerHTML = '';
+                                    arr.forEach(rate => {
+                                        let pairName = rate.Pair;
+                                        if (isFx) {
+                                            if (pairName.length === 6 && !pairName.includes('/')) {
+                                                pairName = pairName.substring(0,3) + ' / ' + pairName.substring(3);
+                                            }
+                                        } else {
+                                            pairName = pairName.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                        }
+                                        let currentRate = parseFloat(rate.Rate);
+                                        let displayRate = isFx ? currentRate.toFixed(4) : currentRate.toFixed(2);
+
+                                        let logoHtml = '';
+                                        if (!isFx) {
+                                            const lowerPair = pairName.toLowerCase();
+                                            let logoSrc = '';
+                                            if (lowerPair.includes('wti')) logoSrc = 'WTI.png';
+                                            else if (lowerPair.includes('brent')) logoSrc = 'BRENT.png';
+                                            else if (lowerPair.includes('gas')) logoSrc = 'Natural Gas.png';
+                                            else if (lowerPair.includes('gold')) logoSrc = 'GOLD.png';
+                                            else if (lowerPair.includes('silver')) logoSrc = 'SILVER.png';
+                                            else if (lowerPair.includes('platin')) logoSrc = 'PLATINIUM.png';
+                                            
+                                            if (logoSrc) {
+                                                logoHtml = `<img src="Logos/${logoSrc}" alt="${pairName}" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">`;
+                                            }
+                                        }
+
+                                        cont.innerHTML += `
+                                            <div class="intl-rate-item">
+                                                <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
+                                                <span class="intl-value">${displayRate}</span>
+                                            </div>
+                                        `;
+                                    });
+                                };
+                                renderFallback(intlRates, intlContainer, true);
+                                renderFallback(popularAssetsRates, popularAssetsContainer, false);
+                            });
+                    }
+                }
+
+                originalData = combinedData.filter(item => item.Company && ALL_COMPANIES.includes(item.Company.toLowerCase()));
+                
+                // Calculate spreads and store
+                originalData = originalData.map(item => {
+                    const usdB = parseFloat(item['USDGEL (Buy)']);
+                    const usdS = parseFloat(item['USDGEL (Sell)']);
+                    const eurB = parseFloat(item['EURGEL (Buy)']);
+                    const eurS = parseFloat(item['EURGEL (Sell)']);
+                    
+                    return {
+                        ...item,
+                        usdSpread: (!isNaN(usdS) && !isNaN(usdB)) ? (usdS - usdB) : Infinity,
+                        eurSpread: (!isNaN(eurS) && !isNaN(eurB)) ? (eurS - eurB) : Infinity
+                    };
+                });
+
+                // Clone for sorting and set initial sort
+                usdData = [...originalData].sort((a, b) => a.usdSpread - b.usdSpread);
+                eurData = [...originalData].sort((a, b) => a.eurSpread - b.eurSpread);
+
+                renderTable('usd');
+                renderTable('eur');
+                renderHomePage();
+                
+                // Cache data for instant loading next time
+                localStorage.setItem('cachedRatesData', JSON.stringify(originalData));
+
+                document.getElementById('loader').style.display = 'none';
+            } catch (error) {
+                console.error('შეცდომა:', error);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        function renderHomePage() {
+            if (originalData.length === 0) return;
+
+            function calculateStats(currency) {
+                // Get valid items and sort by spread to find top 10
+                let validItems = originalData.map(item => {
+                    let buy, sell, spread;
+                    if (currency === 'usd') {
+                        buy = parseFloat(item['USDGEL (Buy)']);
+                        sell = parseFloat(item['USDGEL (Sell)']);
+                        spread = item.usdSpread;
+                    } else {
+                        buy = parseFloat(item['EURGEL (Buy)']);
+                        sell = parseFloat(item['EURGEL (Sell)']);
+                        spread = item.eurSpread;
+                    }
+                    return { buy, sell, spread };
+                }).filter(item => !isNaN(item.buy) && !isNaN(item.sell) && !isNaN(item.spread) && item.spread !== Infinity);
+
+                // Sort by spread (ascending)
+                validItems.sort((a, b) => a.spread - b.spread);
+
+                // Take top 10
+                let top10 = validItems.slice(0, 10);
+
+                let totalBuy = 0, totalSell = 0;
+                top10.forEach(item => {
+                    totalBuy += item.buy;
+                    totalSell += item.sell;
+                });
+
+                const count = top10.length;
+                const avgBuy = count > 0 ? (totalBuy / count) : NaN;
+                const avgSell = count > 0 ? (totalSell / count) : NaN;
+                const avgSpread = count > 0 ? (avgSell - avgBuy) : NaN;
+
+                return { avgBuy, avgSell, avgSpread };
+            }
+
+            function updateDom(currency, stats) {
+                document.getElementById(`home-${currency}-market-buy`).innerText = isNaN(stats.avgBuy) ? '--.---' : stats.avgBuy.toFixed(3);
+                document.getElementById(`home-${currency}-market-sell`).innerText = isNaN(stats.avgSell) ? '--.---' : stats.avgSell.toFixed(3);
+                document.getElementById(`home-${currency}-market-spread`).innerText = isNaN(stats.avgSpread) ? '--.---' : stats.avgSpread.toFixed(3);
+
+                // Removed best bank/mfo from home
+
+            }
+
+            const usdStats = calculateStats('usd');
+            const eurStats = calculateStats('eur');
+
+            updateDom('usd', usdStats);
+            updateDom('eur', eurStats);
+        }
+
+        
+        async function fetchCommodities() {
+            try {
+                const symbols = ['GC=F', 'SI=F', 'HG=F', 'PL=F', 'PA=F', 'CL=F', 'BZ=F', 'NG=F', 'RB=F', 'HO=F', 'ZC=F', 'ZW=F', 'ZS=F', 'KC=F', 'SB=F', 'CT=F'];
+                
+                // Yahoo Finance blocks direct browser requests (CORS error), so we use a CORS proxy
+                // Some browsers might block Yahoo API, but let's try direct first.
+                // If it fails, fallback to a CORS proxy.
+                // We use Yahoo Finance API via a free proxy `https://cors-anywhere.herokuapp.com` but it might be limited.
+                // An alternative free working API without CORS limits for Yahoo: `https://api.allorigins.win/get?url=`
+                // Yahoo Finance API blocks rapid parallel requests (429 Too Many Requests).
+                // We must fetch them sequentially with a small delay.
+                // We can use an open reverse proxy specifically for yahoo: https://cors-anywhere.herokuapp.com/ is limited,
+                // But a reliable proxy is `https://api.allorigins.win/get?url=` if requested slowly.
+                // Yahoo Finance API blocks rapid parallel requests (429 Too Many Requests).
+                // We must fetch sequentially with a delay.
+                // We use corsproxy.io because it works great in real browsers (unlike allorigins which gets Captcha).
+                const results = [];
+                for (let i = 0; i < symbols.length; i++) {
+                    const sym = symbols[i];
+                    try {
+                        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}`;
+                        const res = await fetch(url);
+                        
+                        if (res.ok) {
+                            const data = await res.json();
+                            results.push(data);
+                        } else {
+                            results.push(null);
+                        }
+                    } catch (e) {
+                        results.push(null);
+                    }
+                    // 600ms delay to prevent IP ban (429 Too Many Requests)
+                    await new Promise(r => setTimeout(r, 600));
+                }
+                
+                results.forEach((res, index) => {
+                    const sym = symbols[index];
+                    if (res && res.chart && res.chart.result && res.chart.result.length > 0) {
+                        const meta = res.chart.result[0].meta;
+                        
+                        // We also need previous close to calculate percent change to make it look cool!
+                        if (meta && meta.regularMarketPrice) {
+                            const price = meta.regularMarketPrice;
+                            const prevClose = meta.chartPreviousClose || meta.previousClose;
+                            let changeHtml = '';
+                            
+                            if (prevClose) {
+                                const changePercent = ((price - prevClose) / prevClose) * 100;
+                                if (changePercent > 0) {
+                                    changeHtml = `<span style="color: var(--buy-color); font-size: 0.65em; margin-left: 8px;">+${changePercent.toFixed(2)}%</span>`;
+                                } else if (changePercent < 0) {
+                                    changeHtml = `<span style="color: var(--sell-color); font-size: 0.65em; margin-left: 8px;">${changePercent.toFixed(2)}%</span>`;
+                                } else {
+                                    changeHtml = `<span style="color: var(--text-muted); font-size: 0.65em; margin-left: 8px;">0.00%</span>`;
+                                }
+                            }
+                            
+                            const el = document.getElementById(`comm-${sym}`);
+                            if (el) {
+                                el.innerHTML = `$ ${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${changeHtml}`;
+                            } else {
+                                console.warn(`Element comm-${sym} not found!`);
+                            }
+                        }
+                    }
+                });
+            } catch(e) {
+                console.error("Error fetching commodities:", e);
+            }
+        }
+
+        async function fetchCrypto() {
+            try {
+                // Binance public API for 24h ticker (price + change)
+                const symbols = '["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT","USDCUSDT","XRPUSDT","DOGEUSDT","TONUSDT","ADAUSDT"]';
+                const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbols)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                let cryptoData = { usdt: { price: "1.00", change: "0.0" } }; // Hardcode USDT
+                
+                data.forEach(item => {
+                    const coin = item.symbol.replace('USDT', '').toLowerCase();
+                    const val = parseFloat(item.lastPrice);
+                    const change = parseFloat(item.priceChangePercent);
+                    
+                    // Format nicely based on value
+                    let formatted;
+                    if (coin === 'usdc' || coin === 'usdt') formatted = val.toFixed(2);
+                    else if (val > 1000) formatted = val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    else if (val > 1) formatted = val.toFixed(2);
+                    else if (val > 0.01) formatted = val.toFixed(4);
+                    else formatted = val.toFixed(5);
+                    
+                    cryptoData[coin] = { price: formatted, change: change.toFixed(1) };
+                });
+                
+                // Update DOM
+                const renderCrypto = (dataObj, elId) => {
+                    if (!dataObj) return;
+                    const el = document.getElementById(elId);
+                    if (!el) return;
+                    
+                    const changeVal = parseFloat(dataObj.change);
+                    let changeHtml = '';
+                    if (changeVal > 0) {
+                        changeHtml = `<span style="color: var(--buy-color); font-size: 0.65em; margin-left: 8px;">+${dataObj.change}%</span>`;
+                    } else if (changeVal < 0) {
+                        changeHtml = `<span style="color: var(--sell-color); font-size: 0.65em; margin-left: 8px;">${dataObj.change}%</span>`;
+                    } else {
+                        changeHtml = `<span style="color: var(--text-muted); font-size: 0.65em; margin-left: 8px;">0.0%</span>`;
+                    }
+                    
+                    el.innerHTML = `$ ${dataObj.price} ${changeHtml}`;
+                };
+
+                const cryptos = ['btc', 'eth', 'usdt', 'bnb', 'sol', 'usdc', 'xrp', 'doge', 'ton', 'ada'];
+                cryptos.forEach(c => renderCrypto(cryptoData[c], `crypto-${c}`));
+                
+                // Cache it
+                localStorage.setItem('cachedCryptoData', JSON.stringify(cryptoData));
+                
+            } catch (err) {
+                console.error("კრიპტოს ჩატვირთვის შეცდომა:", err);
+            }
+        }
+
+        async function fetchNBG() {
+            try {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const formattedDate = `${yyyy}-${mm}-${dd}`;
+                
+                const res = await fetch(`${API_NBG_URL}?date=${formattedDate}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                
+                if (data && data.length > 0 && data[0].currencies) {
+                    const currencies = data[0].currencies;
+                    const dateStr = `${dd}/${mm}/${yyyy}`;
+                    let cacheData = { date: dateStr };
+                    
+                    ['USD', 'EUR', 'GBP', 'CHF', 'RUB', 'TRY', 'AMD', 'AZN', 'ILS'].forEach(code => {
+                        const obj = currencies.find(c => c.code === code);
+                        if (obj) {
+                            const val = obj.rate.toFixed(4);
+                            cacheData[code.toLowerCase()] = val;
+                            const el = document.getElementById(`nbg-${code.toLowerCase()}`);
+                            if(el) el.innerText = val;
+                        }
+                    });
+
+                    // Update special home elements if they exist
+                    if (cacheData.usd && document.getElementById('home-nbg-usd')) document.getElementById('home-nbg-usd').innerText = cacheData.usd;
+                    if (cacheData.eur && document.getElementById('home-nbg-eur')) document.getElementById('home-nbg-eur').innerText = cacheData.eur;
+                    
+                    // Update dates
+                    const dateElem = document.getElementById('nbg-date');
+                    if(dateElem) dateElem.innerText = dateStr;
+                    if(document.getElementById('home-nbg-date')) document.getElementById('home-nbg-date').innerText = dateStr;
+                    
+                    document.getElementById('nbg-rates-box').style.display = 'flex';
+                    
+                    // Cache NBG data
+                    localStorage.setItem('cachedNBGData', JSON.stringify(cacheData));
+                }
+            } catch (err) {
+                console.error('ეროვნული ბანკის კურსების ჩატვირთვა ვერ მოხერხდა', err);
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // ღილაკების ვიზუალის განახლება
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+            renderTable('usd');
+            renderTable('eur');
+        }
+
+        function toggleSort(currency) {
+            sortStates[currency] = (sortStates[currency] + 1) % 2;
+            const btn = document.getElementById(`btn-${currency}`);
+            btn.innerHTML = sortIcons[sortStates[currency]];
+            
+            // ფერების შეცვლა (0 = საუკეთესო/მწვანე, 1 = ყველაზე ცუდი/წითელი)
+            if (sortStates[currency] === 0) {
+                btn.className = 'sort-btn sort-best';
+            } else {
+                btn.className = 'sort-btn sort-worst';
+            }
+            
+            let dataArr = currency === 'usd' ? usdData : eurData;
+            const spreadKey = currency === 'usd' ? 'usdSpread' : 'eurSpread';
+
+            if (sortStates[currency] === 0) {
+                // Best (Smallest Spread)
+                dataArr.sort((a, b) => a[spreadKey] - b[spreadKey]);
+            } else if (sortStates[currency] === 1) {
+                // Worst (Largest Spread)
+                dataArr.sort((a, b) => b[spreadKey] - a[spreadKey]);
+            }
+
+            renderTable(currency);
+        }
+
+        function renderTable(currency) {
+            const tbody = document.getElementById(`${currency}-body`);
+            tbody.innerHTML = ''; 
+
+            let dataArr = currency === 'usd' ? usdData : eurData;
+
+            // ვფილტრავთ არჩეული გვერდის (Tab) მიხედვით
+            let dataToRender = dataArr.filter(item => {
+                const comp = item.Company.toLowerCase();
+                if (currentTab === 'all') return true;
+                if (currentTab === 'banks') return BANK_COMPANIES.includes(comp);
+                if (currentTab === 'mfo') return MFO_COMPANIES.includes(comp);
+            });
+
+            if (dataToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="empty-message">ჯერჯერობით მონაცემები არ არის</td></tr>`;
+                document.getElementById(`${currency}-market-buy`).innerText = '--.---';
+                document.getElementById(`${currency}-market-sell`).innerText = '--.---';
+                document.getElementById(`${currency}-market-spread`).innerText = '--.---';
+                return;
+            }
+
+            // საუკეთესო კურსების პოვნა მიმდინარე ტაბისთვის
+            let bestBuy = -Infinity;
+            let bestSell = Infinity;
+
+            dataToRender.forEach(item => {
+                let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : parseFloat(item['EURGEL (Buy)']);
+                let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : parseFloat(item['EURGEL (Sell)']);
+                if (!isNaN(buy) && buy > bestBuy) bestBuy = buy;
+                if (!isNaN(sell) && sell < bestSell) bestSell = sell;
+            });
+
+            // Calculate averages for this tab (Top 10)
+            let validForAvg = dataToRender.map(item => {
+                let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : parseFloat(item['EURGEL (Buy)']);
+                let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : parseFloat(item['EURGEL (Sell)']);
+                let spread = currency === 'usd' ? item.usdSpread : item.eurSpread;
+                return { buy, sell, spread };
+            }).filter(item => !isNaN(item.buy) && !isNaN(item.sell) && !isNaN(item.spread) && item.spread !== Infinity);
+            
+            validForAvg.sort((a, b) => a.spread - b.spread);
+            let top10ForAvg = validForAvg.slice(0, 10);
+            
+            let totalBuyAvg = 0, totalSellAvg = 0;
+            top10ForAvg.forEach(item => {
+                totalBuyAvg += item.buy;
+                totalSellAvg += item.sell;
+            });
+            const countAvg = top10ForAvg.length;
+
+            dataToRender.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                let buy, sell, spread;
+                if (currency === 'usd') {
+                    buy = parseFloat(item['USDGEL (Buy)']);
+                    sell = parseFloat(item['USDGEL (Sell)']);
+                    spread = item.usdSpread;
+                } else {
+                    buy = parseFloat(item['EURGEL (Buy)']);
+                    sell = parseFloat(item['EURGEL (Sell)']);
+                    spread = item.eurSpread;
+                }
+
+                const companyKey = item.Company.toLowerCase();
+                const logoUrl = LOGOS[companyKey] || '';
+                
+                let logoClass = 'company-logo';
+                if (companyKey === 'kursige') logoClass += ' logo-kursige';
+                if (companyKey === 'credo') logoClass += ' logo-credo';
+
+                const compNameKa = COMPANY_NAMES_KA[companyKey] || item.Company.toUpperCase();
+                const compUrl = COMPANY_URLS[companyKey] || '#';
+
+                let buyDisplay = isNaN(buy) ? '' : (buy === bestBuy ? `${buy.toFixed(3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : buy.toFixed(3));
+                let sellDisplay = isNaN(sell) ? '' : (sell === bestSell ? `${sell.toFixed(3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : sell.toFixed(3));
+                let spreadDisplay = (isNaN(spread) || spread === Infinity) ? '' : spread.toFixed(3);
+
+                tr.innerHTML = `
+                    <td class="company-name">
+                        <a href="${compUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                            <div class="company-logo-wrapper" title="${compNameKa}">
+                                ${logoUrl ? `<img src="${logoUrl}" alt="${compNameKa}" class="${logoClass}">` : `<span>${compNameKa}</span>`}
+                            </div>
+                        </a>
+                    </td>
+                    <td class="buy">${buyDisplay}</td>
+                    <td class="sell">${sellDisplay}</td>
+                    <td class="spread">${spreadDisplay}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+
+            // Display market averages based on top 10
+            const avgBuyDom = countAvg > 0 ? (totalBuyAvg / countAvg).toFixed(3) : '--.---';
+            const avgSellDom = countAvg > 0 ? (totalSellAvg / countAvg).toFixed(3) : '--.---';
+            const avgSpreadDom = countAvg > 0 ? ((totalSellAvg / countAvg) - (totalBuyAvg / countAvg)).toFixed(3) : '--.---';
+            
+            document.getElementById(`${currency}-market-buy`).innerText = avgBuyDom;
+            document.getElementById(`${currency}-market-sell`).innerText = avgSellDom;
+            document.getElementById(`${currency}-market-spread`).innerText = avgSpreadDom;
+        }
+
+        function loadCachedData() {
+            try {
+                // Load main rates
+                const cachedRates = localStorage.getItem('cachedRatesData');
+                if (cachedRates) {
+                    originalData = JSON.parse(cachedRates);
+                    usdData = [...originalData].sort((a, b) => a.usdSpread - b.usdSpread);
+                    eurData = [...originalData].sort((a, b) => a.eurSpread - b.eurSpread);
+                    
+                    renderTable('usd');
+                    renderTable('eur');
+                    renderHomePage();
+                    document.getElementById('tables-wrapper').style.display = 'flex';
+                }
+                
+                // Load NBG rates
+                const cachedCrypto = localStorage.getItem('cachedCryptoData');
+                if (cachedCrypto) {
+                    const crypto = JSON.parse(cachedCrypto);
+                    const cryptos = ['btc', 'eth', 'usdt', 'bnb', 'sol', 'usdc', 'xrp', 'doge', 'ton', 'ada'];
+                    
+                    const renderCrypto = (dataObj, elId) => {
+                        if (!dataObj) return;
+                        const el = document.getElementById(elId);
+                        if (!el) return;
+                        
+                        // Handle old cache format (string) vs new cache format (object with price/change)
+                        if (typeof dataObj === 'string') {
+                            el.innerHTML = `$ ${dataObj}`;
+                            return;
+                        }
+
+                        const changeVal = parseFloat(dataObj.change);
+                        let changeHtml = '';
+                        if (changeVal > 0) {
+                            changeHtml = `<span style="color: var(--buy-color); font-size: 0.65em; margin-left: 8px;">+${dataObj.change}%</span>`;
+                        } else if (changeVal < 0) {
+                            changeHtml = `<span style="color: var(--sell-color); font-size: 0.65em; margin-left: 8px;">${dataObj.change}%</span>`;
+                        } else {
+                            changeHtml = `<span style="color: var(--text-muted); font-size: 0.65em; margin-left: 8px;">0.0%</span>`;
+                        }
+                        
+                        el.innerHTML = `$ ${dataObj.price} ${changeHtml}`;
+                    };
+
+                    cryptos.forEach(c => renderCrypto(crypto[c], `crypto-${c}`));
+                }
+                
+                const cachedNBG = localStorage.getItem('cachedNBGData');
+                if (cachedNBG) {
+                    const nbg = JSON.parse(cachedNBG);
+                    
+                    ['usd', 'eur', 'gbp', 'chf', 'rub', 'try', 'amd', 'azn', 'ils'].forEach(c => {
+                        if (nbg[c] && document.getElementById(`nbg-${c}`)) {
+                            document.getElementById(`nbg-${c}`).innerText = nbg[c];
+                        }
+                    });
+
+                    if (nbg.usd && document.getElementById('home-nbg-usd')) document.getElementById('home-nbg-usd').innerText = nbg.usd;
+                    if (nbg.eur && document.getElementById('home-nbg-eur')) document.getElementById('home-nbg-eur').innerText = nbg.eur;
+                    
+                    if (nbg.date && document.getElementById('nbg-date')) document.getElementById('nbg-date').innerText = nbg.date;
+                    if (nbg.date && document.getElementById('home-nbg-date')) document.getElementById('home-nbg-date').innerText = nbg.date;
+                    
+                    document.getElementById('nbg-rates-box').style.display = 'flex';
+                }
+            } catch (err) {
+                console.error("ქეშის ჩატვირთვის შეცდომა:", err);
+            }
+        }
+
+        const savedPage = sessionStorage.getItem('activePage') || 'home';
+        switchPage(savedPage);
+        loadCachedData(); // Load cached numbers instantly
+        fetchRates();     // Fetch fresh numbers silently
+    </script>
+</body>
+</html>

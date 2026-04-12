@@ -4,26 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ვალუტის კურსები</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #f4f7f6;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-muted: #777777;
-            --primary: #2c3e50;
-            --buy-color: #27ae60;
-            --sell-color: #c0392b;
-            --border: #e0e0e0;
-            --btn-bg: #3498db;
-            --btn-hover: #2980b9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #1e3a8a; /* Deep blue, like Valuto */
+            --buy-color: #10b981; /* Modern green */
+            --sell-color: #ef4444; /* Modern red */
+            --border: #e2e8f0;
+            --btn-bg: #3b82f6;
+            --btn-hover: #2563eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-lg: 12px;
+            --radius-md: 8px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 80px 15px 30px 15px;
+            padding: 0 20px 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -95,32 +102,35 @@
 
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
+            background: #e2e8f0;
+            padding: 5px;
+            border-radius: var(--radius-lg);
         }
 
         .tab-btn {
-            background-color: var(--card-bg);
-            border: 2px solid var(--border);
-            padding: 10px 20px;
-            border-radius: 8px;
+            background-color: transparent;
+            border: none;
+            padding: 10px 25px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--text-muted);
             transition: all 0.3s ease;
             font-size: 0.95em;
         }
 
         .tab-btn:hover {
-            border-color: var(--primary);
+            color: var(--primary);
         }
 
         .tab-btn.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            background-color: var(--card-bg);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
         }
 
         .empty-message {
@@ -145,10 +155,17 @@
             flex: 1;
             min-width: 450px;
             background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 25px;
             overflow-x: auto;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .container:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
         }
 
         .header-row {
@@ -378,25 +395,26 @@
         .main-nav {
             width: 100%;
             background-color: var(--card-bg);
-            padding: 10px 30px; /* Reduced vertical padding to accommodate larger logo without making nav too huge */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            position: fixed; /* Make it sticky */
+            padding: 15px 40px;
+            box-shadow: var(--shadow-md);
+            position: fixed;
             top: 0;
             left: 0;
             display: flex;
             justify-content: flex-start;
-            align-items: center; /* Vertically center items */
+            align-items: center;
             box-sizing: border-box;
-            z-index: 9999; /* Higher z-index to stay above everything */
+            z-index: 9999;
         }
 
         .nav-logo {
-            height: 65px; /* Much larger */
+            height: 85px; /* Large but fits the horizontal layout naturally */
+            width: auto;
+            object-fit: contain;
             cursor: pointer;
-            margin-right: 30px;
+            margin-right: 40px;
             transition: transform 0.2s ease;
-            mix-blend-mode: multiply; /* Removes the white/light background of the JPG on a light container */
-            border-radius: 4px; /* Soft edges just in case */
+            mix-blend-mode: multiply;
         }
 
         .nav-logo:hover {
@@ -410,10 +428,11 @@
             font-weight: 600;
             margin-right: 15px;
             padding: 8px 16px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             transition: all 0.3s ease;
             cursor: pointer;
             background-color: transparent;
+            border: none;
         }
 
         .main-nav a:hover {
@@ -434,12 +453,12 @@
         }
 
         #home-page {
-            padding: 20px;
+            padding: 0;
             width: 100%;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Align left */
+            align-items: center; /* Align center */
         }
 
         #home-page h2 {
@@ -448,16 +467,23 @@
         }
 
         .home-card-uniform {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 20px;
-            width: 100%;
+                        background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 25px;
+            flex: 1 1 0; /* Forces them to be exactly equal width */
+            min-width: 250px;
+            /* min-height removed */
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             gap: 20px;
             box-sizing: border-box;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .home-card-uniform:hover {
+            box-shadow: var(--shadow-lg);
         }
 
         .card-uniform-title {
@@ -475,8 +501,8 @@
 
         .card-uniform-content {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 15px;
             width: 100%;
         }
 
@@ -527,14 +553,16 @@
         }
 
         .intl-rates-list {
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            align-items: stretch;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1; /* Take up remaining height */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
         }
         
         .intl-rates-list::-webkit-scrollbar {
-            height: 6px;
+            width: 6px;
         }
         .intl-rates-list::-webkit-scrollbar-track {
             background: #f1f1f1; 
@@ -550,21 +578,22 @@
 
         .intl-rate-item {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: center;
             background: #f8fafc;
             padding: 15px 20px;
             border-radius: 8px;
             border: 1px solid var(--border);
-            min-width: max-content; /* Expands to fit content without wrapping */
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .intl-pair {
             font-weight: bold;
             color: var(--text-muted);
             font-size: 0.95em;
-            margin-bottom: 5px;
+            margin-bottom: 0;
         }
 
         .intl-value {
@@ -605,15 +634,25 @@
 </head>
 <body>
 
-    <!-- მთავარი ნავიგაცია -->
-    <nav class="main-nav">
-        <img src="Logos/logo.jpg" alt="AllRates Logo" class="nav-logo" id="nav-home" onclick="switchPage('home')" />
-        <a id="nav-rates" class="nav-link" onclick="switchPage('rates')">გაცვლითი კურსები</a>
-    </nav>
+    <!-- მთავარი ნავიგაცია (პანელით) -->
+    <div style="width: calc(100% + 40px); background-color: var(--card-bg); box-shadow: var(--shadow-sm); display: flex; justify-content: center; margin-bottom: 40px; margin-top: 0; padding: 15px 20px; margin-left: -20px; margin-right: -20px; border-bottom: 1px solid var(--border); box-sizing: border-box; z-index: 10;">
+        <nav style="width: 100%; max-width: 1400px; display: flex; justify-content: flex-start; align-items: center; box-sizing: border-box;">
+            
+            <!-- ახალი ლოგო -->
+            <img src="/logo.jpg" alt="AllRates Logo" style="height: 45px; width: auto; object-fit: contain; object-position: left center; cursor: pointer; mix-blend-mode: multiply; margin-left: 0;" onclick="switchPage('home')" />
+            
+            <!-- მენიუს ბმულები - დატოვებულია თავის ადგილზე (კომპენსირებული margin-ით) -->
+            <div style="display: flex; align-items: center; margin-left: 255px; gap: 30px;">
+                <a id="nav-rates" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('rates')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">გაცვლითი კურსები ქართულ ბაზარზე</a>
+                <a id="nav-api" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('api')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">API სერვისი</a>
+                <a id="nav-contact" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;" onclick="switchPage('contact')" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#64748b'">კონტაქტი</a>
+            </div>
+        </nav>
+    </div>
 
     <!-- მთავარი გვერდი -->
     <div id="home-page" class="page-section" style="display: flex;">
-        <div style="width: 100%; display: flex; flex-direction: column; gap: 20px; align-items: stretch;">
+        <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 30px; align-items: stretch; margin-left: 0;">
             
             <!-- Box 1 -->
             <div class="home-card-uniform">
@@ -622,8 +661,8 @@
                 </div>
                 <div class="card-uniform-content" style="justify-content: flex-start;">
                     
-                    <div class="home-section" style="flex: none; width: 320px; max-width: 100%;">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center;">USD / GEL</div>
+                    <div class="home-section" style="width: 100%; box-sizing: border-box;">
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="/US.png" alt="US Flag" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">USD / აშშ დოლარი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -634,14 +673,14 @@
                                 <div class="rate-value sell" id="home-usd-market-sell">--.---</div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label" style="color: #444; font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-usd-market-spread" style="color: #444; font-weight: bold;">--.---</div>
+                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-usd-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="home-section" style="flex: none; width: 320px; max-width: 100%;">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center;">EUR / GEL</div>
+                    <div class="home-section" style="width: 100%; box-sizing: border-box;">
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="/EU.png" alt="EU Flag" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">EUR / ევრო</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -652,8 +691,8 @@
                                 <div class="rate-value sell" id="home-eur-market-sell">--.---</div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label" style="color: #444; font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-eur-market-spread" style="color: #444; font-weight: bold;">--.---</div>
+                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-eur-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
                             </div>
                         </div>
                     </div>
@@ -715,64 +754,52 @@
                 
                 <div class="card-uniform-content intl-rates-list" style="justify-content: flex-start;">
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Bitcoin (BTC)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/BTC.png" alt="BTC" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Bitcoin (BTC)</span>
                         <span class="intl-value" id="crypto-btc">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Ethereum (ETH)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/ETH.png" alt="ETH" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Ethereum (ETH)</span>
                         <span class="intl-value" id="crypto-eth">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Tether (USDT)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/USDT.png" alt="USDT" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Tether (USDT)</span>
                         <span class="intl-value" id="crypto-usdt">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">BNB (BNB)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/BNB.png" alt="BNB" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">BNB (BNB)</span>
                         <span class="intl-value" id="crypto-bnb">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Solana (SOL)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/SOL.png" alt="SOL" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Solana (SOL)</span>
                         <span class="intl-value" id="crypto-sol">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">USDC (USDC)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/USDC.png" alt="USDC" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">USDC (USDC)</span>
                         <span class="intl-value" id="crypto-usdc">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">XRP (XRP)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/XRP.png" alt="XRP" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">XRP (XRP)</span>
                         <span class="intl-value" id="crypto-xrp">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Dogecoin (DOGE)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/DOGE.png" alt="DOGE" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Dogecoin (DOGE)</span>
                         <span class="intl-value" id="crypto-doge">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Toncoin (TON)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/TON.png" alt="TON" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Toncoin (TON)</span>
                         <span class="intl-value" id="crypto-ton">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair">Cardano (ADA)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="/ADA.png" alt="ADA" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Cardano (ADA)</span>
                         <span class="intl-value" id="crypto-ada">- - -</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Box 5: METALS -->
+            <!-- Box 5: Popular Assets -->
             <div class="home-card-uniform">
-                <div class="card-uniform-title">METALS</div>
-                <div class="card-uniform-content intl-rates-list" id="metals-list" style="justify-content: flex-start;"></div>
-            </div>
-
-            <!-- Box 6: ENERGY -->
-            <div class="home-card-uniform">
-                <div class="card-uniform-title">ENERGY</div>
-                <div class="card-uniform-content intl-rates-list" id="energy-list" style="justify-content: flex-start;"></div>
-            </div>
-
-            <!-- Box 7: AGRICULTURE -->
-            <div class="home-card-uniform">
-                <div class="card-uniform-title">AGRICULTURE</div>
-                <div class="card-uniform-content intl-rates-list" id="agro-list" style="justify-content: flex-start;"></div>
+                <div class="card-uniform-title">სხვა პოპულარული აქტივები</div>
+                <div class="card-uniform-content intl-rates-list" id="popular-assets-list" style="justify-content: flex-start;"></div>
             </div>
 
         </div>
@@ -891,6 +918,77 @@
     </div>
     </div> <!-- /#rates-page -->
 
+
+    <!-- API სერვისის გვერდი -->
+    <div id="api-page" class="page-section" style="display: none;">
+        <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: column; align-items: flex-start;">
+            <h2 style="color: var(--primary);">API სერვისი</h2>
+            <p style="color: var(--text-muted); font-size: 16px;">მალე დაემატება...</p>
+        </div>
+    </div>
+
+    <!-- კონტაქტის გვერდი -->
+    <div id="contact-page" class="page-section" style="display: none;">
+        <div style="width: 100%; max-width: 680px; padding: 20px 0 60px 0;">
+
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <span style="display: inline-block; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.2rem;">კონტაქტი</span>
+                <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">დაგვიკავშირდით</h2>
+                <div style="width: 48px; height: 3px; background: var(--btn-bg); margin: 1rem auto; border-radius: 2px;"></div>
+                <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.8; max-width: 520px; margin: 0 auto;">
+                    თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია! გაგვიზიარეთ თქვენი
+                    მოთხოვნები, შეკითხვები ან შენიშვნები — ჩვენ მზად ვართ მოვუსმინოთ
+                    და სწრაფი პასუხს გაგცეთ.
+                </p>
+            </div>
+
+            <div style="background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 2.5rem; box-shadow: var(--shadow-lg);">
+
+                <div id="contact-success" style="display:none; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:14px 16px; font-size:14px; color:#065f46; margin-bottom:1.5rem;">
+                    ✓ &nbsp;თქვენი შეტყობინება წარმატებით გაიგზავნა! მადლობთ, რომ დაგვიკავშირდით.
+                </div>
+                <div id="contact-error" style="display:none; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:14px 16px; font-size:14px; color:#991b1b; margin-bottom:1.5rem;"></div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">სახელი და გვარი</label>
+                    <input type="text" id="c-name" placeholder="თქვენი სახელი" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">ელ-ფოსტა <span style="color:var(--btn-bg)">*</span></label>
+                    <input type="email" id="c-email" placeholder="example@gmail.com" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">თემა</label>
+                    <input type="text" id="c-subject" placeholder="შეტყობინების თემა" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.4rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">შეტყობინება <span style="color:var(--btn-bg)">*</span></label>
+                    <textarea id="c-message" placeholder="დაწერეთ თქვენი მოთხოვნა, შეკითხვა ან შენიშვნა..." maxlength="2000" oninput="document.getElementById('c-charcount').textContent=this.value.length" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; min-height:160px; resize:none; line-height:1.6; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''"></textarea>
+                    <div style="text-align:right; font-size:12px; color:var(--text-muted); margin-top:4px;"><span id="c-charcount">0</span> / 2000</div>
+                </div>
+
+                <button id="c-submit-btn" onclick="sendContactForm()" style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:8px; padding:14px 24px; font-size:15px; font-family:inherit; font-weight:600; cursor:pointer; transition:background 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;" onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='var(--primary)'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    გაგზავნა
+                </button>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-top:1.8rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+                    <div style="width:36px; height:36px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    </div>
+                    <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+                        შეტყობინება გაიგზავნება პირდაპირ ჩვენს ელ-ფოსტაზე:<br/>
+                        <strong style="color:var(--text-main);">archilundilashvili@gmail.com</strong>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
@@ -904,19 +1002,85 @@
         let currentTab = 'all';
 
         function switchPage(page) {
-            document.getElementById('home-page').style.display = 'none';
-            document.getElementById('rates-page').style.display = 'none';
-            document.getElementById('nav-home').classList.remove('active');
-            document.getElementById('nav-rates').classList.remove('active');
+            ['home-page','rates-page','api-page','contact-page'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            
+            const navHome = document.getElementById('nav-home');
+            const navRates = document.getElementById('nav-rates');
+            const navApi = document.getElementById('nav-api');
+            const navContact = document.getElementById('nav-contact');
+            
+            [navHome, navRates, navApi, navContact].forEach(el => { if(el) el.style.color = '#64748b'; });
 
-            if (page === 'home') {
+            if (page === 'home' && document.getElementById('home-page')) {
                 document.getElementById('home-page').style.display = 'flex';
-                document.getElementById('nav-home').classList.add('active');
-            } else if (page === 'rates') {
+                if(navHome) navHome.style.color = '#1e3a8a';
+            } else if (page === 'rates' && document.getElementById('rates-page')) {
                 document.getElementById('rates-page').style.display = 'flex';
-                document.getElementById('nav-rates').classList.add('active');
+                if(navRates) navRates.style.color = '#1e3a8a';
+            } else if (page === 'api' && document.getElementById('api-page')) {
+                document.getElementById('api-page').style.display = 'flex';
+                if(navApi) navApi.style.color = '#1e3a8a';
+            } else if (page === 'contact' && document.getElementById('contact-page')) {
+                document.getElementById('contact-page').style.display = 'flex';
+                if(navContact) navContact.style.color = '#1e3a8a';
             }
             localStorage.setItem('activePage', page);
+        }
+
+        async function sendContactForm() {
+            const name    = document.getElementById('c-name').value.trim();
+            const email   = document.getElementById('c-email').value.trim();
+            const subject = document.getElementById('c-subject').value.trim();
+            const message = document.getElementById('c-message').value.trim();
+            const btn     = document.getElementById('c-submit-btn');
+            const success = document.getElementById('contact-success');
+            const error   = document.getElementById('contact-error');
+
+            success.style.display = 'none';
+            error.style.display = 'none';
+
+            if (!email || !message) {
+                error.textContent = '✗   გთხოვთ შეავსოთ სავალდებულო ველები (ელ-ფოსტა და შეტყობინება).';
+                error.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'იგზავნება...';
+
+            try {
+                const res = await fetch('https://formsubmit.co/ajax/archilundilashvili@gmail.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: subject ? `AllRates კონტაქტი: ${subject}` : 'AllRates — ახალი შეტყობინება',
+                        _replyto: email,
+                        name: name || 'მითითებული არ არის',
+                        email: email,
+                        message: message
+                    })
+                });
+                const data = await res.json();
+                if (data.success === 'true' || data.success === true) {
+                    success.style.display = 'block';
+                    document.getElementById('c-name').value = '';
+                    document.getElementById('c-email').value = '';
+                    document.getElementById('c-subject').value = '';
+                    document.getElementById('c-message').value = '';
+                    document.getElementById('c-charcount').textContent = '0';
+                } else { throw new Error(); }
+            } catch {
+                error.textContent = '✗   შეტყობინების გაგზავნა ვერ მოხერხდა. გთხოვთ სცადოთ განმეორებით.';
+                error.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> გაგზავნა';
+                btn.onmouseover = function(){ this.style.background='#1e40af'; };
+                btn.onmouseout = function(){ this.style.background='var(--primary)'; };
+            }
         }
 
         const COMPANY_NAMES_KA = {
@@ -1023,13 +1187,9 @@
 
                 // Update International Rates if available
                 let intlRates = [];
-                let metalsRates = [];
-                let energyRates = [];
-                let agroRates = [];
+                let popularAssetsRates = [];
 
-                const metalsList = ['Gold', 'Silver', 'Platinium', 'Palladium', 'Copper', 'Platinum'];
-                const energyList = ['WTI Crude Oil', 'Brent Crude Oil', 'Natural Gas', 'RBOB Gasoline', 'eating Oil', 'Heating Oil'];
-                const agroList = ['Corn', 'Wheat', 'Soybeans', 'Coffee', 'Sugar', 'Cotton'];
+                const popularAssetsList = ['Gold', 'Silver', 'Platinium', 'Platinum', 'WTI Crude Oil', 'Brent Crude Oil', 'Natural Gas'];
 
                 combinedData.forEach(item => {
                     const fxMappings = [
@@ -1050,19 +1210,22 @@
                     if (item['MEA'] && item['Rate (MEA)']) {
                         let name = item['MEA'].trim();
                         let obj = { Pair: name, Rate: item['Rate (MEA)'] };
-                        if (metalsList.includes(name)) metalsRates.push(obj);
-                        else if (energyList.includes(name)) energyRates.push(obj);
-                        else if (agroList.includes(name)) agroRates.push(obj);
+                        if (popularAssetsList.includes(name)) popularAssetsRates.push(obj);
                         else intlRates.push(obj); // fallback
                     }
                 });
 
                 const intlContainer = document.querySelector('.intl-rates-list'); // first one is FX
-                const metalsContainer = document.getElementById('metals-list');
-                const energyContainer = document.getElementById('energy-list');
-                const agroContainer = document.getElementById('agro-list');
+                const popularAssetsContainer = document.getElementById('popular-assets-list');
 
-                if (intlRates.length > 0 || metalsRates.length > 0) {
+                
+                if (intlRates.length > 0 || popularAssetsRates.length > 0) {
+                    // Cut the list at GBPJPY
+                    let gbpJpyIdx = intlRates.findIndex(r => r.Pair.replace(/\s+/g, '').includes('GBPJPY'));
+                    if (gbpJpyIdx !== -1) {
+                        intlRates = intlRates.slice(0, gbpJpyIdx + 1);
+                    }
+
                     if (intlContainer) {
                         // Keep previous HTML until we fetch yesterday's rates
                         let currentHtml = '';
@@ -1140,10 +1303,26 @@
                                         }
                                         
                                         let displayRate = isFx ? currentRate.toFixed(4) : currentRate.toFixed(2);
-                                        
+
+                                        let logoHtml = '';
+                                        if (!isFx) {
+                                            const lowerPair = pairName.toLowerCase();
+                                            let logoSrc = '';
+                                            if (lowerPair.includes('wti')) logoSrc = 'WTI.png';
+                                            else if (lowerPair.includes('brent')) logoSrc = 'BRENT.png';
+                                            else if (lowerPair.includes('gas')) logoSrc = 'Natural Gas.png';
+                                            else if (lowerPair.includes('gold')) logoSrc = 'GOLD.png';
+                                            else if (lowerPair.includes('silver')) logoSrc = 'SILVER.png';
+                                            else if (lowerPair.includes('platin')) logoSrc = 'PLATINIUM.png';
+                                            
+                                            if (logoSrc) {
+                                                logoHtml = `<img src="/${logoSrc}" alt="${pairName}" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">`;
+                                            }
+                                        }
+
                                         cont.innerHTML += `
                                             <div class="intl-rate-item">
-                                                <span class="intl-pair">${pairName}</span>
+                                                <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
                                                 <span class="intl-value">${displayRate} ${changeHtml}</span>
                                             </div>
                                         `;
@@ -1151,9 +1330,7 @@
                                 }
 
                                 renderRates(intlRates, intlContainer, true);
-                                renderRates(metalsRates, metalsContainer, false);
-                                renderRates(energyRates, energyContainer, false);
-                                renderRates(agroRates, agroContainer, false);
+                                renderRates(popularAssetsRates, popularAssetsContainer, false);
                             })
                             .catch(err => {
                                 // Fallback
@@ -1171,18 +1348,33 @@
                                         }
                                         let currentRate = parseFloat(rate.Rate);
                                         let displayRate = isFx ? currentRate.toFixed(4) : currentRate.toFixed(2);
+
+                                        let logoHtml = '';
+                                        if (!isFx) {
+                                            const lowerPair = pairName.toLowerCase();
+                                            let logoSrc = '';
+                                            if (lowerPair.includes('wti')) logoSrc = 'WTI.png';
+                                            else if (lowerPair.includes('brent')) logoSrc = 'BRENT.png';
+                                            else if (lowerPair.includes('gas')) logoSrc = 'Natural Gas.png';
+                                            else if (lowerPair.includes('gold')) logoSrc = 'GOLD.png';
+                                            else if (lowerPair.includes('silver')) logoSrc = 'SILVER.png';
+                                            else if (lowerPair.includes('platin')) logoSrc = 'PLATINIUM.png';
+                                            
+                                            if (logoSrc) {
+                                                logoHtml = `<img src="/${logoSrc}" alt="${pairName}" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">`;
+                                            }
+                                        }
+
                                         cont.innerHTML += `
                                             <div class="intl-rate-item">
-                                                <span class="intl-pair">${pairName}</span>
+                                                <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
                                                 <span class="intl-value">${displayRate}</span>
                                             </div>
                                         `;
                                     });
                                 };
                                 renderFallback(intlRates, intlContainer, true);
-                                renderFallback(metalsRates, metalsContainer, false);
-                                renderFallback(energyRates, energyContainer, false);
-                                renderFallback(agroRates, agroContainer, false);
+                                renderFallback(popularAssetsRates, popularAssetsContainer, false);
                             });
                     }
                 }
