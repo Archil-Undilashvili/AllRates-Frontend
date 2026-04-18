@@ -45,6 +45,35 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             position: relative;
         }
+        
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .cat-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .cat-tab:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .cat-tab.active {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
         .filter-group {
             margin-bottom: 24px;
         }
@@ -216,8 +245,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-height: 400px;
-            overflow-y: auto;
+            /* No fixed height, show fully */
             padding-right: 5px;
         }
         .top10-list::-webkit-scrollbar {
@@ -251,14 +279,20 @@
             align-items: center;
             gap: 12px;
         }
-        .company-logo {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .company-logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 30px;
+            background: transparent;
         }
+        .company-logo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .logo-kursige { filter: invert(1); }
         .company-name {
             font-size: 0.85rem;
             font-weight: 600;
@@ -293,14 +327,11 @@
         <div class="calc-main">
             <div class="calc-container">
                 
-                <div class="filter-group">
-                    <label class="filter-label">აირჩიეთ კატეგორია</label>
-                    <select id="calc-category" class="filter-select">
-                        <option value="all">ყველა კომპანია</option>
-                        <option value="banks">ბანკები</option>
-                        <option value="mfos">მისო და სხვა</option>
-                        <option value="nbg">ეროვნული ბანკი</option>
-                    </select>
+                <div class="category-tabs" id="calc-category-tabs">
+                    <button class="cat-tab active" data-cat="all">ყველა კომპანია</button>
+                    <button class="cat-tab" data-cat="banks">ბანკები</button>
+                    <button class="cat-tab" data-cat="mfos">მისო და სხვა</button>
+                    <button class="cat-tab" data-cat="nbg">ეროვნული ბანკი</button>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 12px; position: relative;">
@@ -429,7 +460,17 @@
     const inputBottom = document.getElementById('input-bottom');
     const currencyTop = document.getElementById('currency-top');
     const currencyBottom = document.getElementById('currency-bottom');
-    const categorySelect = document.getElementById('calc-category');
+    let selectedCategory = 'all';
+    const categoryTabs = document.querySelectorAll('.cat-tab');
+    
+    categoryTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            selectedCategory = tab.getAttribute('data-cat');
+            updateAll();
+        });
+    });
     const rateDisplay = document.getElementById('rate-display');
     const rateSourceText = document.getElementById('rate-source-text');
     const swapBtn = document.getElementById('swap-btn');
@@ -543,7 +584,7 @@
         
         const ccyTop = currencyTop.value;
         const ccyBottom = currencyBottom.value;
-        const cat = categorySelect.value;
+        const cat = selectedCategory;
 
         if (ccyTop === ccyBottom) {
             if (lastEdited === 'top') inputBottom.value = inputTop.value;
@@ -639,7 +680,8 @@
                     <span class="rank-number">${index + 1}</span>
             `;
             if (item.base !== 'nbg') {
-                html += `<img src="${logoPath}" alt="logo" class="company-logo" onerror="this.src='Logos/logo.jpg'">`;
+                let logoClass = "company-logo"; if (item.base === "kursige") logoClass += " logo-kursige";
+            html += `<div class="company-logo-wrapper"><img src="${logoPath}" alt="logo" class="${logoClass}" onerror="this.src=\'Logos/logo.jpg\'"></div>`;
             }
             html += `
                     <div class="company-name">${item.company}</div>
@@ -656,7 +698,7 @@
         updateAll();
     }));
 
-    [currencyTop, currencyBottom, categorySelect].forEach(el => el.addEventListener('change', updateAll));
+    [currencyTop, currencyBottom].forEach(el => el.addEventListener('change', updateAll));
 
     swapBtn.addEventListener('click', () => {
         const tempCcy = currencyTop.value;
