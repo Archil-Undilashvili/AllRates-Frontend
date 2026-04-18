@@ -517,13 +517,13 @@
         }
     }
 
-    function getTopRates(fromCcy, toCcy, category) {
-        if (fromCcy === toCcy) {
+    function getTopRates(ccyTop, ccyBottom, category, currentMode) {
+        if (ccyTop === ccyBottom) {
             return [{ company: "N/A", base: "N/A", rate: 1, originalName: "N/A" }];
         }
 
         if (category === 'nbg') {
-            const r = nbgRates[fromCcy] / nbgRates[toCcy];
+            const r = nbgRates[ccyTop] / nbgRates[ccyBottom];
             return [{ company: "ეროვნული ბანკი", base: "nbg", rate: r, originalName: "ეროვნული ბანკი" }];
         }
 
@@ -537,27 +537,49 @@
         let results = [];
 
         filtered.forEach(c => {
-            let rateInGEL = 1;
-            if (fromCcy !== 'GEL') {
-                // User gives fromCcy, bank BUYs fromCcy
-                const keyBuy = fromCcy.toLowerCase() + 'Buy';
-                if (!c[keyBuy]) return; 
-                rateInGEL = c[keyBuy];
-            }
-
-            let finalRate = 0;
-            if (toCcy === 'GEL') {
-                finalRate = rateInGEL;
+            let finalRate = 0; 
+            
+            if (currentMode === 'buy_top') {
+                // User BUYS ccyTop, PAYS ccyBottom
+                // Bank SELLS ccyTop, BUYS ccyBottom
+                let costTopInGel = 1;
+                if (ccyTop !== 'GEL') {
+                    const keySellTop = ccyTop.toLowerCase() + 'Sell';
+                    if (!c[keySellTop]) return;
+                    costTopInGel = c[keySellTop];
+                }
+                
+                let valueBottomInGel = 1;
+                if (ccyBottom !== 'GEL') {
+                    const keyBuyBottom = ccyBottom.toLowerCase() + 'Buy';
+                    if (!c[keyBuyBottom]) return;
+                    valueBottomInGel = c[keyBuyBottom];
+                }
+                
+                finalRate = costTopInGel / valueBottomInGel;
             } else {
-                // User gets toCcy, bank SELLs toCcy
-                const keySell = toCcy.toLowerCase() + 'Sell';
-                if (!c[keySell]) return;
-                finalRate = rateInGEL / c[keySell];
+                // currentMode === 'sell_top'
+                // User SELLS ccyTop, GETS ccyBottom
+                // Bank BUYS ccyTop, SELLS ccyBottom
+                let valueTopInGel = 1;
+                if (ccyTop !== 'GEL') {
+                    const keyBuyTop = ccyTop.toLowerCase() + 'Buy';
+                    if (!c[keyBuyTop]) return;
+                    valueTopInGel = c[keyBuyTop];
+                }
+                
+                let costBottomInGel = 1;
+                if (ccyBottom !== 'GEL') {
+                    const keySellBottom = ccyBottom.toLowerCase() + 'Sell';
+                    if (!c[keySellBottom]) return;
+                    costBottomInGel = c[keySellBottom];
+                }
+                
+                finalRate = valueTopInGel / costBottomInGel;
             }
 
             const baseKey = getBaseCompany(c.company);
             let dName = COMPANY_NAMES_KA[baseKey] || c.company;
-            // თუ ფრჩხილები აქვს (მაგ: (კომერციული))
             const match = c.company.match(/\((.*?)\)/);
             if (match) {
                 dName += ` <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">(${match[1]})</span>`;
@@ -571,8 +593,14 @@
             });
         });
 
-        // საუკეთესო არის ის, სადაც finalRate (toCcy-ის რაოდენობა 1 fromCcy-ზე) არის მაქსიმალური
-        results.sort((a, b) => b.rate - a.rate);
+        if (currentMode === 'buy_top') {
+            // User pays 'finalRate'. We want the MINIMUM cost.
+            results.sort((a, b) => a.rate - b.rate);
+        } else {
+            // User gets 'finalRate'. We want the MAXIMUM yield.
+            results.sort((a, b) => b.rate - a.rate);
+        }
+        
         return results;
     }
 
@@ -594,7 +622,7 @@
             return;
         }
 
-        const topRates = getTopRates(ccyTop, ccyBottom, cat);
+        const topRates = getTopRates(ccyTop, ccyBottom, cat, mode);
         
         if (topRates.length === 0) {
             rateDisplay.innerText = "კურსი არ მოიძებნა";
