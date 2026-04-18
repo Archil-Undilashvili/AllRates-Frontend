@@ -1,11 +1,11 @@
 
 document.write(`
 <div style="width: calc(100% + 40px); background-color: var(--card-bg); box-shadow: var(--shadow-sm); display: flex; justify-content: center; margin-bottom: 40px; margin-top: 0; padding: 15px 20px; margin-left: -20px; margin-right: -20px; border-bottom: 1px solid var(--border); box-sizing: border-box; z-index: 10;">
-    <nav style="width: 100%; max-width: 1400px; display: flex; justify-content: flex-start; align-items: center; box-sizing: border-box;">
+    <nav style="width: 100%; max-width: 1400px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;">
         <a href="index.html">
             <img src="Logos/logo.jpg" alt="AllRates Logo" style="height: 45px; width: auto; object-fit: contain; object-position: left center; cursor: pointer; mix-blend-mode: multiply; margin-left: 0;" />
         </a>
-        <div style="display: flex; align-items: center; margin-left: 40px; gap: 20px;">
+        <div style="display: flex; align-items: center; margin-left: auto; gap: 24px;">
             <a href="index.html" class="nav-link" data-page="index" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;">მთავარი</a>
             <a href="rates.html" class="nav-link" data-page="rates" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;">გაცვლითი კურსები ქართულ ბაზარზე</a>
             <a href="calculator.html" class="nav-link" data-page="calculator" style="text-decoration: none; color: #64748b; font-weight: 700; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: color 0.2s ease;">მოძებნე საუკეთესო კურსი</a>

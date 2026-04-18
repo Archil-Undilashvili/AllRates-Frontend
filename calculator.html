@@ -430,6 +430,27 @@
         'is': 'იშბანკი',
         'silk': 'სილქ ბანკი'
     };
+    const COMPANY_URLS = {
+        'rico': 'https://rico.ge/ka',
+        'valuto': 'https://valuto.ge/',
+        'kursige': 'https://kursi.ge/',
+        'crystal': 'https://crystal.ge/currency-exchange/',
+        'bog': 'https://bankofgeorgia.ge/ka/retail/currencies',
+        'tbc': 'https://www.tbcbank.ge/web/ka/web/guest/exchange-rates',
+        'liberty': 'https://libertybank.ge/ka/chven-shesakheb/kompaniis-shesakheb/valutis-kursi',
+        'bb': 'https://bb.ge/ka/currency',
+        'credo': 'https://credobank.ge/exchange-rates/',
+        'cartu': 'https://www.cartubank.ge/?lang=geo&page=currency',
+        'inex': 'https://inteliexpress.net/ka/',
+        'giro': 'https://girocredit.ge/',
+        'goa': 'https://goacredit.ge/',
+        'hash': 'https://hash.ge/',
+        'mbc': 'https://mbc.com.ge/',
+        'tera': 'https://terabank.ge/ge/retail/currency',
+        'halyk': 'https://halykbank.ge/ka/exchange-rates',
+        'is': 'https://isbank.ge/ka/currency-rates',
+        'silk': 'https://silkbank.ge/ka/exchange-rates'
+    };
 
     const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk'];
     const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
@@ -678,7 +699,12 @@
             let val = isReversedForDisplay ? (1 / item.rate) : item.rate;
             let formatted = val < 0.01 ? val.toFixed(4) : val.toFixed(4);
 
-            const div = document.createElement('div');
+            const linkUrl = COMPANY_URLS[item.base] || '#';
+            const div = document.createElement('a');
+            div.href = linkUrl;
+            div.target = '_blank';
+            div.style.textDecoration = 'none';
+            div.style.color = 'inherit';
             div.className = 'top10-item';
             
             let logoClass = "company-logo"; 

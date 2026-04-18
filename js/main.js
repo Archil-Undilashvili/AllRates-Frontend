@@ -129,24 +129,25 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         };
 
         const COMPANY_URLS = {
-            'rico': 'https://rico.ge/',
+            'rico': 'https://rico.ge/ka',
             'valuto': 'https://valuto.ge/',
             'kursige': 'https://kursi.ge/',
-            'crystal': 'https://crystal.ge/',
-            'bog': 'https://bankofgeorgia.ge/',
-            'tbc': 'https://tbcbank.ge/',
-            'liberty': 'https://libertybank.ge/',
-            'bb': 'https://basisbank.ge/',
-            'credo': 'https://credobank.ge/',
-            'cartu': 'https://cartubank.ge/',
-            'inex': 'http://ge.inteliexpress.net/',
+            'crystal': 'https://crystal.ge/currency-exchange/',
+            'bog': 'https://bankofgeorgia.ge/ka/retail/currencies',
+            'tbc': 'https://www.tbcbank.ge/web/ka/web/guest/exchange-rates',
+            'liberty': 'https://libertybank.ge/ka/chven-shesakheb/kompaniis-shesakheb/valutis-kursi',
+            'bb': 'https://bb.ge/ka/currency',
+            'credo': 'https://credobank.ge/exchange-rates/',
+            'cartu': 'https://www.cartubank.ge/?lang=geo&page=currency',
+            'inex': 'https://inteliexpress.net/ka/',
             'giro': 'https://girocredit.ge/',
             'goa': 'https://goacredit.ge/',
-            'hash': 'https://hashbank.ge/ka',
+            'hash': 'https://hash.ge/',
             'mbc': 'https://mbc.com.ge/',
-            'tera': 'https://terabank.ge/ka/retail',
-            'halyk': 'https://halykbank.ge/ka/individuals',
-            'is': 'http://isbank.ge/ka/individual',
+            'tera': 'https://terabank.ge/ge/retail/currency',
+            'halyk': 'https://halykbank.ge/ka/exchange-rates',
+            'is': 'https://isbank.ge/ka/currency-rates',
+            'silk': 'https://silkbank.ge/ka/exchange-rates',
             'paysera': 'https://www.paysera.ge/v2/ka-GE/index'
         };
 
