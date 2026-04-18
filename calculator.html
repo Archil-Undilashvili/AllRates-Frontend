@@ -7,15 +7,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .calc-wrapper {
+        .calc-page-layout {
             width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
             display: flex;
-            justify-content: center;
+            gap: 30px;
             padding: 20px 0 60px 0;
+            align-items: flex-start;
         }
-        .calc-container {
+        @media (max-width: 850px) {
+            .calc-page-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .calc-main {
+            flex: 1;
             width: 100%;
             max-width: 500px;
+        }
+        .calc-sidebar {
+            flex: 1;
+            width: 100%;
+            max-width: 450px;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        .calc-container {
             background: #ffffff;
             border-radius: 20px;
             border: 1px solid #e2e8f0;
@@ -23,6 +45,34 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             position: relative;
         }
+        .filter-group {
+            margin-bottom: 24px;
+        }
+        .filter-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .filter-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            background: #f8fafc;
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .filter-select:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+        }
+
         .calc-box {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -141,6 +191,90 @@
             border-radius: 6px;
             font-weight: 500;
         }
+
+        /* Top 10 List Styles */
+        .top10-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top10-badge {
+            font-size: 0.75rem;
+            background: #eff6ff;
+            color: #3b82f6;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .top10-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .top10-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .top10-list::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 10px;
+        }
+        .top10-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 10px;
+        }
+        .top10-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+            transition: border-color 0.2s;
+        }
+        .top10-item:hover {
+            border-color: #e2e8f0;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .top10-company {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .company-logo {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .company-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+        }
+        .top10-rate {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .rank-number {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 700;
+            width: 18px;
+        }
     </style>
 </head>
 <body>
@@ -148,195 +282,381 @@
 <div class="page-section" style="width: 100%;">
     <div style="text-align: center; margin-bottom: 2rem; margin-top: 2rem;">
         <span style="display: inline-block; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.2rem;">კალკულატორი</span>
-        <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">ვალუტის კონვერტაცია</h2>
+        <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">მოძებნე საუკეთესო კურსი</h2>
         <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.8; max-width: 520px; margin: 0 auto;">
-            გამოთვალეთ თანხა ეროვნული ბანკის (NBG) მიმდინარე კურსით.
+            გამოთვალეთ თანხა საუკეთესო კურსით შერჩეულ კატეგორიაში.
         </p>
     </div>
 
-    <div class="calc-wrapper">
-        <div class="calc-container">
-            
-            <div style="display: flex; flex-direction: column; gap: 12px; position: relative;">
-                <!-- Buy Box -->
-                <div class="calc-box">
-                    <label class="calc-label" id="label-top">ვიყიდი</label>
-                    <div class="input-group">
-                        <input type="number" id="input-top" class="calc-input" placeholder="0" min="0">
-                        <select id="currency-top" class="calc-select">
-                            <option value="USD">🇺🇸 USD</option>
-                            <option value="EUR">🇪🇺 EUR</option>
-                            <option value="GBP">🇬🇧 GBP</option>
-                            <option value="RUB">🇷🇺 RUB</option>
-                            <option value="TRY">🇹🇷 TRY</option>
-                            <option value="GEL">🇬🇪 GEL</option>
-                        </select>
+    <div class="calc-page-layout">
+        <!-- Calculator Main -->
+        <div class="calc-main">
+            <div class="calc-container">
+                
+                <div class="filter-group">
+                    <label class="filter-label">აირჩიეთ კატეგორია</label>
+                    <select id="calc-category" class="filter-select">
+                        <option value="all">ყველა კომპანია</option>
+                        <option value="banks">ბანკები</option>
+                        <option value="mfos">მისო და სხვა</option>
+                        <option value="nbg">ეროვნული ბანკი</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; position: relative;">
+                    <!-- Buy Box -->
+                    <div class="calc-box">
+                        <label class="calc-label" id="label-top">ვიყიდი</label>
+                        <div class="input-group">
+                            <input type="number" id="input-top" class="calc-input" placeholder="0" min="0">
+                            <select id="currency-top" class="calc-select">
+                                <option value="USD">🇺🇸 USD</option>
+                                <option value="EUR">🇪🇺 EUR</option>
+                                <option value="GBP">🇬🇧 GBP</option>
+                                <option value="RUB">🇷🇺 RUB</option>
+                                <option value="TRY">🇹🇷 TRY</option>
+                                <option value="GEL">🇬🇪 GEL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Swap Button -->
+                    <button class="swap-btn" id="swap-btn" title="შებრუნება">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Sell Box -->
+                    <div class="calc-box">
+                        <label class="calc-label" id="label-bottom">გავყიდი</label>
+                        <div class="input-group">
+                            <input type="number" id="input-bottom" class="calc-input" placeholder="0" min="0">
+                            <select id="currency-bottom" class="calc-select">
+                                <option value="GEL" selected>🇬🇪 GEL</option>
+                                <option value="USD">🇺🇸 USD</option>
+                                <option value="EUR">🇪🇺 EUR</option>
+                                <option value="GBP">🇬🇧 GBP</option>
+                                <option value="RUB">🇷🇺 RUB</option>
+                                <option value="TRY">🇹🇷 TRY</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Swap Button -->
-                <button class="swap-btn" id="swap-btn" title="შებრუნება">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                    </svg>
-                </button>
-
-                <!-- Sell Box -->
-                <div class="calc-box">
-                    <label class="calc-label" id="label-bottom">გავყიდი</label>
-                    <div class="input-group">
-                        <input type="number" id="input-bottom" class="calc-input" placeholder="0" min="0">
-                        <select id="currency-bottom" class="calc-select">
-                            <option value="GEL" selected>🇬🇪 GEL</option>
-                            <option value="USD">🇺🇸 USD</option>
-                            <option value="EUR">🇪🇺 EUR</option>
-                            <option value="GBP">🇬🇧 GBP</option>
-                            <option value="RUB">🇷🇺 RUB</option>
-                            <option value="TRY">🇹🇷 TRY</option>
-                        </select>
+                <div class="rate-display-container">
+                    <div class="rate-text" id="rate-display">
+                        იტვირთება...
                     </div>
+                    <div class="rate-source" id="rate-source-text">საუკეთესო კურსი</div>
                 </div>
             </div>
+        </div>
 
-            <div class="rate-display-container">
-                <div class="rate-text" id="rate-display">
-                    იტვირთება...
-                </div>
-                <div class="rate-source" id="rate-source-text">NBG კურსი</div>
+        <!-- Sidebar / Top 10 -->
+        <div class="calc-sidebar">
+            <div class="top10-title">
+                <span>ტოპ შეთავაზებები</span>
+                <span class="top10-badge" id="top10-badge">TOP 10</span>
             </div>
-
+            <div class="top10-list" id="top10-list">
+                <!-- Items will be generated here -->
+                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 0.9rem;">
+                    მონაცემები იტვირთება...
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let rates = { GEL: 1 };
+    const LOGOS = {
+        'rico': 'Logos/rico.png',
+        'valuto': 'Logos/valuto.png',
+        'kursige': 'Logos/kursige.png',
+        'crystal': 'Logos/crystal.png',
+        'bog': 'Logos/bog.png',
+        'tbc': 'Logos/tbc.png',
+        'liberty': 'Logos/Liberty.png',
+        'bb': 'Logos/bb.png',
+        'credo': 'Logos/credo.png',
+        'cartu': 'Logos/cartu.png',
+        'inex': 'Logos/Inex.png',
+        'giro': 'Logos/Giro.png',
+        'goa': 'Logos/Goa.png',
+        'hash': 'Logos/Hash.png',
+        'mbc': 'Logos/mbc.png',
+        'tera': 'Logos/TERA.png',
+        'halyk': 'Logos/HALYK.png',
+        'is': 'Logos/IS.png',
+        'silk': 'Logos/silk.png'
+    };
+
+    const COMPANY_NAMES_KA = {
+        'rico': 'რიკო ექსპრესი',
+        'valuto': 'ვალუტო',
+        'kursige': 'კურსი',
+        'crystal': 'კრისტალი',
+        'bog': 'საქართველოს ბანკი',
+        'tbc': 'თიბისი ბანკი',
+        'liberty': 'ლიბერთი ბანკი',
+        'bb': 'ბაზისბანკი',
+        'credo': 'კრედო ბანკი',
+        'cartu': 'ბანკი ქართუ',
+        'inex': 'ინტელექსპრესი',
+        'giro': 'გირო კრედიტი',
+        'goa': 'გოა კრედიტი',
+        'hash': 'ჰეში',
+        'mbc': 'MBC',
+        'tera': 'ტერაბანკი',
+        'halyk': 'ხალიკ ბანკი',
+        'is': 'იშბანკი',
+        'silk': 'სილქ ბანკი'
+    };
+
+    const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk'];
+    const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
+
+    const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'TRY': 4, 'RUB': 5, 'GEL': 6 };
+
+    let nbgRates = { GEL: 1 };
+    let commercialRates = [];
+    
     let lastEdited = 'top'; 
     let mode = 'buy_top'; 
-
-    // ვალუტების პრიორიტეტები ძირითადი წყვილების გამოსაჩენად
-    // EUR > GBP > USD > TRY > RUB > GEL
-    const currencyPriority = {
-        'EUR': 1,
-        'GBP': 2,
-        'USD': 3,
-        'TRY': 4,
-        'RUB': 5,
-        'GEL': 6
-    };
 
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
     const currencyTop = document.getElementById('currency-top');
     const currencyBottom = document.getElementById('currency-bottom');
+    const categorySelect = document.getElementById('calc-category');
     const rateDisplay = document.getElementById('rate-display');
+    const rateSourceText = document.getElementById('rate-source-text');
     const swapBtn = document.getElementById('swap-btn');
     const labelTop = document.getElementById('label-top');
     const labelBottom = document.getElementById('label-bottom');
+    const top10List = document.getElementById('top10-list');
 
-    async function fetchNBGRates() {
+    function getBaseCompany(companyName) {
+        let base = companyName.split(' ')[0].toLowerCase();
+        if (base === 'isbank') base = 'is';
+        if (base === 'terabank') base = 'tera';
+        if (base === 'inteliexpress' || base === 'inteli' || companyName.toLowerCase().includes('inex')) base = 'inex';
+        if (base === 'cartubank') base = 'cartu';
+        if (base === 'hashbank') base = 'hash';
+        if (base === 'basisbank') base = 'bb';
+        return base;
+    }
+
+    async function loadData() {
         try {
+            // NBG
             const date = new Date();
-            const yyyy = date.getFullYear();
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const dd = String(date.getDate()).padStart(2, '0');
-            const formattedDate = `${yyyy}-${mm}-${dd}`;
-            
-            const res = await fetch(`https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json?date=${formattedDate}`);
-            if (!res.ok) throw new Error("Failed");
-            const data = await res.json();
-            
-            if (data && data.length > 0 && data[0].currencies) {
-                data[0].currencies.forEach(c => {
-                    rates[c.code] = c.rate / (c.quantity || 1);
-                });
-                updateCalculation();
-                updateRateDisplay();
+            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const nbgRes = await fetch(`https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json?date=${formattedDate}`);
+            if (nbgRes.ok) {
+                const data = await nbgRes.json();
+                if (data && data.length > 0 && data[0].currencies) {
+                    data[0].currencies.forEach(c => {
+                        nbgRates[c.code] = c.rate / (c.quantity || 1);
+                    });
+                }
             }
+
+            // Commercial
+            const comRes = await fetch('https://allrates-backend-api.onrender.com/api/rates/latest');
+            if (comRes.ok) {
+                commercialRates = await comRes.json();
+            }
+            
+            updateAll();
         } catch (e) {
             console.error(e);
-            rateDisplay.innerText = "შეცდომა კურსის ჩატვირთვისას";
+            rateDisplay.innerText = "შეცდომა ჩატვირთვისას";
         }
     }
 
-    function updateCalculation() {
+    function getTopRates(fromCcy, toCcy, category) {
+        if (fromCcy === toCcy) {
+            return [{ company: "N/A", base: "N/A", rate: 1, originalName: "N/A" }];
+        }
+
+        if (category === 'nbg') {
+            const r = nbgRates[fromCcy] / nbgRates[toCcy];
+            return [{ company: "ეროვნული ბანკი", base: "nbg", rate: r, originalName: "ეროვნული ბანკი" }];
+        }
+
+        let filtered = commercialRates;
+        if (category === 'banks') {
+            filtered = commercialRates.filter(c => BANK_COMPANIES.includes(getBaseCompany(c.company)));
+        } else if (category === 'mfos') {
+            filtered = commercialRates.filter(c => MFO_COMPANIES.includes(getBaseCompany(c.company)));
+        }
+
+        let results = [];
+
+        filtered.forEach(c => {
+            let rateInGEL = 1;
+            if (fromCcy !== 'GEL') {
+                // User gives fromCcy, bank BUYs fromCcy
+                const keyBuy = fromCcy.toLowerCase() + 'Buy';
+                if (!c[keyBuy]) return; 
+                rateInGEL = c[keyBuy];
+            }
+
+            let finalRate = 0;
+            if (toCcy === 'GEL') {
+                finalRate = rateInGEL;
+            } else {
+                // User gets toCcy, bank SELLs toCcy
+                const keySell = toCcy.toLowerCase() + 'Sell';
+                if (!c[keySell]) return;
+                finalRate = rateInGEL / c[keySell];
+            }
+
+            const baseKey = getBaseCompany(c.company);
+            let dName = COMPANY_NAMES_KA[baseKey] || c.company;
+            // თუ ფრჩხილები აქვს (მაგ: (კომერციული))
+            const match = c.company.match(/\((.*?)\)/);
+            if (match) {
+                dName += ` <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">(${match[1]})</span>`;
+            }
+
+            results.push({
+                company: dName,
+                base: baseKey,
+                rate: finalRate,
+                originalName: c.company
+            });
+        });
+
+        // საუკეთესო არის ის, სადაც finalRate (toCcy-ის რაოდენობა 1 fromCcy-ზე) არის მაქსიმალური
+        results.sort((a, b) => b.rate - a.rate);
+        return results;
+    }
+
+    function updateAll() {
+        // Here we define: User is converting `currencyTop` TO `currencyBottom`
+        // Wait, if lastEdited === 'bottom', user inputs bottom and wants top.
+        // It's technically the same conversion pair, just math changes.
+        // The rate is always calculated from `currencyTop` -> `currencyBottom`.
+        
         const ccyTop = currencyTop.value;
         const ccyBottom = currencyBottom.value;
-        const rateT = rates[ccyTop];
-        const rateB = rates[ccyBottom];
+        const cat = categorySelect.value;
 
-        if (!rateT || !rateB) return;
+        if (ccyTop === ccyBottom) {
+            if (lastEdited === 'top') inputBottom.value = inputTop.value;
+            else inputTop.value = inputBottom.value;
+            renderTop10([]);
+            rateDisplay.innerText = "1.0000";
+            return;
+        }
 
+        const topRates = getTopRates(ccyTop, ccyBottom, cat);
+        
+        if (topRates.length === 0) {
+            rateDisplay.innerText = "კურსი არ მოიძებნა";
+            inputTop.value = "";
+            inputBottom.value = "";
+            renderTop10([]);
+            return;
+        }
+
+        const bestOption = topRates[0];
+        const bestRate = bestOption.rate; // 1 ccyTop = bestRate ccyBottom
+
+        // Update Calculator
         if (lastEdited === 'top') {
-            const valTop = parseFloat(inputTop.value);
-            if (isNaN(valTop) || valTop <= 0) {
+            const val = parseFloat(inputTop.value);
+            if (!isNaN(val) && val > 0) {
+                inputBottom.value = (val * bestRate).toFixed(2);
+            } else {
                 inputBottom.value = '';
-                return;
             }
-            const valInGel = valTop * rateT;
-            const result = valInGel / rateB;
-            inputBottom.value = result.toFixed(2);
         } else {
-            const valBottom = parseFloat(inputBottom.value);
-            if (isNaN(valBottom) || valBottom <= 0) {
+            const val = parseFloat(inputBottom.value);
+            if (!isNaN(val) && val > 0) {
+                inputTop.value = (val / bestRate).toFixed(2);
+            } else {
                 inputTop.value = '';
-                return;
             }
-            const valInGel = valBottom * rateB;
-            const result = valInGel / rateT;
-            inputTop.value = result.toFixed(2);
         }
-        updateRateDisplay();
-    }
 
-    function updateRateDisplay() {
-        const ccyTop = currencyTop.value;
-        const ccyBottom = currencyBottom.value;
-        const rateT = rates[ccyTop];
-        const rateB = rates[ccyBottom];
-
-        if (!rateT || !rateB) return;
-
-        // ვადგენთ რომელია Base (ძირითადი) და რომელი Quote
+        // Determine Base and Quote for Standard Display
         let baseCcy, quoteCcy;
+        let isReversedForDisplay = false;
+        
         if (currencyPriority[ccyTop] < currencyPriority[ccyBottom]) {
             baseCcy = ccyTop;
             quoteCcy = ccyBottom;
         } else {
             baseCcy = ccyBottom;
             quoteCcy = ccyTop;
+            isReversedForDisplay = true;
         }
 
-        // გამოვთვალოთ 1 Base-ის ფასი Quote ვალუტაში
-        const rateBaseInGel = rates[baseCcy];
-        const rateQuoteInGel = rates[quoteCcy];
-        const conversionRate = rateBaseInGel / rateQuoteInGel;
-        
-        let formattedRate = conversionRate < 0.01 ? conversionRate.toFixed(4) : conversionRate.toFixed(4);
-        
+        // Calculate Rate for Display (1 Base = X Quote)
+        // bestRate is (ccyBottom / ccyTop)
+        const displayRate = isReversedForDisplay ? (1 / bestRate) : bestRate;
+
         rateDisplay.innerHTML = `
             <span style="color: #64748b;">1 ${baseCcy} =</span>
-            <span>${formattedRate} ${quoteCcy}</span>
+            <span>${displayRate < 0.01 ? displayRate.toFixed(4) : displayRate.toFixed(4)} ${quoteCcy}</span>
         `;
+        
+        let sourceLabel = bestOption.base === 'nbg' ? 'ეროვნული ბანკი' : (COMPANY_NAMES_KA[bestOption.base] || 'კომერციული ბანკი');
+        if (cat === 'all' || cat === 'banks' || cat === 'mfos') {
+            rateSourceText.innerText = "საუკეთესო: " + (bestOption.originalName.split(' ')[0]);
+        } else {
+            rateSourceText.innerText = sourceLabel;
+        }
+
+        // Render Top 10
+        renderTop10(topRates.slice(0, 10), baseCcy, quoteCcy, isReversedForDisplay);
     }
 
-    inputTop.addEventListener('input', () => {
-        lastEdited = 'top';
-        updateCalculation();
-    });
+    function renderTop10(ratesArr, baseCcy, quoteCcy, isReversedForDisplay) {
+        top10List.innerHTML = '';
+        if (ratesArr.length === 0) {
+            top10List.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">მონაცემები არ არის</div>';
+            return;
+        }
 
-    inputBottom.addEventListener('input', () => {
-        lastEdited = 'bottom';
-        updateCalculation();
-    });
+        ratesArr.forEach((item, index) => {
+            const logoPath = LOGOS[item.base] || 'Logos/logo.jpg';
+            
+            // item.rate is (ccyBottom / ccyTop). 
+            // If isReversedForDisplay, we need to show (1 / item.rate)
+            let val = isReversedForDisplay ? (1 / item.rate) : item.rate;
+            let formatted = val < 0.01 ? val.toFixed(4) : val.toFixed(4);
 
-    currencyTop.addEventListener('change', () => {
-        updateCalculation();
-    });
+            const div = document.createElement('div');
+            div.className = 'top10-item';
+            
+            let html = `
+                <div class="top10-company">
+                    <span class="rank-number">${index + 1}</span>
+            `;
+            if (item.base !== 'nbg') {
+                html += `<img src="${logoPath}" alt="logo" class="company-logo" onerror="this.src='Logos/logo.jpg'">`;
+            }
+            html += `
+                    <div class="company-name">${item.company}</div>
+                </div>
+                <div class="top10-rate">${formatted} <span style="font-size:0.75rem; color:#64748b; font-weight:600;">${quoteCcy}</span></div>
+            `;
+            div.innerHTML = html;
+            top10List.appendChild(div);
+        });
+    }
 
-    currencyBottom.addEventListener('change', () => {
-        updateCalculation();
-    });
+    [inputTop, inputBottom].forEach(el => el.addEventListener('input', (e) => {
+        lastEdited = e.target.id === 'input-top' ? 'top' : 'bottom';
+        updateAll();
+    }));
+
+    [currencyTop, currencyBottom, categorySelect].forEach(el => el.addEventListener('change', updateAll));
 
     swapBtn.addEventListener('click', () => {
         const tempCcy = currencyTop.value;
@@ -352,11 +672,10 @@
             labelBottom.innerText = 'გავყიდი';
             mode = 'buy_top';
         }
-
-        updateCalculation();
+        updateAll();
     });
 
-    fetchNBGRates();
+    loadData();
 </script>
 </body>
 </html>
