@@ -84,23 +84,6 @@
             margin-bottom: 8px;
             display: block;
         }
-        .filter-select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #1e293b;
-            background: #f8fafc;
-            outline: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        .filter-select:focus {
-            border-color: #3b82f6;
-            background: #ffffff;
-        }
 
         .calc-box {
             background: #f8fafc;
@@ -122,10 +105,45 @@
             margin-bottom: 12px;
             display: block;
         }
+        
+        /* NEW CCY TABS STYLES */
+        .ccy-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .ccy-tab {
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            background: #e2e8f0;
+            color: #475569;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ccy-tab:hover {
+            background: #cbd5e1;
+            color: #1e293b;
+        }
+        .ccy-tab.active {
+            background: #ffffff;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+        }
+
         .input-group {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-top: 10px;
         }
         .calc-input {
             border: none;
@@ -141,29 +159,22 @@
         .calc-input::placeholder {
             color: #cbd5e1;
         }
-        .calc-select {
-            border: none;
-            background: #e2e8f0;
-            padding: 12px 18px;
-            border-radius: 20px;
+        
+        .ccy-display {
             font-size: 1.2rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #1e293b;
-            cursor: pointer;
-            outline: none;
-            font-family: inherit;
-            appearance: none;
-            padding-right: 32px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            transition: background-color 0.2s;
-            width: 120px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            padding: 10px 16px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            user-select: none;
         }
-        .calc-select:hover {
-            background-color: #cbd5e1;
-        }
+
         .swap-btn {
             position: absolute;
             left: 50%;
@@ -338,16 +349,12 @@
                     <!-- Buy Box -->
                     <div class="calc-box">
                         <label class="calc-label" id="label-top">ვიყიდი</label>
+                        <div class="ccy-tabs" id="ccy-tabs-top">
+                            <!-- Populated by JS -->
+                        </div>
                         <div class="input-group">
                             <input type="number" id="input-top" class="calc-input" placeholder="0" min="0">
-                            <select id="currency-top" class="calc-select">
-                                <option value="USD">🇺🇸 USD</option>
-                                <option value="EUR">🇪🇺 EUR</option>
-                                <option value="GBP">🇬🇧 GBP</option>
-                                <option value="RUB">🇷🇺 RUB</option>
-                                <option value="TRY">🇹🇷 TRY</option>
-                                <option value="GEL">🇬🇪 GEL</option>
-                            </select>
+                            <div class="ccy-display" id="ccy-display-top">🇺🇸 USD</div>
                         </div>
                     </div>
 
@@ -361,16 +368,12 @@
                     <!-- Sell Box -->
                     <div class="calc-box">
                         <label class="calc-label" id="label-bottom">გავყიდი</label>
+                        <div class="ccy-tabs" id="ccy-tabs-bottom">
+                            <!-- Populated by JS -->
+                        </div>
                         <div class="input-group">
                             <input type="number" id="input-bottom" class="calc-input" placeholder="0" min="0">
-                            <select id="currency-bottom" class="calc-select">
-                                <option value="GEL" selected>🇬🇪 GEL</option>
-                                <option value="USD">🇺🇸 USD</option>
-                                <option value="EUR">🇪🇺 EUR</option>
-                                <option value="GBP">🇬🇧 GBP</option>
-                                <option value="RUB">🇷🇺 RUB</option>
-                                <option value="TRY">🇹🇷 TRY</option>
-                            </select>
+                            <div class="ccy-display" id="ccy-display-bottom">🇬🇪 GEL</div>
                         </div>
                     </div>
                 </div>
@@ -449,18 +452,21 @@
     const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
 
     const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'TRY': 4, 'RUB': 5, 'GEL': 6 };
+    const flags = { 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'RUB': '🇷🇺', 'TRY': '🇹🇷', 'GEL': '🇬🇪' };
+    const availableCcys = ['USD', 'EUR', 'GBP', 'RUB', 'TRY', 'GEL'];
 
     let nbgRates = { GEL: 1 };
     let commercialRates = [];
     
     let lastEdited = 'top'; 
+    let valTopCcy = 'USD';
+    let valBottomCcy = 'GEL';
+
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
-    const currencyTop = document.getElementById('currency-top');
-    const currencyBottom = document.getElementById('currency-bottom');
     let selectedCategory = 'all';
-    const categoryTabs = document.querySelectorAll('.cat-tab');
     
+    const categoryTabs = document.querySelectorAll('.cat-tab');
     categoryTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             categoryTabs.forEach(t => t.classList.remove('active'));
@@ -469,12 +475,47 @@
             updateAll();
         });
     });
+
     const rateDisplay = document.getElementById('rate-display');
     const rateSourceText = document.getElementById('rate-source-text');
     const swapBtn = document.getElementById('swap-btn');
-    const labelTop = document.getElementById('label-top');
-    const labelBottom = document.getElementById('label-bottom');
     const top10List = document.getElementById('top10-list');
+
+    function renderCcyTabs() {
+        // Top Container
+        const topContainer = document.getElementById('ccy-tabs-top');
+        topContainer.innerHTML = '';
+        availableCcys.forEach(ccy => {
+            const btn = document.createElement('button');
+            btn.className = 'ccy-tab' + (ccy === valTopCcy ? ' active' : '');
+            btn.innerHTML = `${flags[ccy]} ${ccy}`;
+            btn.onclick = () => {
+                valTopCcy = ccy;
+                renderCcyTabs();
+                updateAll();
+            };
+            topContainer.appendChild(btn);
+        });
+
+        // Bottom Container
+        const bottomContainer = document.getElementById('ccy-tabs-bottom');
+        bottomContainer.innerHTML = '';
+        availableCcys.forEach(ccy => {
+            const btn = document.createElement('button');
+            btn.className = 'ccy-tab' + (ccy === valBottomCcy ? ' active' : '');
+            btn.innerHTML = `${flags[ccy]} ${ccy}`;
+            btn.onclick = () => {
+                valBottomCcy = ccy;
+                renderCcyTabs();
+                updateAll();
+            };
+            bottomContainer.appendChild(btn);
+        });
+
+        // Update displays
+        document.getElementById('ccy-display-top').innerHTML = `${flags[valTopCcy]} ${valTopCcy}`;
+        document.getElementById('ccy-display-bottom').innerHTML = `${flags[valBottomCcy]} ${valBottomCcy}`;
+    }
 
     function getBaseCompany(companyName) {
         let base = companyName.split(' ')[0].toLowerCase();
@@ -488,8 +529,8 @@
     }
 
     async function loadData() {
+        renderCcyTabs();
         try {
-            // NBG
             const date = new Date();
             const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             const nbgRes = await fetch(`https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json?date=${formattedDate}`);
@@ -502,7 +543,6 @@
                 }
             }
 
-            // Commercial
             const comRes = await fetch('https://allrates-backend-api.onrender.com/api/rates/latest');
             if (comRes.ok) {
                 commercialRates = await comRes.json();
@@ -535,8 +575,6 @@
         let results = [];
 
         filtered.forEach(c => {
-            // User ALWAYS buys ccyTop and pays ccyBottom
-            // So Bank SELLS ccyTop and BUYS ccyBottom
             let costTopInGel = 1;
             if (ccyTop !== 'GEL') {
                 const keySellTop = ccyTop.toLowerCase() + 'Sell';
@@ -570,18 +608,12 @@
 
         // Always sort by lowest finalRate (lowest cost to the user)
         results.sort((a, b) => a.rate - b.rate);
-        
         return results;
     }
 
     function updateAll() {
-        // Here we define: User is converting `currencyTop` TO `currencyBottom`
-        // Wait, if lastEdited === 'bottom', user inputs bottom and wants top.
-        // It's technically the same conversion pair, just math changes.
-        // The rate is always calculated from `currencyTop` -> `currencyBottom`.
-        
-        const ccyTop = currencyTop.value;
-        const ccyBottom = currencyBottom.value;
+        const ccyTop = valTopCcy;
+        const ccyBottom = valBottomCcy;
         const cat = selectedCategory;
 
         if (ccyTop === ccyBottom) {
@@ -603,7 +635,7 @@
         }
 
         const bestOption = topRates[0];
-        const bestRate = bestOption.rate; // 1 ccyTop = bestRate ccyBottom
+        const bestRate = bestOption.rate;
 
         // Update Calculator
         if (lastEdited === 'top') {
@@ -622,7 +654,6 @@
             }
         }
 
-        // Determine Base and Quote for Standard Display
         let baseCcy, quoteCcy;
         let isReversedForDisplay = false;
         
@@ -635,8 +666,6 @@
             isReversedForDisplay = true;
         }
 
-        // Calculate Rate for Display (1 Base = X Quote)
-        // bestRate is (ccyBottom / ccyTop)
         const displayRate = isReversedForDisplay ? (1 / bestRate) : bestRate;
 
         rateDisplay.innerHTML = `
@@ -651,7 +680,6 @@
             rateSourceText.innerText = sourceLabel;
         }
 
-        // Render Top 10
         renderTop10(topRates.slice(0, 10), baseCcy, quoteCcy, isReversedForDisplay);
     }
 
@@ -665,21 +693,21 @@
         ratesArr.forEach((item, index) => {
             const logoPath = LOGOS[item.base] || 'Logos/logo.jpg';
             
-            // item.rate is (ccyBottom / ccyTop). 
-            // If isReversedForDisplay, we need to show (1 / item.rate)
             let val = isReversedForDisplay ? (1 / item.rate) : item.rate;
             let formatted = val < 0.01 ? val.toFixed(4) : val.toFixed(4);
 
             const div = document.createElement('div');
             div.className = 'top10-item';
             
+            let logoClass = "company-logo"; 
+            if (item.base === "kursige") logoClass += " logo-kursige";
+            
             let html = `
                 <div class="top10-company">
                     <span class="rank-number">${index + 1}</span>
             `;
             if (item.base !== 'nbg') {
-                let logoClass = "company-logo"; if (item.base === "kursige") logoClass += " logo-kursige";
-            html += `<div class="company-logo-wrapper"><img src="${logoPath}" alt="logo" class="${logoClass}" onerror="this.src=\'Logos/logo.jpg\'"></div>`;
+                html += `<div class="company-logo-wrapper"><img src="${logoPath}" alt="logo" class="${logoClass}" onerror="this.src='Logos/logo.jpg'"></div>`;
             }
             html += `
                     <div class="company-name">${item.company}</div>
@@ -696,14 +724,12 @@
         updateAll();
     }));
 
-    [currencyTop, currencyBottom].forEach(el => el.addEventListener('change', updateAll));
-
     swapBtn.addEventListener('click', () => {
-        const tempCcy = currencyTop.value;
-        currencyTop.value = currencyBottom.value;
-        currencyBottom.value = tempCcy;
+        const temp = valTopCcy;
+        valTopCcy = valBottomCcy;
+        valBottomCcy = temp;
         
-        // We only swap currencies to reverse the operation. Labels stay fixed.
+        renderCcyTabs();
         updateAll();
     });
 
