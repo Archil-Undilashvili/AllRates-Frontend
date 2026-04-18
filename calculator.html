@@ -292,6 +292,16 @@
             font-weight: 700;
             width: 18px;
         }
+    
+        /* Hide number arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body>
@@ -455,9 +465,9 @@
     const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk'];
     const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
 
-    const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'TRY': 4, 'RUB': 5, 'GEL': 6 };
-    const flags = { 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'RUB': '🇷🇺', 'TRY': '🇹🇷', 'GEL': '🇬🇪' };
-    const availableCcys = ['USD', 'EUR', 'GBP', 'RUB', 'TRY', 'GEL'];
+    const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'RUB': 4, 'GEL': 5 };
+    const flags = { 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'RUB': '🇷🇺', 'GEL': '🇬🇪' };
+    const availableCcys = ['USD', 'EUR', 'GBP', 'RUB', 'GEL'];
 
     let nbgRates = { GEL: 1 };
     let commercialRates = [];
