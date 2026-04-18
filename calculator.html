@@ -454,8 +454,6 @@
     let commercialRates = [];
     
     let lastEdited = 'top'; 
-    let mode = 'buy_top'; 
-
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
     const currencyTop = document.getElementById('currency-top');
@@ -517,7 +515,7 @@
         }
     }
 
-    function getTopRates(ccyTop, ccyBottom, category, currentMode) {
+    function getTopRates(ccyTop, ccyBottom, category) {
         if (ccyTop === ccyBottom) {
             return [{ company: "N/A", base: "N/A", rate: 1, originalName: "N/A" }];
         }
@@ -537,46 +535,23 @@
         let results = [];
 
         filtered.forEach(c => {
-            let finalRate = 0; 
-            
-            if (currentMode === 'buy_top') {
-                // User BUYS ccyTop, PAYS ccyBottom
-                // Bank SELLS ccyTop, BUYS ccyBottom
-                let costTopInGel = 1;
-                if (ccyTop !== 'GEL') {
-                    const keySellTop = ccyTop.toLowerCase() + 'Sell';
-                    if (!c[keySellTop]) return;
-                    costTopInGel = c[keySellTop];
-                }
-                
-                let valueBottomInGel = 1;
-                if (ccyBottom !== 'GEL') {
-                    const keyBuyBottom = ccyBottom.toLowerCase() + 'Buy';
-                    if (!c[keyBuyBottom]) return;
-                    valueBottomInGel = c[keyBuyBottom];
-                }
-                
-                finalRate = costTopInGel / valueBottomInGel;
-            } else {
-                // currentMode === 'sell_top'
-                // User SELLS ccyTop, GETS ccyBottom
-                // Bank BUYS ccyTop, SELLS ccyBottom
-                let valueTopInGel = 1;
-                if (ccyTop !== 'GEL') {
-                    const keyBuyTop = ccyTop.toLowerCase() + 'Buy';
-                    if (!c[keyBuyTop]) return;
-                    valueTopInGel = c[keyBuyTop];
-                }
-                
-                let costBottomInGel = 1;
-                if (ccyBottom !== 'GEL') {
-                    const keySellBottom = ccyBottom.toLowerCase() + 'Sell';
-                    if (!c[keySellBottom]) return;
-                    costBottomInGel = c[keySellBottom];
-                }
-                
-                finalRate = valueTopInGel / costBottomInGel;
+            // User ALWAYS buys ccyTop and pays ccyBottom
+            // So Bank SELLS ccyTop and BUYS ccyBottom
+            let costTopInGel = 1;
+            if (ccyTop !== 'GEL') {
+                const keySellTop = ccyTop.toLowerCase() + 'Sell';
+                if (!c[keySellTop]) return;
+                costTopInGel = c[keySellTop];
             }
+            
+            let valueBottomInGel = 1;
+            if (ccyBottom !== 'GEL') {
+                const keyBuyBottom = ccyBottom.toLowerCase() + 'Buy';
+                if (!c[keyBuyBottom]) return;
+                valueBottomInGel = c[keyBuyBottom];
+            }
+            
+            let finalRate = costTopInGel / valueBottomInGel;
 
             const baseKey = getBaseCompany(c.company);
             let dName = COMPANY_NAMES_KA[baseKey] || c.company;
@@ -593,13 +568,8 @@
             });
         });
 
-        if (currentMode === 'buy_top') {
-            // User pays 'finalRate'. We want the MINIMUM cost.
-            results.sort((a, b) => a.rate - b.rate);
-        } else {
-            // User gets 'finalRate'. We want the MAXIMUM yield.
-            results.sort((a, b) => b.rate - a.rate);
-        }
+        // Always sort by lowest finalRate (lowest cost to the user)
+        results.sort((a, b) => a.rate - b.rate);
         
         return results;
     }
@@ -622,7 +592,7 @@
             return;
         }
 
-        const topRates = getTopRates(ccyTop, ccyBottom, cat, mode);
+        const topRates = getTopRates(ccyTop, ccyBottom, cat);
         
         if (topRates.length === 0) {
             rateDisplay.innerText = "კურსი არ მოიძებნა";
@@ -733,15 +703,7 @@
         currencyTop.value = currencyBottom.value;
         currencyBottom.value = tempCcy;
         
-        if (mode === 'buy_top') {
-            labelTop.innerText = 'გავყიდი';
-            labelBottom.innerText = 'ვიყიდი';
-            mode = 'sell_top';
-        } else {
-            labelTop.innerText = 'ვიყიდი';
-            labelBottom.innerText = 'გავყიდი';
-            mode = 'buy_top';
-        }
+        // We only swap currencies to reverse the operation. Labels stay fixed.
         updateAll();
     });
 
