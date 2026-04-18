@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ვალუტის კურსები</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/header.js"></script>
+<div id="rates-page" class="page-section" style="">
+        <div class="header-wrapper">
+        <h1>მიმდინარე კურსები</h1>
+        
+        <div class="nbg-rates-box" id="nbg-rates-box" style="">
+            <a href="https://nbg.gov.ge/" target="_blank" class="nbg-title" title="გადადით ეროვნული ბანკის საიტზე">
+                ოფიციალური კურსები <span id="nbg-date"></span>
+            </a>
+            <div class="nbg-items-scroll">
+                <div class="nbg-item"><span class="nbg-currency">USD/GEL</span><span class="nbg-value" id="nbg-usd">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">EUR/GEL</span><span class="nbg-value" id="nbg-eur">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">GBP/GEL</span><span class="nbg-value" id="nbg-gbp">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">CHF/GEL</span><span class="nbg-value" id="nbg-chf">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">RUB/GEL</span><span class="nbg-value" id="nbg-rub">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">TRY/GEL</span><span class="nbg-value" id="nbg-try">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">AMD/GEL</span><span class="nbg-value" id="nbg-amd">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">AZN/GEL</span><span class="nbg-value" id="nbg-azn">--.---</span></div>
+                <div class="nbg-item"><span class="nbg-currency">ILS/GEL</span><span class="nbg-value" id="nbg-ils">--.---</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('all')">ყველა კომპანია</button>
+        <button class="tab-btn" onclick="switchTab('mfo')">მისო და სხვა</button>
+        <button class="tab-btn" onclick="switchTab('banks')">ბანკები</button>
+    </div>
+
+    <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 10px;">⏳ მონაცემები იტვირთება...</div>
+    <div id="error-msg" class="error" style="display: none;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
+
+    <div class="tables-wrapper" id="tables-wrapper" style="display: flex;">
+        
+        <!-- USD Table -->
+        <div class="container">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+                <img src="Logos/US.png" alt="US Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">
+                <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">USD <span style="color: #64748b; font-weight: 400;">/</span> GEL</h2>
+            </div>
+            
+            <div class="market-rate-box" id="usd-market-box">
+                <div class="market-rate-title">საბაზრო კურსები</div>
+                <div class="market-rate-items">
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">ყიდვა</div>
+                        <div class="market-rate-value buy" id="usd-market-buy">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">გაყიდვა</div>
+                        <div class="market-rate-value sell" id="usd-market-sell">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">სპრედი</div>
+                        <div class="market-rate-value spread" id="usd-market-spread">--.---</div>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="sortable" onclick="sortData('usd', 'company')">კომპანია <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('usd', 'buy')">ყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('usd', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('usd', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="usd-body"></tbody>
+            </table>
+            <div class="expand-btn-container" id="usd-expand-container" style="display: none;">
+                <button class="expand-btn" id="usd-expand-btn" onclick="toggleExpand('usd')">მეტის ნახვა &#9660;</button>
+            </div>
+        </div>
+
+        <!-- EUR Table -->
+        <div class="container">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+                <img src="Logos/EU.png" alt="EU Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">
+                <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">EUR <span style="color: #64748b; font-weight: 400;">/</span> GEL</h2>
+            </div>
+            
+            <div class="market-rate-box" id="eur-market-box">
+                <div class="market-rate-title">საბაზრო კურსები</div>
+                <div class="market-rate-items">
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">ყიდვა</div>
+                        <div class="market-rate-value buy" id="eur-market-buy">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">გაყიდვა</div>
+                        <div class="market-rate-value sell" id="eur-market-sell">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">სპრედი</div>
+                        <div class="market-rate-value spread" id="eur-market-spread">--.---</div>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="sortable" onclick="sortData('eur', 'company')">კომპანია <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('eur', 'buy')">ყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('eur', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('eur', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="eur-body"></tbody>
+            </table>
+            <div class="expand-btn-container" id="eur-expand-container" style="display: none;">
+                <button class="expand-btn" id="eur-expand-btn" onclick="toggleExpand('eur')">მეტის ნახვა &#9660;</button>
+            </div>
+        </div>
+
+    
+        <!-- GBP Table -->
+        <div class="container">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+                <img src="Logos/GB.png" alt="GB Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">
+                <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">GBP <span style="color: #64748b; font-weight: 400;">/</span> GEL</h2>
+            </div>
+            
+            <div class="market-rate-box" id="gbp-market-box">
+                <div class="market-rate-title">საბაზრო კურსები</div>
+                <div class="market-rate-items">
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">ყიდვა</div>
+                        <div class="market-rate-value buy" id="gbp-market-buy">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">გაყიდვა</div>
+                        <div class="market-rate-value sell" id="gbp-market-sell">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">სპრედი</div>
+                        <div class="market-rate-value spread" id="gbp-market-spread">--.---</div>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="sortable" onclick="sortData('gbp', 'company')">კომპანია <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('gbp', 'buy')">ყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('gbp', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('gbp', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="gbp-body"></tbody>
+            </table>
+            <div class="expand-btn-container" id="gbp-expand-container" style="display: none;">
+                <button class="expand-btn" id="gbp-expand-btn" onclick="toggleExpand('gbp')">მეტის ნახვა &#9660;</button>
+            </div>
+        </div>
+
+        <!-- RUB Table -->
+        <div class="container">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+                <img src="Logos/RU.png" alt="RU Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">
+                <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">RUB <span style="color: #64748b; font-weight: 400;">/</span> GEL</h2>
+            </div>
+            
+            <div class="market-rate-box" id="rub-market-box">
+                <div class="market-rate-title">საბაზრო კურსები</div>
+                <div class="market-rate-items">
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">ყიდვა</div>
+                        <div class="market-rate-value buy" id="rub-market-buy">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">გაყიდვა</div>
+                        <div class="market-rate-value sell" id="rub-market-sell">--.---</div>
+                    </div>
+                    <div class="market-rate-item">
+                        <div class="market-rate-label">სპრედი</div>
+                        <div class="market-rate-value spread" id="rub-market-spread">--.---</div>
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="sortable" onclick="sortData('rub', 'company')">კომპანია <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('rub', 'buy')">ყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('rub', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
+                        <th class="sortable" onclick="sortData('rub', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="rub-body"></tbody>
+            </table>
+            <div class="expand-btn-container" id="rub-expand-container" style="display: none;">
+                <button class="expand-btn" id="rub-expand-btn" onclick="toggleExpand('rub')">მეტის ნახვა &#9660;</button>
+            </div>
+        </div>
+</div>
+    <
+
+<script src="js/main.js"></script>
+</body>
+</html>

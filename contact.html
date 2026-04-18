@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ვალუტის კურსები</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/header.js"></script>
+<div id="contact-page" class="page-section" style="">
+        <div style="width: 100%; max-width: 680px; padding: 20px 0 60px 0;">
+
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <span style="display: inline-block; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.2rem;">კონტაქტი</span>
+                <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">დაგვიკავშირდით</h2>
+                <div style="width: 48px; height: 3px; background: var(--btn-bg); margin: 1rem auto; border-radius: 2px;"></div>
+                <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.8; max-width: 520px; margin: 0 auto;">
+                    თქვენი მოსაზრება ჩვენთვის მნიშვნელოვანია! გაგვიზიარეთ თქვენი
+                    მოთხოვნები, შეკითხვები ან შენიშვნები — ჩვენ მზად ვართ მოვუსმინოთ
+                    და სწრაფი პასუხს გაგცეთ.
+                </p>
+            </div>
+
+            <div style="background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 2.5rem; box-shadow: var(--shadow-lg);">
+
+                <div id="contact-success" style="">
+                    ✓ &nbsp;თქვენი შეტყობინება წარმატებით გაიგზავნა! მადლობთ, რომ დაგვიკავშირდით.
+                </div>
+                <div id="contact-error" style=""></div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">სახელი და გვარი</label>
+                    <input type="text" id="c-name" placeholder="თქვენი სახელი" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">ელ-ფოსტა <span style="color:var(--btn-bg)">*</span></label>
+                    <input type="email" id="c-email" placeholder="example@gmail.com" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.2rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">თემა</label>
+                    <input type="text" id="c-subject" placeholder="შეტყობინების თემა" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''" />
+                </div>
+
+                <div style="margin-bottom:1.4rem;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.02em;">შეტყობინება <span style="color:var(--btn-bg)">*</span></label>
+                    <textarea id="c-message" placeholder="დაწერეთ თქვენი მოთხოვნა, შეკითხვა ან შენიშვნა..." maxlength="2000" oninput="document.getElementById('c-charcount').textContent=this.value.length" style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px 16px; font-size:15px; font-family:inherit; color:var(--text-main); outline:none; box-sizing:border-box; min-height:160px; resize:none; line-height:1.6; transition:border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor=''"></textarea>
+                    <div style="text-align:right; font-size:12px; color:var(--text-muted); margin-top:4px;"><span id="c-charcount">0</span> / 2000</div>
+                </div>
+
+                <button id="c-submit-btn" onclick="sendContactForm()" style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:8px; padding:14px 24px; font-size:15px; font-family:inherit; font-weight:600; cursor:pointer; transition:background 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;" onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='var(--primary)'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    გაგზავნა
+                </button>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-top:1.8rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+                    <div style="width:36px; height:36px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    </div>
+                    <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+                        შეტყობინება გაიგზავნება პირდაპირ ჩვენს ელ-ფოსტაზე:<br/>
+                        <strong style="color:var(--text-main);">archilundilashvili@gmail.com</strong>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    <
+
+<script src="js/main.js"></script>
+</body>
+</html>
