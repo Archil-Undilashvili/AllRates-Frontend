@@ -7,130 +7,220 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .calc-container {
+        .calc-wrapper {
             width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            padding: 2.5rem;
-            box-shadow: var(--shadow-lg);
-        }
-        .calc-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 1.5rem;
-            align-items: flex-end;
-        }
-        .calc-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .calc-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-        .calc-input, .calc-select {
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.2s;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .calc-input:focus, .calc-select:focus {
-            border-color: var(--btn-bg);
-        }
-        .exchange-icon {
             display: flex;
             justify-content: center;
-            margin: 10px 0 25px 0;
-            color: var(--text-muted);
+            padding: 20px 0 60px 0;
         }
-        .exchange-icon svg {
-            width: 24px;
-            height: 24px;
+        .calc-container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            position: relative;
         }
-        .info-text {
+        .calc-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .calc-box:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: #ffffff;
+        }
+        .calc-label {
             font-size: 0.85rem;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .calc-input {
+            border: none;
+            background: transparent;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            width: 60%;
+            outline: none;
+            padding: 0;
+            font-family: inherit;
+        }
+        .calc-input::placeholder {
+            color: #cbd5e1;
+        }
+        .calc-select {
+            border: none;
+            background: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+            appearance: none;
+            padding-right: 30px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .calc-select:hover {
+            background-color: #cbd5e1;
+        }
+        .swap-btn {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #3b82f6;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        .swap-btn:hover {
+            background: #f8fafc;
+            color: #2563eb;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+        .swap-btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+        .swap-btn:active svg {
+            transform: rotate(180deg);
+        }
+        .rate-display-container {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .rate-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .rate-source {
+            font-size: 0.8rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
 <script src="js/header.js"></script>
-<div class="page-section" style="width: 100%; display: flex; justify-content: center;">
-    <div style="width: 100%; max-width: 800px; padding: 20px 0 60px 0;">
-        <div style="text-align: center; margin-bottom: 2.5rem;">
-            <span style="display: inline-block; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.2rem;">კალკულატორი</span>
-            <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">მოძებნე საუკეთესო კურსი</h2>
-            <div style="width: 48px; height: 3px; background: var(--btn-bg); margin: 1rem auto; border-radius: 2px;"></div>
-            <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.8; max-width: 520px; margin: 0 auto;">
-                კონვერტაცია მიმდინარეობს საქართველოს ეროვნული ბანკის (NBG) ოფიციალური კურსების მიხედვით.
-            </p>
-        </div>
+<div class="page-section" style="width: 100%;">
+    <div style="text-align: center; margin-bottom: 2rem; margin-top: 2rem;">
+        <span style="display: inline-block; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 6px 16px; border-radius: 20px; margin-bottom: 1.2rem;">კალკულატორი</span>
+        <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--primary); margin: 0 0 0.5rem 0; line-height: 1.2;">ვალუტის კონვერტაცია</h2>
+        <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.8; max-width: 520px; margin: 0 auto;">
+            გამოთვალეთ თანხა ეროვნული ბანკის (NBG) მიმდინარე კურსით.
+        </p>
+    </div>
 
+    <div class="calc-wrapper">
         <div class="calc-container">
-            <!-- ვიყიდი -->
-            <div class="calc-row">
-                <div class="calc-col" style="flex: 0.4;">
-                    <label class="calc-label">ვიყიდი</label>
-                    <select id="buy-currency" class="calc-select">
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="RUB">RUB</option>
-                        <option value="TRY">TRY</option>
-                        <option value="GEL">GEL</option>
-                    </select>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; position: relative;">
+                <!-- Buy Box -->
+                <div class="calc-box">
+                    <label class="calc-label" id="label-top">ვიყიდი</label>
+                    <div class="input-group">
+                        <input type="number" id="input-top" class="calc-input" placeholder="0" min="0">
+                        <select id="currency-top" class="calc-select">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="RUB">RUB</option>
+                            <option value="TRY">TRY</option>
+                            <option value="GEL">GEL</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="calc-col" style="flex: 0.6;">
-                    <label class="calc-label">თანხა</label>
-                    <input type="number" id="buy-amount" class="calc-input" placeholder="0.00" min="0" step="0.01">
+
+                <!-- Swap Button -->
+                <button class="swap-btn" id="swap-btn" title="შებრუნება">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                    </svg>
+                </button>
+
+                <!-- Sell Box -->
+                <div class="calc-box">
+                    <label class="calc-label" id="label-bottom">გავყიდი</label>
+                    <div class="input-group">
+                        <input type="number" id="input-bottom" class="calc-input" placeholder="0" min="0">
+                        <select id="currency-bottom" class="calc-select">
+                            <option value="GEL" selected>GEL</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="RUB">RUB</option>
+                            <option value="TRY">TRY</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <div class="exchange-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-                </svg>
+            <div class="rate-display-container">
+                <div class="rate-text" id="rate-display">
+                    იტვირთება...
+                </div>
+                <div class="rate-source" id="rate-source-text">NBG კურსი</div>
             </div>
 
-            <!-- გავყიდი -->
-            <div class="calc-row">
-                <div class="calc-col" style="flex: 0.4;">
-                    <label class="calc-label">გავყიდი</label>
-                    <select id="sell-currency" class="calc-select">
-                        <option value="GEL" selected>GEL</option>
-                        <option value="USD">USD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="GBP">GBP</option>
-                        <option value="RUB">RUB</option>
-                        <option value="TRY">TRY</option>
-                    </select>
-                </div>
-                <div class="calc-col" style="flex: 0.6;">
-                    <label class="calc-label">თანხა</label>
-                    <input type="number" id="sell-amount" class="calc-input" placeholder="0.00" readonly style="background: #f8fafc;">
-                </div>
-            </div>
-
-            <p class="info-text" id="rate-info">იტვირთება კურსები...</p>
         </div>
     </div>
 </div>
 
 <script>
-    let rates = { GEL: 1 }; // Base is GEL
+    let rates = { GEL: 1 };
+    let lastEdited = 'top'; // 'top' or 'bottom'
+    let mode = 'buy_top'; // 'buy_top' means top is Buy, bottom is Sell. 'sell_top' means reversed.
+
+    const inputTop = document.getElementById('input-top');
+    const inputBottom = document.getElementById('input-bottom');
+    const currencyTop = document.getElementById('currency-top');
+    const currencyBottom = document.getElementById('currency-bottom');
+    const rateDisplay = document.getElementById('rate-display');
+    const swapBtn = document.getElementById('swap-btn');
+    const labelTop = document.getElementById('label-top');
+    const labelBottom = document.getElementById('label-bottom');
 
     async function fetchNBGRates() {
         try {
@@ -141,48 +231,119 @@
             const formattedDate = `${yyyy}-${mm}-${dd}`;
             
             const res = await fetch(`https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json?date=${formattedDate}`);
-            if (!res.ok) throw new Error("Failed to fetch");
+            if (!res.ok) throw new Error("Failed");
             const data = await res.json();
             
             if (data && data.length > 0 && data[0].currencies) {
                 data[0].currencies.forEach(c => {
-                    // NBG rate is for c.quantity units. So 1 unit = c.rate / c.quantity in GEL.
                     rates[c.code] = c.rate / (c.quantity || 1);
                 });
-                calculate();
-                document.getElementById('rate-info').innerText = "მონაცემები განახლებულია (NBG)";
+                updateCalculation();
+                updateRateDisplay();
             }
         } catch (e) {
             console.error(e);
-            document.getElementById('rate-info').innerText = "კურსების ჩატვირთვა ვერ მოხერხდა";
+            rateDisplay.innerText = "შეცდომა კურსის ჩატვირთვისას";
         }
     }
 
-    function calculate() {
-        const buyAmt = parseFloat(document.getElementById('buy-amount').value);
-        const buyCcy = document.getElementById('buy-currency').value;
-        const sellCcy = document.getElementById('sell-currency').value;
-
-        if (isNaN(buyAmt) || buyAmt <= 0) {
-            document.getElementById('sell-amount').value = '';
-            return;
-        }
-
-        const rateBuy = rates[buyCcy];
-        const rateSell = rates[sellCcy];
-
-        if (rateBuy && rateSell) {
-            // How much GEL does the bought amount cost?
-            const valueInGEL = buyAmt * rateBuy;
-            // How much of sellCcy is needed to cover that GEL value?
-            const sellAmt = valueInGEL / rateSell;
-            document.getElementById('sell-amount').value = sellAmt.toFixed(2);
-        }
+    function formatNumber(num) {
+        if (!num || isNaN(num)) return '';
+        // თუ ათწილადები არ აქვს, მთელ რიცხვად ვაჩვენოთ, თორემ 2-4 ნიშნით
+        return Number.isInteger(num) ? num.toString() : num.toFixed(2);
     }
 
-    document.getElementById('buy-amount').addEventListener('input', calculate);
-    document.getElementById('buy-currency').addEventListener('change', calculate);
-    document.getElementById('sell-currency').addEventListener('change', calculate);
+    function updateCalculation() {
+        const ccyTop = currencyTop.value;
+        const ccyBottom = currencyBottom.value;
+        const rateT = rates[ccyTop];
+        const rateB = rates[ccyBottom];
+
+        if (!rateT || !rateB) return;
+
+        if (lastEdited === 'top') {
+            const valTop = parseFloat(inputTop.value);
+            if (isNaN(valTop) || valTop <= 0) {
+                inputBottom.value = '';
+                return;
+            }
+            // Value in GEL
+            const valInGel = valTop * rateT;
+            // Value in bottom currency
+            const result = valInGel / rateB;
+            inputBottom.value = result.toFixed(2);
+        } else {
+            const valBottom = parseFloat(inputBottom.value);
+            if (isNaN(valBottom) || valBottom <= 0) {
+                inputTop.value = '';
+                return;
+            }
+            const valInGel = valBottom * rateB;
+            const result = valInGel / rateT;
+            inputTop.value = result.toFixed(2);
+        }
+        updateRateDisplay();
+    }
+
+    function updateRateDisplay() {
+        const ccyTop = currencyTop.value;
+        const ccyBottom = currencyBottom.value;
+        const rateT = rates[ccyTop];
+        const rateB = rates[ccyBottom];
+
+        if (!rateT || !rateB) return;
+
+        // ვაჩვენოთ კურსი: 1 [ზედა ვალუტა] = [ქვედა ვალუტა]
+        const oneUnitConversion = rateT / rateB;
+        
+        let formattedRate = oneUnitConversion < 0.01 ? oneUnitConversion.toFixed(4) : oneUnitConversion.toFixed(4);
+        
+        rateDisplay.innerHTML = `
+            <span style="color: #64748b;">1 ${ccyTop} =</span>
+            <span>${formattedRate} ${ccyBottom}</span>
+        `;
+    }
+
+    inputTop.addEventListener('input', () => {
+        lastEdited = 'top';
+        updateCalculation();
+    });
+
+    inputBottom.addEventListener('input', () => {
+        lastEdited = 'bottom';
+        updateCalculation();
+    });
+
+    currencyTop.addEventListener('change', () => {
+        updateCalculation();
+    });
+
+    currencyBottom.addEventListener('change', () => {
+        updateCalculation();
+    });
+
+    swapBtn.addEventListener('click', () => {
+        // ვცვლით ვალუტებს
+        const tempCcy = currencyTop.value;
+        currencyTop.value = currencyBottom.value;
+        currencyBottom.value = tempCcy;
+        
+        // ვცვლით ლეიბლებს
+        if (mode === 'buy_top') {
+            labelTop.innerText = 'გავყიდი';
+            labelBottom.innerText = 'ვიყიდი';
+            mode = 'sell_top';
+        } else {
+            labelTop.innerText = 'ვიყიდი';
+            labelBottom.innerText = 'გავყიდი';
+            mode = 'buy_top';
+        }
+
+        // ვაახლებთ გამოთვლას იმის მიხედვით თუ სად ეწერა ბოლოს
+        updateCalculation();
+        
+        // ღილაკის ანიმაცია კლასის დამატებით/მოხსნით შეიძლება (ახლა css :active აკეთებს)
+    });
 
     fetchNBGRates();
 </script>
