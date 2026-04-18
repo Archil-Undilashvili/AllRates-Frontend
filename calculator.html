@@ -9,14 +9,14 @@
     <style>
         .calc-page-layout {
             width: 100%;
-            max-width: 1150px;
+            max-width: 1180px;
             margin: 0 auto;
             display: flex;
             gap: 30px;
             padding: 20px 0 60px 0;
             align-items: flex-start;
         }
-        @media (max-width: 850px) {
+        @media (max-width: 950px) {
             .calc-page-layout {
                 flex-direction: column;
                 align-items: center;
@@ -25,12 +25,12 @@
         .calc-main {
             flex: 1;
             width: 100%;
-            max-width: 580px;
+            max-width: 650px;
         }
         .calc-sidebar {
             flex: 1;
             width: 100%;
-            max-width: 520px;
+            max-width: 500px;
             background: #ffffff;
             border-radius: 20px;
             border: 1px solid #e2e8f0;
@@ -46,50 +46,68 @@
             position: relative;
         }
         
-        .category-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 24px;
+        .filter-section {
+            margin-bottom: 20px;
         }
-        .cat-tab {
-            padding: 8px 16px;
-            border-radius: 20px;
+        .section-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .category-tabs, .ccy-tabs {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            overflow-x: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .category-tabs::-webkit-scrollbar, .ccy-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .cat-tab, .ccy-tab {
+            flex: 1;
+            min-width: max-content;
+            padding: 10px 16px;
+            border-radius: 12px;
             border: 1px solid #e2e8f0;
             background: #f8fafc;
-            color: #64748b;
-            font-size: 0.9rem;
+            color: #475569;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
+            text-align: center;
         }
-        .cat-tab:hover {
+        .cat-tab:hover, .ccy-tab:hover {
             background: #e2e8f0;
             color: #1e293b;
         }
-        .cat-tab.active {
+        .cat-tab.active, .ccy-tab.active {
             background: #3b82f6;
             color: #ffffff;
             border-color: #3b82f6;
             box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
         }
-        .filter-group {
-            margin-bottom: 24px;
-        }
-        .filter-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #64748b;
-            margin-bottom: 8px;
-            display: block;
+
+        .calc-boxes-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            margin-top: 30px;
         }
 
         .calc-box {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 16px;
-            padding: 28px;
+            padding: 24px 28px;
             transition: all 0.2s ease;
             position: relative;
         }
@@ -102,48 +120,14 @@
             font-size: 1rem;
             font-weight: 600;
             color: #64748b;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: block;
-        }
-        
-        /* NEW CCY TABS STYLES */
-        .ccy-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .ccy-tab {
-            padding: 8px 14px;
-            border-radius: 12px;
-            border: 1px solid transparent;
-            background: #e2e8f0;
-            color: #475569;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .ccy-tab:hover {
-            background: #cbd5e1;
-            color: #1e293b;
-        }
-        .ccy-tab.active {
-            background: #ffffff;
-            color: #3b82f6;
-            border: 1px solid #3b82f6;
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
         }
 
         .input-group {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 10px;
         }
         .calc-input {
             border: none;
@@ -151,7 +135,7 @@
             font-size: 2.4rem;
             font-weight: 600;
             color: #1e293b;
-            width: 55%;
+            width: 60%;
             outline: none;
             padding: 0;
             font-family: inherit;
@@ -161,14 +145,14 @@
         }
         
         .ccy-display {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #1e293b;
             display: flex;
             align-items: center;
             gap: 8px;
             background: #ffffff;
-            padding: 10px 16px;
+            padding: 10px 18px;
             border-radius: 14px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
@@ -180,8 +164,8 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 50%;
@@ -190,7 +174,7 @@
             justify-content: center;
             cursor: pointer;
             color: #3b82f6;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.2s ease;
             z-index: 10;
         }
@@ -200,23 +184,23 @@
             transform: translate(-50%, -50%) scale(1.05);
         }
         .swap-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             transition: transform 0.3s ease;
         }
         .swap-btn:active svg {
             transform: rotate(180deg);
         }
         .rate-display-container {
-            margin-top: 20px;
-            padding-top: 20px;
+            margin-top: 24px;
+            padding-top: 24px;
             border-top: 1px dashed #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .rate-text {
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 600;
             color: #1e293b;
             display: flex;
@@ -224,11 +208,11 @@
             gap: 6px;
         }
         .rate-source {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #64748b;
             background: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
             font-weight: 500;
         }
 
@@ -256,19 +240,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            /* No fixed height, show fully */
             padding-right: 5px;
-        }
-        .top10-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        .top10-list::-webkit-scrollbar-track {
-            background: #f1f5f9; 
-            border-radius: 10px;
-        }
-        .top10-list::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 10px;
         }
         .top10-item {
             display: flex;
@@ -338,20 +310,34 @@
         <div class="calc-main">
             <div class="calc-container">
                 
-                <div class="category-tabs" id="calc-category-tabs">
-                    <button class="cat-tab active" data-cat="all">ყველა კომპანია</button>
-                    <button class="cat-tab" data-cat="banks">ბანკები</button>
-                    <button class="cat-tab" data-cat="mfos">მისო და სხვა</button>
-                    <button class="cat-tab" data-cat="nbg">ეროვნული ბანკი</button>
+                <div class="filter-section">
+                    <label class="section-label">კატეგორია</label>
+                    <div class="category-tabs" id="calc-category-tabs">
+                        <button class="cat-tab active" data-cat="all">ყველა კომპანია</button>
+                        <button class="cat-tab" data-cat="banks">ბანკები</button>
+                        <button class="cat-tab" data-cat="mfos">მისო და სხვა</button>
+                        <button class="cat-tab" data-cat="nbg">ეროვნული ბანკი</button>
+                    </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 12px; position: relative;">
+                <div class="filter-section">
+                    <label class="section-label" id="filter-label-top">ვიყიდი</label>
+                    <div class="ccy-tabs" id="ccy-tabs-top">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <label class="section-label" id="filter-label-bottom">გავყიდი</label>
+                    <div class="ccy-tabs" id="ccy-tabs-bottom">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="calc-boxes-wrapper">
                     <!-- Buy Box -->
                     <div class="calc-box">
                         <label class="calc-label" id="label-top">ვიყიდი</label>
-                        <div class="ccy-tabs" id="ccy-tabs-top">
-                            <!-- Populated by JS -->
-                        </div>
                         <div class="input-group">
                             <input type="number" id="input-top" class="calc-input" placeholder="0" min="0">
                             <div class="ccy-display" id="ccy-display-top">🇺🇸 USD</div>
@@ -368,9 +354,6 @@
                     <!-- Sell Box -->
                     <div class="calc-box">
                         <label class="calc-label" id="label-bottom">გავყიდი</label>
-                        <div class="ccy-tabs" id="ccy-tabs-bottom">
-                            <!-- Populated by JS -->
-                        </div>
                         <div class="input-group">
                             <input type="number" id="input-bottom" class="calc-input" placeholder="0" min="0">
                             <div class="ccy-display" id="ccy-display-bottom">🇬🇪 GEL</div>
@@ -482,13 +465,13 @@
     const top10List = document.getElementById('top10-list');
 
     function renderCcyTabs() {
-        // Top Container
+        // Top Container (ვიყიდი)
         const topContainer = document.getElementById('ccy-tabs-top');
         topContainer.innerHTML = '';
         availableCcys.forEach(ccy => {
             const btn = document.createElement('button');
             btn.className = 'ccy-tab' + (ccy === valTopCcy ? ' active' : '');
-            btn.innerHTML = `${flags[ccy]} ${ccy}`;
+            btn.innerHTML = ccy; // ONLY TEXT
             btn.onclick = () => {
                 valTopCcy = ccy;
                 renderCcyTabs();
@@ -497,13 +480,13 @@
             topContainer.appendChild(btn);
         });
 
-        // Bottom Container
+        // Bottom Container (გავყიდი)
         const bottomContainer = document.getElementById('ccy-tabs-bottom');
         bottomContainer.innerHTML = '';
         availableCcys.forEach(ccy => {
             const btn = document.createElement('button');
             btn.className = 'ccy-tab' + (ccy === valBottomCcy ? ' active' : '');
-            btn.innerHTML = `${flags[ccy]} ${ccy}`;
+            btn.innerHTML = ccy; // ONLY TEXT
             btn.onclick = () => {
                 valBottomCcy = ccy;
                 renderCcyTabs();
@@ -512,7 +495,7 @@
             bottomContainer.appendChild(btn);
         });
 
-        // Update displays
+        // Update displays inside the calc boxes (WITH FLAGS)
         document.getElementById('ccy-display-top').innerHTML = `${flags[valTopCcy]} ${valTopCcy}`;
         document.getElementById('ccy-display-bottom').innerHTML = `${flags[valBottomCcy]} ${valBottomCcy}`;
     }
@@ -637,7 +620,6 @@
         const bestOption = topRates[0];
         const bestRate = bestOption.rate;
 
-        // Update Calculator
         if (lastEdited === 'top') {
             const val = parseFloat(inputTop.value);
             if (!isNaN(val) && val > 0) {
