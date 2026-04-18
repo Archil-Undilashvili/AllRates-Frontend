@@ -54,7 +54,7 @@
             font-size: 1.8rem;
             font-weight: 600;
             color: #1e293b;
-            width: 60%;
+            width: 55%;
             outline: none;
             padding: 0;
             font-family: inherit;
@@ -65,21 +65,22 @@
         .calc-select {
             border: none;
             background: #e2e8f0;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 20px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #1e293b;
             cursor: pointer;
             outline: none;
             font-family: inherit;
             appearance: none;
-            padding-right: 30px;
+            padding-right: 32px;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 10px center;
+            background-position: right 12px center;
             background-size: 16px;
             transition: background-color 0.2s;
+            width: 120px;
         }
         .calc-select:hover {
             background-color: #cbd5e1;
@@ -163,12 +164,12 @@
                     <div class="input-group">
                         <input type="number" id="input-top" class="calc-input" placeholder="0" min="0">
                         <select id="currency-top" class="calc-select">
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                            <option value="GBP">GBP</option>
-                            <option value="RUB">RUB</option>
-                            <option value="TRY">TRY</option>
-                            <option value="GEL">GEL</option>
+                            <option value="USD">🇺🇸 USD</option>
+                            <option value="EUR">🇪🇺 EUR</option>
+                            <option value="GBP">🇬🇧 GBP</option>
+                            <option value="RUB">🇷🇺 RUB</option>
+                            <option value="TRY">🇹🇷 TRY</option>
+                            <option value="GEL">🇬🇪 GEL</option>
                         </select>
                     </div>
                 </div>
@@ -186,12 +187,12 @@
                     <div class="input-group">
                         <input type="number" id="input-bottom" class="calc-input" placeholder="0" min="0">
                         <select id="currency-bottom" class="calc-select">
-                            <option value="GEL" selected>GEL</option>
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                            <option value="GBP">GBP</option>
-                            <option value="RUB">RUB</option>
-                            <option value="TRY">TRY</option>
+                            <option value="GEL" selected>🇬🇪 GEL</option>
+                            <option value="USD">🇺🇸 USD</option>
+                            <option value="EUR">🇪🇺 EUR</option>
+                            <option value="GBP">🇬🇧 GBP</option>
+                            <option value="RUB">🇷🇺 RUB</option>
+                            <option value="TRY">🇹🇷 TRY</option>
                         </select>
                     </div>
                 </div>
@@ -210,8 +211,19 @@
 
 <script>
     let rates = { GEL: 1 };
-    let lastEdited = 'top'; // 'top' or 'bottom'
-    let mode = 'buy_top'; // 'buy_top' means top is Buy, bottom is Sell. 'sell_top' means reversed.
+    let lastEdited = 'top'; 
+    let mode = 'buy_top'; 
+
+    // ვალუტების პრიორიტეტები ძირითადი წყვილების გამოსაჩენად
+    // EUR > GBP > USD > TRY > RUB > GEL
+    const currencyPriority = {
+        'EUR': 1,
+        'GBP': 2,
+        'USD': 3,
+        'TRY': 4,
+        'RUB': 5,
+        'GEL': 6
+    };
 
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
@@ -247,12 +259,6 @@
         }
     }
 
-    function formatNumber(num) {
-        if (!num || isNaN(num)) return '';
-        // თუ ათწილადები არ აქვს, მთელ რიცხვად ვაჩვენოთ, თორემ 2-4 ნიშნით
-        return Number.isInteger(num) ? num.toString() : num.toFixed(2);
-    }
-
     function updateCalculation() {
         const ccyTop = currencyTop.value;
         const ccyBottom = currencyBottom.value;
@@ -267,9 +273,7 @@
                 inputBottom.value = '';
                 return;
             }
-            // Value in GEL
             const valInGel = valTop * rateT;
-            // Value in bottom currency
             const result = valInGel / rateB;
             inputBottom.value = result.toFixed(2);
         } else {
@@ -293,14 +297,26 @@
 
         if (!rateT || !rateB) return;
 
-        // ვაჩვენოთ კურსი: 1 [ზედა ვალუტა] = [ქვედა ვალუტა]
-        const oneUnitConversion = rateT / rateB;
+        // ვადგენთ რომელია Base (ძირითადი) და რომელი Quote
+        let baseCcy, quoteCcy;
+        if (currencyPriority[ccyTop] < currencyPriority[ccyBottom]) {
+            baseCcy = ccyTop;
+            quoteCcy = ccyBottom;
+        } else {
+            baseCcy = ccyBottom;
+            quoteCcy = ccyTop;
+        }
+
+        // გამოვთვალოთ 1 Base-ის ფასი Quote ვალუტაში
+        const rateBaseInGel = rates[baseCcy];
+        const rateQuoteInGel = rates[quoteCcy];
+        const conversionRate = rateBaseInGel / rateQuoteInGel;
         
-        let formattedRate = oneUnitConversion < 0.01 ? oneUnitConversion.toFixed(4) : oneUnitConversion.toFixed(4);
+        let formattedRate = conversionRate < 0.01 ? conversionRate.toFixed(4) : conversionRate.toFixed(4);
         
         rateDisplay.innerHTML = `
-            <span style="color: #64748b;">1 ${ccyTop} =</span>
-            <span>${formattedRate} ${ccyBottom}</span>
+            <span style="color: #64748b;">1 ${baseCcy} =</span>
+            <span>${formattedRate} ${quoteCcy}</span>
         `;
     }
 
@@ -323,12 +339,10 @@
     });
 
     swapBtn.addEventListener('click', () => {
-        // ვცვლით ვალუტებს
         const tempCcy = currencyTop.value;
         currencyTop.value = currencyBottom.value;
         currencyBottom.value = tempCcy;
         
-        // ვცვლით ლეიბლებს
         if (mode === 'buy_top') {
             labelTop.innerText = 'გავყიდი';
             labelBottom.innerText = 'ვიყიდი';
@@ -339,10 +353,7 @@
             mode = 'buy_top';
         }
 
-        // ვაახლებთ გამოთვლას იმის მიხედვით თუ სად ეწერა ბოლოს
         updateCalculation();
-        
-        // ღილაკის ანიმაცია კლასის დამატებით/მოხსნით შეიძლება (ახლა css :active აკეთებს)
     });
 
     fetchNBGRates();
