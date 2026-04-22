@@ -751,3 +751,124 @@ th.sortable.active-sort .sort-icon {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     background-color: rgba(255, 255, 255, 0.05) !important;
 }
+
+/* --- Company Search --- */
+.company-search-container {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+}
+#company-search-input {
+    width: 100%;
+    padding: 10px 15px 10px 38px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 0.95em;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#company-search-input:focus {
+    border-color: var(--primary);
+}
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 5px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+.dropdown-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+}
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+.dropdown-item:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    animation: modalPop 0.3s ease;
+}
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-close {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 28px;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+}
+.modal-close:hover { color: var(--text-main); }
+.modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+}
+.modal-rates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+.modal-rate-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+}
+.modal-rate-title {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+.modal-rate-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+.modal-rate-lbl { color: var(--text-muted); }
+.modal-rate-buy { color: var(--buy-color); font-weight: bold; }
+.modal-rate-sell { color: var(--sell-color); font-weight: bold; }

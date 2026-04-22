@@ -1237,3 +1237,154 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         
         loadCachedData(); // Load cached numbers instantly
         fetchRates();     // Fetch fresh numbers silently
+
+
+// --- Company Search Logic ---
+function initCompanySearch() {
+    const searchInput = document.getElementById('company-search-input');
+    const searchDropdown = document.getElementById('company-search-dropdown');
+    if (!searchInput || !searchDropdown) return;
+
+    searchInput.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
+        searchDropdown.innerHTML = '';
+        if (!val) {
+            searchDropdown.style.display = 'none';
+            return;
+        }
+        
+        const uniqueComps = {};
+        originalData.forEach(item => {
+            const base = item.baseCompany || item.Company.toLowerCase();
+            if (!uniqueComps[base]) {
+                uniqueComps[base] = item;
+            }
+        });
+        
+        const matches = [];
+        for (let base in uniqueComps) {
+            const item = uniqueComps[base];
+            const nameKa = COMPANY_NAMES_KA[base] || item.Company;
+            const nameEn = base;
+            
+            if (nameKa.toLowerCase().includes(val) || nameEn.toLowerCase().includes(val)) {
+                matches.push({ base: base, item: item, nameKa: nameKa });
+            }
+        }
+        
+        if (matches.length > 0) {
+            matches.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'dropdown-item';
+                div.innerText = m.nameKa;
+                div.onclick = () => {
+                    showCompanyRatesModal(m.item, m.nameKa, m.base);
+                    searchDropdown.style.display = 'none';
+                    searchInput.value = '';
+                };
+                searchDropdown.appendChild(div);
+            });
+            searchDropdown.style.display = 'block';
+        } else {
+            const div = document.createElement('div');
+            div.className = 'dropdown-item';
+            div.style.color = 'var(--text-muted)';
+            div.innerText = 'კომპანია არ მოიძებნა';
+            searchDropdown.appendChild(div);
+            searchDropdown.style.display = 'block';
+        }
+    });
+    
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.company-search-container')) {
+            searchDropdown.style.display = 'none';
+        }
+    });
+
+    const closeBtn = document.getElementById('modal-close-btn');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            document.getElementById('company-modal').style.display = 'none';
+        };
+    }
+    
+    const modalOverlay = document.getElementById('company-modal');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        });
+    }
+}
+
+function showCompanyRatesModal(item, nameKa, base) {
+    const modal = document.getElementById('company-modal');
+    const header = document.getElementById('modal-company-header');
+    const ratesGrid = document.getElementById('modal-company-rates');
+    
+    if (!modal) return;
+    
+    const logoPath = LOGOS[base] || 'Logos/logo.jpg';
+    header.innerHTML = `
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #ffffff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px; margin-right: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <img src="${logoPath}" style="width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 8px;">
+        </div>
+        <h2 style="margin:0;color:var(--text-main); font-size: 1.4em;">${nameKa}</h2>
+    `;
+    
+    const currencies = [
+        { id: 'usd', label: 'USD', flag: 'US.png', b: 'USDGEL (Buy)', s: 'USDGEL (Sell)' },
+        { id: 'eur', label: 'EUR', flag: 'EU.png', b: 'EURGEL (Buy)', s: 'EURGEL (Sell)' },
+        { id: 'gbp', label: 'GBP', flag: 'GB.png', b: 'GBPGEL (Buy)', s: 'GBPGEL (Sell)' },
+        { id: 'rub', label: 'RUB', flag: 'RU.png', b: 'RUBGEL (Buy)', s: 'RUBGEL (Sell)', rubBuy: item.rubBuy, rubSell: item.rubSell },
+        { id: 'try', label: 'TRY', flag: 'TR.png', b: 'TRYGEL (Buy)', s: 'TRYGEL (Sell)' }
+    ];
+    
+    let html = '';
+    currencies.forEach(c => {
+        let buy, sell;
+        if (c.id === 'rub' && base === 'crystal' && parseFloat(c.rubBuy) > 1) {
+            buy = parseFloat(c.rubBuy) / 100;
+            sell = parseFloat(c.rubSell) / 100;
+        } else if (c.id === 'rub' || c.id === 'try') {
+            buy = parseFloat(item[c.b]);
+            sell = parseFloat(item[c.s]);
+        } else {
+            buy = parseFloat(item[c.b]);
+            sell = parseFloat(item[c.s]);
+        }
+
+        let decimals = (c.id === 'rub' || c.id === 'try') ? 4 : 3;
+        
+        let buyStr = (!isNaN(buy) && buy > 0) ? buy.toFixed(decimals) : '- - -';
+        let sellStr = (!isNaN(sell) && sell > 0) ? sell.toFixed(decimals) : '- - -';
+        
+        html += `
+            <div class="modal-rate-card">
+                <div class="modal-rate-title"><img src="Logos/${c.flag}" style="width:24px;height:24px;border-radius:50%;margin-right:10px; border: 1px solid var(--border);">${c.label} / GEL</div>
+                <div class="modal-rate-row"><span class="modal-rate-lbl">ყიდვა:</span> <span class="modal-rate-buy">${buyStr}</span></div>
+                <div class="modal-rate-row"><span class="modal-rate-lbl">გაყიდვა:</span> <span class="modal-rate-sell">${sellStr}</span></div>
+            </div>
+        `;
+    });
+    
+    ratesGrid.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+// Intercept data load to bind search
+const originalRenderTables = renderTable;
+let searchInitialized = false;
+window.renderTable = function(currency) {
+    originalRenderTables(currency);
+    if (!searchInitialized && originalData && originalData.length > 0) {
+        initCompanySearch();
+        searchInitialized = true;
+    }
+};
+
+if (typeof originalData !== 'undefined' && originalData.length > 0) {
+    initCompanySearch();
+    searchInitialized = true;
+}
