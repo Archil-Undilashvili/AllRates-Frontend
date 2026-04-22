@@ -66,6 +66,7 @@
                         <th class="sortable" onclick="sortData('usd', 'buy')">ყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('usd', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('usd', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                        <th style="width: 60px; text-align: center;">ინფო</th>
                     </tr>
                 </thead>
                 <tbody id="usd-body"></tbody>
@@ -107,6 +108,7 @@
                         <th class="sortable" onclick="sortData('eur', 'buy')">ყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('eur', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('eur', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                        <th style="width: 60px; text-align: center;">ინფო</th>
                     </tr>
                 </thead>
                 <tbody id="eur-body"></tbody>
@@ -149,6 +151,7 @@
                         <th class="sortable" onclick="sortData('gbp', 'buy')">ყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('gbp', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('gbp', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                        <th style="width: 60px; text-align: center;">ინფო</th>
                     </tr>
                 </thead>
                 <tbody id="gbp-body"></tbody>
@@ -190,6 +193,7 @@
                         <th class="sortable" onclick="sortData('rub', 'buy')">ყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('rub', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('rub', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                        <th style="width: 60px; text-align: center;">ინფო</th>
                     </tr>
                 </thead>
                 <tbody id="rub-body"></tbody>
@@ -230,6 +234,7 @@
                         <th class="sortable" onclick="sortData('try', 'buy')">ყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('try', 'sell')">გაყიდვა <span class="sort-icon"></span></th>
                         <th class="sortable" onclick="sortData('try', 'spread')">სპრედი <span class="sort-icon"></span></th>
+                        <th style="width: 60px; text-align: center;">ინფო</th>
                     </tr>
                 </thead>
                 <tbody id="try-body"></tbody>
@@ -266,6 +271,16 @@
             <div id="modal-company-rates" class="modal-rates-grid"></div>
         </div>
     </div>
-    \n<script src="js/main.js?v=5"></script>
+    \n
+    <!-- Company Info Details Modal -->
+    <div id="company-info-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 550px;">
+            <span class="modal-close" onclick="document.getElementById('company-info-modal').style.display='none'">&times;</span>
+            <div id="info-modal-header" class="modal-header" style="border-bottom: none; margin-bottom: 0;"></div>
+            <div id="info-modal-body"></div>
+        </div>
+    </div>
+
+<script src="js/main.js?v=5"></script>
 </body>
 </html>

@@ -872,3 +872,29 @@ th.sortable.active-sort .sort-icon {
 .modal-rate-lbl { color: var(--text-muted); }
 .modal-rate-buy { color: var(--buy-color); font-weight: bold; }
 .modal-rate-sell { color: var(--sell-color); font-weight: bold; }
+
+/* --- Info Icon Button --- */
+.info-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+.btn-info-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.btn-info-icon:hover {
+    color: var(--primary);
+    background: rgba(56, 189, 248, 0.1);
+    transform: scale(1.1);
+}
+.info-website-link:hover {
+    background: rgba(56, 189, 248, 0.2) !important;
+}
