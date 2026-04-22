@@ -106,27 +106,27 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         }
 
         const COMPANY_NAMES_KA = {
-            'rico': 'რიკო ექსპრესი',
-            'valuto': 'ვალუტო',
-            'kursige': 'კურსი',
-            'crystal': 'კრისტალი',
-            'bog': 'საქართველოს ბანკი',
-            'tbc': 'თიბისი',
-            'liberty': 'ლიბერთი',
-            'bb': 'ბაზისბანკი',
-            'credo': 'კრედო',
-            'cartu': 'ქართუ',
-            'inex': 'ინტელიექსპრესი',
-            'giro': 'გირო კრედიტი',
-            'goa': 'გოა კრედიტი',
-            'hash': 'ჰაშ ბანკი',
-            'mbc': 'MBC',
-            'tera': 'ტერაბანკი',
-            'halyk': 'ხალიკ ბანკი',
-            'is': 'იშბანკი',
-            'silk': 'სილქ ბანკი',
-            'paysera': 'Paysera'
-        };
+        'rico': 'რიკო',
+        'valuto': 'ვალუტო',
+        'kursige': 'კურსიჯი',
+        'crystal': 'კრისტალი',
+        'bog': 'საქართველოს ბანკი',
+        'tbc': 'თიბისი',
+        'liberty': 'ლიბერთი',
+        'bb': 'ბაზისბანკი',
+        'credo': 'კრედო ბანკი',
+        'cartu': 'ბანკი ქართუ',
+        'inex': 'ინტელიექსპრესი',
+        'giro': 'გირო კრედიტი',
+        'goa': 'გოა კრედიტი',
+        'hash': 'ჰაშ ბანკი',
+        'mbc': 'ემბისი',
+        'tera': 'ტერაბანკი',
+        'halyk': 'ხალიკ ბანკი',
+        'is': 'იშბანკი',
+        'silk': 'სილქ ბანკი',
+        'paysera': 'Paysera'
+    };
 
         const COMPANY_URLS = {
         'rico': 'https://rico.ge/',
