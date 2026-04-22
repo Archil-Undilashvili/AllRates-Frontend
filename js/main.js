@@ -152,26 +152,26 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
     };
 
         const LOGOS = {
-            'rico': 'Logos/rico.png',
-            'valuto': 'https://valuto.ge/uploads/2021/03/%E1%83%95%E1%83%90%E1%83%9A%E1%83%A3%E1%83%A2%E1%83%9D-%E1%83%9A%E1%83%9D%E1%83%92%E1%83%9D.png',
-            'kursige': 'Logos/kursige.png',
-            'crystal': 'Logos/crystal.png',
-            'bog': 'Logos/bog.png',
-            'tbc': 'https://tbcbank.ge/assets/tbc-ge/favicon.png',
-            'liberty': 'Logos/Liberty.png',
-            'bb': 'Logos/bb.png',
-            'credo': 'Logos/credo.png',
-            'cartu': 'Logos/cartu.png',
+            'rico': 'Logos/rico_icon.png',
+            'valuto': 'Logos/valuto_icon.png',
+            'kursige': 'Logos/kursige_icon.png',
+            'crystal': 'Logos/crystal_icon.png',
+            'bog': 'Logos/bog_icon.png',
+            'tbc': 'Logos/tbc_icon.png',
+            'liberty': 'Logos/liberty_icon.png',
+            'bb': 'Logos/bb_icon.png',
+            'credo': 'Logos/credo_icon.png',
+            'cartu': 'Logos/cartu_icon.ico',
             'inex': 'Logos/Inex.png',
-            'giro': 'Logos/Giro.png',
-            'goa': 'Logos/Goa.png',
-            'hash': 'Logos/Hash.png',
-            'mbc': 'Logos/mbc.png',
-            'tera': 'Logos/TERA.png',
-            'halyk': 'Logos/HALYK.png',
-            'is': 'Logos/IS.png',
-            'paysera': 'Logos/PAYSERA.png',
-            'silk': 'Logos/silk.png'
+            'giro': 'Logos/giro_icon.png',
+            'goa': 'Logos/goa_icon.png',
+            'hash': 'Logos/hash_icon.ico',
+            'mbc': 'Logos/mbc_icon.png',
+            'tera': 'Logos/tera_icon.png',
+            'halyk': 'Logos/halyk_icon.ico',
+            'is': 'Logos/is_icon.png',
+            'silk': 'Logos/silk_icon.png',
+            'paysera': 'Logos/paysera_icon.png'
         };
 
         let originalData = [];
@@ -1120,7 +1120,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     <td class="company-name">
                         <a href="${compUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; display: block;">
                             <div style="display: flex; align-items: center; gap: 14px; padding: 4px 0;">
-                                ${logoUrl ? `<div style="width: 40px; height: 40px; border-radius: 10px; background: #ffffff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; overflow: hidden; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><img src="${logoUrl}" alt="${compNameKa}" class="${logoClass}" style="width: 100%; height: 100%; object-fit: contain; object-position: center;"></div>` : `<div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><span style="font-weight:bold; font-size: 18px; color:${initialColor};">${mainName.charAt(0)}</span></div>`}
+                                ${logoUrl ? `<div style="width: 42px; height: 42px; border-radius: 12px; background: #ffffff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; overflow: hidden; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><img src="${logoUrl}" alt="${compNameKa}" class="${logoClass}" style="width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 8px;"></div>` : `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><span style="font-weight:bold; font-size: 18px; color:${initialColor};">${mainName.charAt(0)}</span></div>`}
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.25; max-width: 160px;">
                                     <span style="font-weight: 600; color: var(--text-main); font-size: 13px; white-space: normal; word-break: break-word;">${mainName}</span>
                                     ${subName ? `<span style="font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 3px; white-space: normal; word-break: break-word;">${subName}</span>` : ''}
