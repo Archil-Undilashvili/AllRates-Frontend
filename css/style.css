@@ -309,20 +309,20 @@
         }
 
         .company-logo {
-            height: 30px;
-            max-width: 90px;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: none !important;
             object-fit: contain;
+            object-position: center; /* Changed from left center to center for small squares */
         }
 
-        /* Kursi.ge logo is white, so we invert it for white bg */
+        /* Kursi.ge logo might need inversion if it's white, but since we use white background for the icon box, we should leave the inversion so it's black on white */
         .logo-kursige {
             filter: invert(1);
         }
         
-        /* Custom size for Credo logo to make it readable */
         .logo-credo {
-            height: 50px !important;
-            max-width: 150px !important;
+            /* Let it inherit from .company-logo now */
         }
 
         .buy { color: var(--buy-color); font-weight: 600; }
