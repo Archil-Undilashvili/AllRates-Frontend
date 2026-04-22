@@ -168,7 +168,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
             'hash': 'Logos/hash_icon.ico',
             'mbc': 'Logos/mbc_icon.png',
             'tera': 'Logos/tera_icon.png',
-            'halyk': 'Logos/halyk_icon.ico',
+            'halyk': 'Logos/halyk_icon.png',
             'is': 'Logos/is_icon.png',
             'silk': 'Logos/silk_icon.png',
             'paysera': 'Logos/paysera_icon.png'
