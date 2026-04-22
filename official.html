@@ -12,7 +12,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fff;
+            background: var(--card-bg);
             padding: 15px 20px;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -30,11 +30,11 @@
             font-family: inherit;
         }
         .search-input:focus {
-            border-color: #3b82f6;
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
         .official-table-wrapper {
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
@@ -47,10 +47,10 @@
             text-align: left;
         }
         .official-table th {
-            background: #f8fafc;
+            background: var(--bg-color);
             padding: 16px 20px;
             font-size: 14px;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: 600;
             border-bottom: 1px solid #e2e8f0;
             text-transform: uppercase;
@@ -58,18 +58,18 @@
         .official-table td {
             padding: 16px 20px;
             border-bottom: 1px solid #f1f5f9;
-            color: #1e293b;
+            color: var(--text-main);
             font-size: 15px;
         }
         .official-table tr:last-child td {
             border-bottom: none;
         }
         .official-table tr:hover {
-            background-color: #f8fafc;
+            background-color: var(--bg-color);
         }
         .code-cell {
             font-weight: 700;
-            color: #0f172a;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -84,17 +84,17 @@
             align-items: center;
             gap: 6px;
         }
-        .diff-up { color: #ef4444; } /* Red for up (foreign currency became more expensive) */
-        .diff-down { color: #10b981; } /* Green for down */
-        .diff-none { color: #94a3b8; }
+        .diff-up { color: var(--sell-color); } /* Red for up (foreign currency became more expensive) */
+        .diff-down { color: var(--buy-color); } /* Green for down */
+        .diff-none { color: var(--text-muted); }
         .currency-name {
-            color: #475569;
+            color: var(--text-main);
             font-weight: 500;
         }
         .quantity-badge {
             display: inline-block;
-            background: #f1f5f9;
-            color: #64748b;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 12px;
@@ -130,20 +130,20 @@
 
 <div class="page-section" style="display: flex; justify-content: center; padding: 20px;">
     <div style="width: 100%; max-width: 1000px;">
-        <h1 style="color: #1e293b; margin-bottom: 25px; font-size: 28px;">საქართველოს ეროვნული ბანკის ოფიციალური კურსები</h1>
+        <h1 style="color: var(--text-main); margin-bottom: 25px; font-size: 28px;">საქართველოს ეროვნული ბანკის ოფიციალური კურსები</h1>
         
         <div class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="მოძებნე ვალუტა (მაგ. დოლარი, USD...)" style="flex: 1; max-width: 350px;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span id="dateLabel" style="color: #64748b; font-weight: 500; font-size: 13px; text-align: right;">აირჩიეთ თარიღი:</span>
+                <span id="dateLabel" style="color: var(--text-muted); font-weight: 500; font-size: 13px; text-align: right;">აირჩიეთ თარიღი:</span>
                 <div style="position: relative;">
-                    <input type="text" id="datePicker" class="search-input" placeholder="თარიღი..." style="width: 140px; padding-left: 35px; cursor: pointer; text-align: center; background: #f8fafc;">
-                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #3b82f6; pointer-events: none;">📅</span>
+                    <input type="text" id="datePicker" class="search-input" placeholder="თარიღი..." style="width: 140px; padding-left: 35px; cursor: pointer; text-align: center; background: var(--bg-color);">
+                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none;">📅</span>
                 </div>
             </div>
         </div>
 
-        <div id="loader" class="loader" style="display: block; text-align: center; padding: 40px; color: #64748b;">
+        <div id="loader" class="loader" style="display: block; text-align: center; padding: 40px; color: var(--text-muted);">
             ⏳ მონაცემები იტვირთება...
         </div>
 
@@ -233,7 +233,7 @@
         tbody.innerHTML = '';
         
         if (rates.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: #64748b;">ვერაფერი მოიძებნა</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 30px; color: var(--text-muted);">ვერაფერი მოიძებნა</td></tr>';
             return;
         }
 
@@ -323,6 +323,21 @@
     };
     document.body.appendChild(script1);
 </script>
+
+
+    <!-- Footer Section -->
+    <footer style="margin-top: 40px; padding: 20px; background: var(--card-bg); border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; text-align: center; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <h4 style="margin: 0; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
+        </div>
+        <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6; max-width: 800px; margin: 0 auto;">
+            ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>. 
+            ჩვენ არ ვიღებთ პასუხისმგებლობას ინფორმაციის აბსოლუტურ სიზუსტეზე, დაგვიანებაზე ან ამ მონაცემებზე დაყრდნობით მიღებულ ფინანსურ გადაწყვეტილებებსა და შესაძლო ზარალზე.
+        </p>
+    </footer>
 
 </body>
 </html>

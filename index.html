@@ -6,13 +6,21 @@
     <title>ვალუტის კურსები</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 <script src="js/header.js"></script>
     <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 10px; text-align: center;">⏳ მონაცემები იტვირთება...</div>
     <div id="error-msg" class="error" style="display: none; text-align: center; color: red;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
     
+
+    <!-- Ticker Marquee -->
+    <div class="ticker-wrap" id="main-ticker-wrap" style="display: none;">
+        <div class="ticker-move" id="ticker-content">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
 <div id="home-page" class="page-section" style="display: flex;">
         <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 30px; align-items: stretch; margin-left: 0;">
             
@@ -24,7 +32,7 @@
                 <div class="card-uniform-content" style="justify-content: flex-start;">
                     
                     <div class="home-section" >
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/US.png" alt="US Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">USD / აშშ დოლარი</div>
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/US.png" alt="US Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USD / აშშ დოლარი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -35,14 +43,14 @@
                                 <div class="rate-value sell" id="home-usd-market-sell">--.---</div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-usd-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-usd-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="home-section" >
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/EU.png" alt="EU Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">EUR / ევრო</div>
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/EU.png" alt="EU Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">EUR / ევრო</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -53,14 +61,14 @@
                                 <div class="rate-value sell" id="home-eur-market-sell">--.---</div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-eur-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-eur-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="home-section" >
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/GB.png" alt="GB Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">GBP / გირვანქა სტერლინგი</div>
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/GB.png" alt="GB Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">GBP / გირვანქა სტერლინგი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -71,14 +79,14 @@
                                 <div class="rate-value sell" id="home-gbp-market-sell">--.---</div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-gbp-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-gbp-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="home-section" >
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/RU.png" alt="RU Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid #ffffff;">RUB / რუბლი</div>
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/RU.png" alt="RU Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">RUB / რუბლი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -89,11 +97,29 @@
                                 <div class="rate-value sell" id="home-rub-market-sell">--.---</div>
                             </div>
                             <div class="rate-block">
-                                <div class="rate-label" style="color: #64748b; font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-rub-market-spread" style="color: #64748b; font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-rub-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
                             </div>
                         </div>
                     </div>
+                    <div class="home-section" >
+                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/TR.png" alt="TR Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">TRY / ლირა</div>
+                        <div class="rates-flex">
+                            <div class="rate-block">
+                                <div class="rate-label">ყიდვა</div>
+                                <div class="rate-value buy" id="home-try-market-buy">--.---</div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label">გაყიდვა</div>
+                                <div class="rate-value sell" id="home-try-market-sell">--.---</div>
+                            </div>
+                            <div class="rate-block">
+                                <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
+                                <div class="rate-value" id="home-try-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
+                            </div>
+                        </div>
+                    </div>
+
 
                 </div>
             </div>
@@ -156,43 +182,43 @@
                 
                 <div class="card-uniform-content intl-rates-list" style="justify-content: flex-start;">
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BTC.png" alt="BTC" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Bitcoin (BTC)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BTC.png" alt="BTC" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Bitcoin (BTC)</span>
                         <span class="intl-value" id="crypto-btc">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ETH.png" alt="ETH" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Ethereum (ETH)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ETH.png" alt="ETH" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Ethereum (ETH)</span>
                         <span class="intl-value" id="crypto-eth">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDT.png" alt="USDT" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Tether (USDT)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDT.png" alt="USDT" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Tether (USDT)</span>
                         <span class="intl-value" id="crypto-usdt">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BNB.png" alt="BNB" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">BNB (BNB)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BNB.png" alt="BNB" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">BNB (BNB)</span>
                         <span class="intl-value" id="crypto-bnb">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/SOL.png" alt="SOL" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Solana (SOL)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/SOL.png" alt="SOL" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Solana (SOL)</span>
                         <span class="intl-value" id="crypto-sol">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDC.png" alt="USDC" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">USDC (USDC)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDC.png" alt="USDC" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USDC (USDC)</span>
                         <span class="intl-value" id="crypto-usdc">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/XRP.png" alt="XRP" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">XRP (XRP)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/XRP.png" alt="XRP" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">XRP (XRP)</span>
                         <span class="intl-value" id="crypto-xrp">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/DOGE.png" alt="DOGE" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Dogecoin (DOGE)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/DOGE.png" alt="DOGE" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Dogecoin (DOGE)</span>
                         <span class="intl-value" id="crypto-doge">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/TON.png" alt="TON" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Toncoin (TON)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/TON.png" alt="TON" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Toncoin (TON)</span>
                         <span class="intl-value" id="crypto-ton">- - -</span>
                     </div>
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ADA.png" alt="ADA" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">Cardano (ADA)</span>
+                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ADA.png" alt="ADA" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Cardano (ADA)</span>
                         <span class="intl-value" id="crypto-ada">- - -</span>
                     </div>
                 </div>
@@ -205,8 +231,24 @@
             </div>
 
         </div>
-    <
+        </div>
 
-<script src="js/main.js"></script>
+    <!-- Footer Section -->
+    <footer style="margin-top: 40px; padding: 20px; background: var(--card-bg); border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; text-align: center; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <h4 style="margin: 0; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
+        </div>
+        <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6; max-width: 800px; margin: 0 auto;">
+            ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>. 
+            ჩვენ არ ვიღებთ პასუხისმგებლობას ინფორმაციის აბსოლუტურ სიზუსტეზე, დაგვიანებაზე ან ამ მონაცემებზე დაყრდნობით მიღებულ ფინანსურ გადაწყვეტილებებსა და შესაძლო ზარალზე.
+        </p>
+    </footer>
+
+
+<script src="js/main.js?v=5"></script>
+
 </body>
 </html>

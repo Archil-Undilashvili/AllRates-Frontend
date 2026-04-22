@@ -31,16 +31,16 @@
             flex: 1;
             width: 100%;
             max-width: 500px;
-            background: #ffffff;
+            background: var(--card-bg);
             border-radius: 20px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             padding: 24px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
         .calc-container {
-            background: #ffffff;
+            background: var(--card-bg);
             border-radius: 20px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             padding: 30px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             position: relative;
@@ -52,7 +52,7 @@
         .section-label {
             font-size: 0.9rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
             margin-bottom: 10px;
             display: block;
         }
@@ -74,9 +74,9 @@
             min-width: max-content;
             padding: 10px 16px;
             border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            color: #475569;
+            border: 1px solid var(--border);
+            background: var(--bg-color);
+            color: var(--text-main);
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
@@ -85,13 +85,13 @@
             text-align: center;
         }
         .cat-tab:hover, .ccy-tab:hover {
-            background: #e2e8f0;
-            color: #1e293b;
+            background: var(--border);
+            color: var(--text-main);
         }
         .cat-tab.active, .ccy-tab.active {
             background: #3b82f6;
             color: #ffffff;
-            border-color: #3b82f6;
+            border-color: var(--primary);
             box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
         }
 
@@ -104,22 +104,22 @@
         }
 
         .calc-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 24px 28px;
             transition: all 0.2s ease;
             position: relative;
         }
         .calc-box:focus-within {
-            border-color: #3b82f6;
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            background: #ffffff;
+            background: var(--card-bg);
         }
         .calc-label {
             font-size: 1rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
             margin-bottom: 8px;
             display: block;
         }
@@ -134,27 +134,27 @@
             background: transparent;
             font-size: 2.4rem;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-main);
             width: 60%;
             outline: none;
             padding: 0;
             font-family: inherit;
         }
         .calc-input::placeholder {
-            color: #cbd5e1;
+            color: var(--text-muted);
         }
         
         .ccy-display {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #1e293b;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #ffffff;
+            background: var(--card-bg);
             padding: 10px 18px;
             border-radius: 14px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
             user-select: none;
         }
@@ -166,20 +166,20 @@
             transform: translate(-50%, -50%);
             width: 48px;
             height: 48px;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #3b82f6;
+            color: var(--primary);
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.2s ease;
             z-index: 10;
         }
         .swap-btn:hover {
-            background: #f8fafc;
+            background: var(--bg-color);
             color: #2563eb;
             transform: translate(-50%, -50%) scale(1.05);
         }
@@ -202,15 +202,15 @@
         .rate-text {
             font-size: 1.05rem;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 6px;
         }
         .rate-source {
             font-size: 0.85rem;
-            color: #64748b;
-            background: #f1f5f9;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
             padding: 6px 10px;
             border-radius: 8px;
             font-weight: 500;
@@ -220,10 +220,10 @@
         .top10-title {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #1e293b;
+            color: var(--text-main);
             margin-bottom: 16px;
             padding-bottom: 12px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -231,7 +231,7 @@
         .top10-badge {
             font-size: 0.75rem;
             background: #eff6ff;
-            color: #3b82f6;
+            color: var(--primary);
             padding: 4px 10px;
             border-radius: 12px;
             font-weight: 600;
@@ -247,14 +247,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 20px;
-            background: #f8fafc;
+            background: var(--bg-color);
             border-radius: 12px;
             border: 1px solid #f1f5f9;
             transition: border-color 0.2s;
         }
         .top10-item:hover {
             border-color: #e2e8f0;
-            background: #ffffff;
+            background: var(--card-bg);
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .top10-company {
@@ -284,11 +284,11 @@
         .top10-rate {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #0f172a;
+            color: var(--text-main);
         }
         .rank-number {
             font-size: 0.75rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             font-weight: 700;
             width: 18px;
         }
@@ -388,7 +388,7 @@
             </div>
             <div class="top10-list" id="top10-list">
                 <!-- Items will be generated here -->
-                <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 0.9rem;">
+                <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem;">
                     მონაცემები იტვირთება...
                 </div>
             </div>
@@ -682,7 +682,7 @@
         const displayRate = isReversedForDisplay ? (1 / bestRate) : bestRate;
 
         rateDisplay.innerHTML = `
-            <span style="color: #64748b;">1 ${baseCcy} =</span>
+            <span style="color: var(--text-muted);">1 ${baseCcy} =</span>
             <span>${displayRate < 0.01 ? displayRate.toFixed(4) : displayRate.toFixed(4)} ${quoteCcy}</span>
         `;
         
@@ -753,5 +753,20 @@
 
     loadData();
 </script>
+
+    <!-- Footer Section -->
+    <footer style="margin-top: 40px; padding: 20px; background: var(--card-bg); border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; text-align: center; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <h4 style="margin: 0; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
+        </div>
+        <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6; max-width: 800px; margin: 0 auto;">
+            ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>. 
+            ჩვენ არ ვიღებთ პასუხისმგებლობას ინფორმაციის აბსოლუტურ სიზუსტეზე, დაგვიანებაზე ან ამ მონაცემებზე დაყრდნობით მიღებულ ფინანსურ გადაწყვეტილებებსა და შესაძლო ზარალზე.
+        </p>
+    </footer>
+
 </body>
 </html>

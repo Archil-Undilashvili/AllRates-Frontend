@@ -1,17 +1,17 @@
 :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --primary: #1e3a8a; /* Deep blue, like Valuto */
-            --buy-color: #10b981; /* Modern green */
-            --sell-color: #ef4444; /* Modern red */
-            --border: #e2e8f0;
-            --btn-bg: #3b82f6;
-            --btn-hover: #2563eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --buy-color: #34d399;
+            --sell-color: #f87171;
+            --border: #334155;
+            --btn-bg: #2563eb;
+            --btn-hover: #1d4ed8;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
             --radius-lg: 12px;
             --radius-md: 8px;
         }
@@ -44,8 +44,8 @@
             position: absolute;
             right: 0;
             top: 0;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 10px 25px; /* გაზრდილი ჰორიზონტალური სივრცე (განიერი) */
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -58,13 +58,13 @@
 
         .nbg-title {
             font-size: 0.8em;
-            color: #64748b;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 600;
             margin-bottom: 2px;
             text-align: center;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border);
             padding-bottom: 4px;
             text-decoration: none;
             display: block; /* For link */
@@ -97,7 +97,7 @@
             margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
-            background: #e2e8f0;
+            background: var(--border);
             padding: 5px;
             border-radius: var(--radius-lg);
         }
@@ -137,6 +137,7 @@
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: flex-start;
             gap: 30px;
             width: 100%;
             max-width: 1400px;
@@ -152,6 +153,7 @@
             overflow-x: auto;
             border: 1px solid var(--border);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: fit-content;
         }
         
         .container:hover {
@@ -173,7 +175,7 @@
         }
 
         .market-rate-box {
-            background-color: #2c3e50;
+            background-color: #0b1120;
             border: none;
             border-radius: 10px;
             padding: 15px 20px;
@@ -256,7 +258,7 @@
         }
 
         .sort-btn:hover {
-            background-color: #f0f0f0;
+            background-color: rgba(255,255,255,0.1);
         }
 
         .sort-btn:active {
@@ -375,7 +377,7 @@
             }
             .nbg-title {
                 border-bottom: none;
-                border-right: 1px solid #e2e8f0;
+                border-right: 1px solid var(--border);
                 padding-bottom: 0;
                 padding-right: 15px;
                 margin-bottom: 0;
@@ -428,7 +430,7 @@
 
         .main-nav a:hover {
             color: var(--primary);
-            background-color: #f0f4f8;
+            background-color: rgba(255,255,255,0.1);
         }
 
         .main-nav a.active {
@@ -471,6 +473,7 @@
             gap: 20px;
             box-sizing: border-box;
             transition: box-shadow 0.3s ease;
+            height: fit-content;
         }
         
         .home-card-uniform:hover {
@@ -502,7 +505,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #f8fafc;
+            background: rgba(255,255,255,0.02);
             padding: 15px 20px;
             border-radius: 8px;
             border: 1px solid var(--border);
@@ -556,7 +559,7 @@
             width: 6px;
         }
         .intl-rates-list::-webkit-scrollbar-track {
-            background: #f1f1f1; 
+            background: var(--bg-color); 
             border-radius: 5px;
         }
         .intl-rates-list::-webkit-scrollbar-thumb {
@@ -569,32 +572,41 @@
 
         .intl-rate-item {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            background: #f8fafc;
-            padding: 15px 20px;
+            gap: 8px;
+            background: rgba(255,255,255,0.02);
+            padding: 15px;
             border-radius: 8px;
             border: 1px solid var(--border);
             width: 100%;
+            min-height: 90px;
             box-sizing: border-box;
         }
 
         .intl-pair {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
             font-weight: bold;
             color: var(--text-muted);
-            font-size: 0.95em;
+            font-size: 1em;
             margin-bottom: 0;
+            width: 100%;
         }
 
         .intl-value {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
             color: var(--primary);
             font-size: 1.25em;
             letter-spacing: 1px;
             white-space: nowrap;
-            display: flex;
-            align-items: baseline;
+            width: 100%;
         }
 
     
@@ -611,7 +623,7 @@
             width: 4px;
         }
         .nbg-items-scroll::-webkit-scrollbar-track {
-            background: #f1f1f1; 
+            background: var(--bg-color); 
             border-radius: 5px;
         }
         .nbg-items-scroll::-webkit-scrollbar-thumb {
@@ -643,3 +655,88 @@ th.sortable.active-sort .sort-icon {
 .expand-btn-container { text-align: center; margin-top: 15px; padding-bottom: 10px; }
 .expand-btn { background: none; border: none; color: var(--primary); font-weight: 600; font-size: 14px; cursor: pointer; padding: 8px 16px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; }
 .expand-btn:hover { background: rgba(30, 58, 138, 0.05); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* --- TICKER MARQUEE --- */
+.ticker-wrap {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-top: 0;
+    margin-bottom: 30px;
+    background: #11538a; /* Vibrant Stock Ticker Blue */
+    padding: 16px 0; 
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+
+.ticker-move {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 100s linear infinite;
+}
+
+.ticker-move:hover {
+    animation-play-state: paused;
+}
+
+@keyframes ticker {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 40px;
+    font-size: 1.1em;
+    font-family: 'Inter', monospace;
+    font-weight: 600;
+}
+
+.ticker-company {
+    font-weight: 700;
+    margin-right: 15px;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.ticker-currency {
+    color: #f1f5f9; 
+    font-size: 0.9em;
+    margin-right: 15px;
+    font-weight: 700;
+}
+
+.ticker-buy {
+    color: #00ff66;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.ticker-sell {
+    color: #ff3366;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-left: 15px;
+}

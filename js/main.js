@@ -179,6 +179,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         let eurData = [];
         let gbpData = [];
         let rubData = [];
+    let tryData = [];
 
         // 0: Best (Smallest Spread), 1: Worst (Largest Spread)
         let sortStates = { usd: 0, eur: 0 };
@@ -188,7 +189,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         async function fetchRates() {
             fetchNBG();
             fetchCrypto();
-                        fetchCommodities();
+                        // fetchCommodities();
             
             try {
                 // Fetch unified API (MFOs and Banks together)
@@ -217,7 +218,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
                 let intlRates = [];
                 let popularAssetsRates = [];
 
-                const popularAssetsList = ['Gold', 'Silver', 'Platinium', 'Platinum', 'WTI Crude Oil', 'Brent Crude Oil', 'Natural Gas'];
+                const popularAssetsList = ['Gold', 'Silver', 'Platinium', 'Platinum', 'WTI Crude Oil', 'Brent Crude Oil', 'Natural Gas', 'S&P 500', 'Dow Jones', 'NVIDIA', 'Apple', 'Tesla'];
 
                 combinedData.forEach(item => {
 // მხოლოდ Popular წყვილები "საერთაშორისო კურსები" ბოქსისთვის
@@ -320,7 +321,30 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                         let displayRate = isFx ? currentRate.toFixed(4) : currentRate.toFixed(2);
 
                                         let logoHtml = '';
-                                        if (!isFx) {
+                                        
+                                        const getFlagCode = (cur) => {
+                                            const map = {
+                                                'usd': 'us', 'eur': 'eu', 'gbp': 'gb', 'jpy': 'jp',
+                                                'chf': 'ch', 'aud': 'au', 'cad': 'ca', 'nzd': 'nz',
+                                                'try': 'tr', 'rub': 'ru', 'gel': 'ge', 'azn': 'az', 'amd': 'am'
+                                            };
+                                            return map[cur.toLowerCase()] || 'un';
+                                        };
+
+                                        if (isFx) {
+                                            let baseCur = pairName.split('/')[0] ? pairName.split('/')[0].trim() : '';
+                                            let quoteCur = pairName.split('/')[1] ? pairName.split('/')[1].trim() : '';
+                                            
+                                            if (baseCur && quoteCur) {
+                                                const flag1 = getFlagCode(baseCur);
+                                                const flag2 = getFlagCode(quoteCur);
+                                                logoHtml = `
+                                                <div style="display: flex; align-items: center; margin-right: 12px; position: relative; min-width: 40px; justify-content: center;">
+                                                    <img src="https://flagcdn.com/w40/${flag1}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                    <img src="https://flagcdn.com/w40/${flag2}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 1; margin-left: -12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                </div>`;
+                                            }
+                                        } else {
                                             const lowerPair = pairName.toLowerCase();
                                             let logoSrc = '';
                                             if (lowerPair.includes('wti')) logoSrc = 'WTI.png';
@@ -329,9 +353,14 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                             else if (lowerPair.includes('gold')) logoSrc = 'GOLD.png';
                                             else if (lowerPair.includes('silver')) logoSrc = 'SILVER.png';
                                             else if (lowerPair.includes('platin')) logoSrc = 'PLATINIUM.png';
+                                            else if (lowerPair.includes('s&p')) logoSrc = 'SP500.png';
+                                            else if (lowerPair.includes('dow')) logoSrc = 'DJI.png';
+                                            else if (lowerPair.includes('nvidia')) logoSrc = 'NVDA.png';
+                                            else if (lowerPair.includes('apple')) logoSrc = 'AAPL.png';
+                                            else if (lowerPair.includes('tesla')) logoSrc = 'TSLA.png';
                                             
                                             if (logoSrc) {
-                                                logoHtml = `<img src="Logos/${logoSrc}" alt="${pairName}" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">`;
+                                                logoHtml = `<img src="Logos/${logoSrc}" alt="${pairName}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: #fff; border: 1px solid #eee;">`;
                                             }
                                         }
 
@@ -346,6 +375,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
                                 renderRates(intlRates, intlContainer, true);
                                 renderRates(popularAssetsRates, popularAssetsContainer, false);
+                                
                             })
                             .catch(err => {
                                 // Fallback
@@ -365,7 +395,30 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                         let displayRate = isFx ? currentRate.toFixed(4) : currentRate.toFixed(2);
 
                                         let logoHtml = '';
-                                        if (!isFx) {
+                                        
+                                        const getFlagCode = (cur) => {
+                                            const map = {
+                                                'usd': 'us', 'eur': 'eu', 'gbp': 'gb', 'jpy': 'jp',
+                                                'chf': 'ch', 'aud': 'au', 'cad': 'ca', 'nzd': 'nz',
+                                                'try': 'tr', 'rub': 'ru', 'gel': 'ge', 'azn': 'az', 'amd': 'am'
+                                            };
+                                            return map[cur.toLowerCase()] || 'un';
+                                        };
+
+                                        if (isFx) {
+                                            let baseCur = pairName.split('/')[0] ? pairName.split('/')[0].trim() : '';
+                                            let quoteCur = pairName.split('/')[1] ? pairName.split('/')[1].trim() : '';
+                                            
+                                            if (baseCur && quoteCur) {
+                                                const flag1 = getFlagCode(baseCur);
+                                                const flag2 = getFlagCode(quoteCur);
+                                                logoHtml = `
+                                                <div style="display: flex; align-items: center; margin-right: 12px; position: relative; min-width: 40px; justify-content: center;">
+                                                    <img src="https://flagcdn.com/w40/${flag1}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                    <img src="https://flagcdn.com/w40/${flag2}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 1; margin-left: -12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                </div>`;
+                                            }
+                                        } else {
                                             const lowerPair = pairName.toLowerCase();
                                             let logoSrc = '';
                                             if (lowerPair.includes('wti')) logoSrc = 'WTI.png';
@@ -374,9 +427,14 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                             else if (lowerPair.includes('gold')) logoSrc = 'GOLD.png';
                                             else if (lowerPair.includes('silver')) logoSrc = 'SILVER.png';
                                             else if (lowerPair.includes('platin')) logoSrc = 'PLATINIUM.png';
+                                            else if (lowerPair.includes('s&p')) logoSrc = 'SP500.png';
+                                            else if (lowerPair.includes('dow')) logoSrc = 'DJI.png';
+                                            else if (lowerPair.includes('nvidia')) logoSrc = 'NVDA.png';
+                                            else if (lowerPair.includes('apple')) logoSrc = 'AAPL.png';
+                                            else if (lowerPair.includes('tesla')) logoSrc = 'TSLA.png';
                                             
                                             if (logoSrc) {
-                                                logoHtml = `<img src="Logos/${logoSrc}" alt="${pairName}" style="width: 28px; height: 28px; object-fit: contain; margin-right: 12px; vertical-align: middle; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">`;
+                                                logoHtml = `<img src="Logos/${logoSrc}" alt="${pairName}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: #fff; border: 1px solid #eee;">`;
                                             }
                                         }
 
@@ -390,6 +448,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 };
                                 renderFallback(intlRates, intlContainer, true);
                                 renderFallback(popularAssetsRates, popularAssetsContainer, false);
+                                
                             });
                     }
                 }
@@ -421,6 +480,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 'GBPGEL (Sell)': item.gbpSell,
                                 'RUBGEL (Buy)': (base === 'crystal' && parseFloat(item.rubBuy) > 1) ? (parseFloat(item.rubBuy) / 100).toFixed(4) : item.rubBuy,
                                 'RUBGEL (Sell)': (base === 'crystal' && parseFloat(item.rubSell) > 1) ? (parseFloat(item.rubSell) / 100).toFixed(4) : item.rubSell,
+                                'TRYGEL (Buy)': item.tryBuy,
+                                'TRYGEL (Sell)': item.trySell,
                                 'Update Time': item.tbilisiDateString || item.createdAt
                             };
                         });
@@ -428,6 +489,53 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 } catch(e) { console.error("New API fetch failed:", e); }
 
                 originalData = newApiData.length > 0 ? newApiData : combinedData.filter(item => item.Company && ALL_COMPANIES.includes(item.Company.toLowerCase()));
+
+                // --- POPULATE TICKER ---
+                function populateTicker(data) {
+                    const wrap = document.getElementById('main-ticker-wrap');
+                    const content = document.getElementById('ticker-content');
+                    if (!wrap || !content || data.length === 0) return;
+                    
+                    let htmlStr = '';
+                    
+                    // Sort by USD/GEL spread (lowest first)
+                    const sortedData = [...data].filter(item => {
+                        const buy = parseFloat(item['USDGEL (Buy)']);
+                        const sell = parseFloat(item['USDGEL (Sell)']);
+                        return !isNaN(buy) && !isNaN(sell);
+                    }).sort((a, b) => {
+                        const spreadA = parseFloat(a['USDGEL (Sell)']) - parseFloat(a['USDGEL (Buy)']);
+                        const spreadB = parseFloat(b['USDGEL (Sell)']) - parseFloat(b['USDGEL (Buy)']);
+                        return spreadA - spreadB;
+                    });
+                    
+                    const top10Data = sortedData.slice(0, 10);
+                    top10Data.forEach(item => {
+                        const comp = item.Company;
+                        const buy = parseFloat(item['USDGEL (Buy)']);
+                        const sell = parseFloat(item['USDGEL (Sell)']);
+                        
+                        if (buy && sell) {
+                            htmlStr += `
+                                <div class="ticker-item">
+                                    <span class="ticker-company">${comp}</span>
+                                    <span class="ticker-currency">USD/GEL</span>
+                                    <span class="ticker-buy">▲ ${buy.toFixed(4)}</span>
+                                    <span class="ticker-sell">▼ ${sell.toFixed(4)}</span>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    if (htmlStr) {
+                        // Duplicate for smooth infinite scroll
+                        content.innerHTML = htmlStr + htmlStr;
+                        wrap.style.display = 'flex';
+                    }
+                }
+                populateTicker(originalData);
+                // -----------------------
+
 
                 
                 // Calculate spreads and store
@@ -442,7 +550,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         usdSpread: (!isNaN(usdS) && !isNaN(usdB)) ? (usdS - usdB) : Infinity,
                         eurSpread: (!isNaN(eurS) && !isNaN(eurB)) ? (eurS - eurB) : Infinity,
                         gbpSpread: (!isNaN(parseFloat(item['GBPGEL (Sell)'])) && !isNaN(parseFloat(item['GBPGEL (Buy)']))) ? (parseFloat(item['GBPGEL (Sell)']) - parseFloat(item['GBPGEL (Buy)'])) : Infinity,
-                        rubSpread: (!isNaN(parseFloat(item['RUBGEL (Sell)'])) && !isNaN(parseFloat(item['RUBGEL (Buy)']))) ? (parseFloat(item['RUBGEL (Sell)']) - parseFloat(item['RUBGEL (Buy)'])) : Infinity
+                        rubSpread: (!isNaN(parseFloat(item['RUBGEL (Sell)'])) && !isNaN(parseFloat(item['RUBGEL (Buy)']))) ? (parseFloat(item['RUBGEL (Sell)']) - parseFloat(item['RUBGEL (Buy)'])) : Infinity,
+                        trySpread: (!isNaN(parseFloat(item['TRYGEL (Sell)'])) && !isNaN(parseFloat(item['TRYGEL (Buy)']))) ? (parseFloat(item['TRYGEL (Sell)']) - parseFloat(item['TRYGEL (Buy)'])) : Infinity
                     };
                 });
 
@@ -451,6 +560,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 eurData = [...originalData]; applySorting("eur");
                 gbpData = [...originalData]; applySorting("gbp");
                 rubData = [...originalData]; applySorting("rub");
+                tryData = [...originalData]; applySorting("try");
 
                 
                 renderHomePage();
@@ -485,10 +595,14 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         buy = parseFloat(item['GBPGEL (Buy)']);
                         sell = parseFloat(item['GBPGEL (Sell)']);
                         spread = item.gbpSpread;
-                    } else {
+                    } else if (currency === 'rub') {
                         buy = parseFloat(item['RUBGEL (Buy)']);
                         sell = parseFloat(item['RUBGEL (Sell)']);
                         spread = item.rubSpread;
+                    } else if (currency === 'try') {
+                        buy = parseFloat(item['TRYGEL (Buy)']);
+                        sell = parseFloat(item['TRYGEL (Sell)']);
+                        spread = item.trySpread;
                     }
                     return { buy, sell, spread };
                 }).filter(item => !isNaN(item.buy) && !isNaN(item.sell) && !isNaN(item.spread) && item.spread !== Infinity);
@@ -514,15 +628,15 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             }
 
             function updateDom(currency, stats) {
-                setInnerText(`home-${currency}-market-buy`, isNaN(stats.avgBuy) ? '--.---' : stats.avgBuy.toFixed(currency === 'rub' ? 4 : 3));
-                setInnerText(`home-${currency}-market-sell`, isNaN(stats.avgSell) ? '--.---' : stats.avgSell.toFixed(currency === 'rub' ? 4 : 3));
-                setInnerText(`home-${currency}-market-spread`, isNaN(stats.avgSpread) ? '--.---' : stats.avgSpread.toFixed(currency === 'rub' ? 4 : 3));
+                setInnerText(`home-${currency}-market-buy`, isNaN(stats.avgBuy) ? '--.---' : stats.avgBuy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                setInnerText(`home-${currency}-market-sell`, isNaN(stats.avgSell) ? '--.---' : stats.avgSell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                setInnerText(`home-${currency}-market-spread`, isNaN(stats.avgSpread) ? '--.---' : stats.avgSpread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
 
                 // Removed best bank/mfo from home
 
             }
 
-            ['usd', 'eur', 'gbp', 'rub'].forEach(currency => {
+            ['usd', 'eur', 'gbp', 'rub', 'try'].forEach(currency => {
                 const stats = calculateStats(currency);
                 updateDom(currency, stats);
             });
@@ -714,12 +828,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             renderTable('eur');
             renderTable('gbp');
             renderTable('rub');
+            renderTable('try');
         }
 
         
 
         
-        let expandedStates = { usd: false, eur: false, gbp: false, rub: false };
+        let expandedStates = { usd: false, eur: false, gbp: false, rub: false, try: false };
 
         function toggleExpand(currency) {
             // Toggle all states based on the clicked one
@@ -728,11 +843,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             expandedStates.eur = newState;
             expandedStates.gbp = newState;
             expandedStates.rub = newState;
+            expandedStates.try = newState;
             
             renderTable('usd');
             renderTable('eur');
             renderTable('gbp');
             renderTable('rub');
+            renderTable('try');
             
             // Scroll to the top of the tables wrapper if collapsing so we don't end up far down the page
             if (!newState) {
@@ -749,7 +866,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             usd: { column: 'spread', order: 'asc' },
             eur: { column: 'spread', order: 'asc' },
             gbp: { column: 'spread', order: 'asc' },
-            rub: { column: 'spread', order: 'asc' }
+            rub: { column: 'spread', order: 'asc' },
+            try: { column: 'spread', order: 'asc' }
         };
 
         function sortData(currency, column) {
@@ -771,12 +889,12 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             
             applySorting(currency);
             // Render other tables to show expanded state
-            ['usd', 'eur', 'gbp', 'rub'].forEach(cur => {
+            ['usd', 'eur', 'gbp', 'rub', 'try'].forEach(cur => {
                 if (cur !== currency) renderTable(cur);
             });
             
             if (column === 'company') {
-                const curs = ['usd', 'eur', 'gbp', 'rub'];
+                const curs = ['usd', 'eur', 'gbp', 'rub', 'try'];
                 curs.forEach(cur => {
                     if (cur !== currency) {
                         sortConfigs[cur].column = 'company';
@@ -793,7 +911,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         }
 
         function applySorting(currency) {
-            const dataArr = currency === 'usd' ? usdData : currency === 'eur' ? eurData : currency === 'gbp' ? gbpData : rubData;
+            const dataArr = currency === 'usd' ? usdData : currency === 'eur' ? eurData : currency === 'gbp' ? gbpData : currency === 'rub' ? rubData : tryData;
             const config = sortConfigs[currency];
             const isAsc = config.order === 'asc' ? 1 : -1;
 
@@ -817,17 +935,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     if (cA > cB) return 1 * isAsc;
                     return 0;
                 } else if (config.column === 'buy') {
-                    const k = currency === 'usd' ? 'USDGEL (Buy)' : currency === 'eur' ? 'EURGEL (Buy)' : currency === 'gbp' ? 'GBPGEL (Buy)' : 'RUBGEL (Buy)';
+                    const k = currency === 'usd' ? 'USDGEL (Buy)' : currency === 'eur' ? 'EURGEL (Buy)' : currency === 'gbp' ? 'GBPGEL (Buy)' : currency === 'rub' ? 'RUBGEL (Buy)' : 'TRYGEL (Buy)';
                     const vA = parseFloat(a[k]) || 0;
                     const vB = parseFloat(b[k]) || 0;
                     return (vA - vB) * isAsc;
                 } else if (config.column === 'sell') {
-                    const k = currency === 'usd' ? 'USDGEL (Sell)' : currency === 'eur' ? 'EURGEL (Sell)' : currency === 'gbp' ? 'GBPGEL (Sell)' : 'RUBGEL (Sell)';
+                    const k = currency === 'usd' ? 'USDGEL (Sell)' : currency === 'eur' ? 'EURGEL (Sell)' : currency === 'gbp' ? 'GBPGEL (Sell)' : currency === 'rub' ? 'RUBGEL (Sell)' : 'TRYGEL (Sell)';
                     const vA = parseFloat(a[k]) || Infinity;
                     const vB = parseFloat(b[k]) || Infinity;
                     return (vA - vB) * isAsc;
                 } else if (config.column === 'spread') {
-                    const k = currency === 'usd' ? 'usdSpread' : currency === 'eur' ? 'eurSpread' : currency === 'gbp' ? 'gbpSpread' : 'rubSpread';
+                    const k = currency === 'usd' ? 'usdSpread' : currency === 'eur' ? 'eurSpread' : currency === 'gbp' ? 'gbpSpread' : currency === 'rub' ? 'rubSpread' : 'trySpread';
                     const vA = parseFloat(a[k]) || Infinity;
                     const vB = parseFloat(b[k]) || Infinity;
                     return (vA - vB) * isAsc;
@@ -878,14 +996,24 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             if(!tbody) return;
             tbody.innerHTML = ''; 
 
-            let dataArr = currency === 'usd' ? usdData : currency === 'eur' ? eurData : currency === 'gbp' ? gbpData : rubData;
+            let dataArr = currency === 'usd' ? usdData : currency === 'eur' ? eurData : currency === 'gbp' ? gbpData : currency === 'rub' ? rubData : tryData;
 
             // ვფილტრავთ არჩეული გვერდის (Tab) მიხედვით
             let dataToRender = dataArr.filter(item => {
                 const comp = item.baseCompany || item.Company.toLowerCase();
-                if (currentTab === 'all') return true;
-                if (currentTab === 'banks') return BANK_COMPANIES.includes(comp);
-                if (currentTab === 'mfo') return MFO_COMPANIES.includes(comp);
+                let matchTab = false;
+                if (currentTab === 'all') matchTab = true;
+                else if (currentTab === 'banks') matchTab = BANK_COMPANIES.includes(comp);
+                else if (currentTab === 'mfo') matchTab = MFO_COMPANIES.includes(comp);
+                
+                if (!matchTab) return false;
+
+                if (currency === 'gbp' || currency === 'rub' || currency === 'try') {
+                    let buy = currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Buy)']) : parseFloat(item['TRYGEL (Buy)']);
+                    let sell = currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Sell)']) : parseFloat(item['TRYGEL (Sell)']);
+                    if (isNaN(buy) || isNaN(sell) || buy === 0 || sell === 0) return false;
+                }
+                return true;
             });
 
             if (dataToRender.length === 0) {
@@ -901,17 +1029,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             let bestSell = Infinity;
 
             dataToRender.forEach(item => {
-                let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : currency === 'eur' ? parseFloat(item['EURGEL (Buy)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : parseFloat(item['RUBGEL (Buy)']);
-                let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : currency === 'eur' ? parseFloat(item['EURGEL (Sell)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : parseFloat(item['RUBGEL (Sell)']);
+                let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : currency === 'eur' ? parseFloat(item['EURGEL (Buy)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Buy)']) : parseFloat(item['TRYGEL (Buy)']);
+                let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : currency === 'eur' ? parseFloat(item['EURGEL (Sell)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Sell)']) : parseFloat(item['TRYGEL (Sell)']);
                 if (!isNaN(buy) && buy > bestBuy) bestBuy = buy;
                 if (!isNaN(sell) && sell < bestSell) bestSell = sell;
             });
 
             // Calculate averages for this tab (Top 10)
             let validForAvg = dataToRender.map(item => {
-                let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : currency === 'eur' ? parseFloat(item['EURGEL (Buy)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : parseFloat(item['RUBGEL (Buy)']);
-                let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : currency === 'eur' ? parseFloat(item['EURGEL (Sell)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : parseFloat(item['RUBGEL (Sell)']);
-                let spread = currency === 'usd' ? item.usdSpread : currency === 'eur' ? item.eurSpread : currency === 'gbp' ? item.gbpSpread : item.rubSpread;
+                let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : currency === 'eur' ? parseFloat(item['EURGEL (Buy)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Buy)']) : parseFloat(item['TRYGEL (Buy)']);
+                let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : currency === 'eur' ? parseFloat(item['EURGEL (Sell)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Sell)']) : parseFloat(item['TRYGEL (Sell)']);
+                let spread = currency === 'usd' ? item.usdSpread : currency === 'eur' ? item.eurSpread : currency === 'gbp' ? item.gbpSpread : currency === 'rub' ? item.rubSpread : item.trySpread;
                 return { buy, sell, spread };
             }).filter(item => !isNaN(item.buy) && !isNaN(item.sell) && !isNaN(item.spread) && item.spread !== Infinity);
             
@@ -942,10 +1070,14 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     buy = parseFloat(item['GBPGEL (Buy)']);
                     sell = parseFloat(item['GBPGEL (Sell)']);
                     spread = item.gbpSpread;
-                } else {
+                } else if (currency === 'rub') {
                     buy = parseFloat(item['RUBGEL (Buy)']);
                     sell = parseFloat(item['RUBGEL (Sell)']);
                     spread = item.rubSpread;
+                } else {
+                    buy = parseFloat(item['TRYGEL (Buy)']);
+                    sell = parseFloat(item['TRYGEL (Sell)']);
+                    spread = item.trySpread;
                 }
 
                 const companyKey = item.baseCompany || item.Company.toLowerCase();
@@ -968,9 +1100,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 }
                 const compUrl = COMPANY_URLS[companyKey] || '#';
 
-                let buyDisplay = isNaN(buy) ? '<span style="display:inline-block; padding: 2px 8px; background: #f1f5f9; color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (buy === bestBuy ? `${buy.toFixed(currency === 'rub' ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : buy.toFixed(currency === 'rub' ? 4 : 3));
-                let sellDisplay = isNaN(sell) ? '<span style="display:inline-block; padding: 2px 8px; background: #f1f5f9; color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (sell === bestSell ? `${sell.toFixed(currency === 'rub' ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : sell.toFixed(currency === 'rub' ? 4 : 3));
-                let spreadDisplay = (isNaN(spread) || spread === Infinity) ? '<span style="display:inline-block; padding: 2px 8px; background: #f1f5f9; color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : spread.toFixed(currency === 'rub' ? 4 : 3);
+                let buyDisplay = isNaN(buy) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (buy === bestBuy ? `${buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                let sellDisplay = isNaN(sell) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (sell === bestSell ? `${sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                let spreadDisplay = (isNaN(spread) || spread === Infinity) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : spread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3);
 
                 let mainName = compNameKa;
                 let subName = '';
@@ -988,10 +1120,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     <td class="company-name">
                         <a href="${compUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; display: block;">
                             <div style="display: flex; align-items: center; gap: 14px; padding: 4px 0;">
-                                ${logoUrl ? `<div style="display: flex; align-items: center; justify-content: flex-start; flex-shrink: 0; width: 75px;"><img src="${logoUrl}" alt="${compNameKa}" class="${logoClass}" style="max-width: 100%; max-height: 36px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.05));"></div>` : `<div style="width: 36px; height: 36px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 39px;"><span style="font-weight:bold; font-size: 16px; color:${initialColor};">${mainName.charAt(0)}</span></div>`}
+                                ${logoUrl ? `<div style="display: flex; align-items: center; justify-content: flex-start; flex-shrink: 0; width: 75px;"><img src="${logoUrl}" alt="${compNameKa}" class="${logoClass}" style="max-width: 100%; max-height: 36px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.05));"></div>` : `<div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 39px;"><span style="font-weight:bold; font-size: 16px; color:${initialColor};">${mainName.charAt(0)}</span></div>`}
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.25; max-width: 160px;">
-                                    <span style="font-weight: 600; color: #1e293b; font-size: 13px; white-space: normal; word-break: break-word;">${mainName}</span>
-                                    ${subName ? `<span style="font-size: 11px; color: #64748b; font-weight: 500; margin-top: 3px; white-space: normal; word-break: break-word;">${subName}</span>` : ''}
+                                    <span style="font-weight: 600; color: var(--text-main); font-size: 13px; white-space: normal; word-break: break-word;">${mainName}</span>
+                                    ${subName ? `<span style="font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 3px; white-space: normal; word-break: break-word;">${subName}</span>` : ''}
                                 </div>
                             </div>
                         </a>
@@ -1005,9 +1137,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             });
 
             // Display market averages based on top 10
-            const avgBuyDom = countAvg > 0 ? (totalBuyAvg / countAvg).toFixed(currency === 'rub' ? 4 : 3) : '- - -';
-            const avgSellDom = countAvg > 0 ? (totalSellAvg / countAvg).toFixed(currency === 'rub' ? 4 : 3) : '- - -';
-            const avgSpreadDom = countAvg > 0 ? ((totalSellAvg / countAvg) - (totalBuyAvg / countAvg)).toFixed(currency === 'rub' ? 4 : 3) : '- - -';
+            const avgBuyDom = countAvg > 0 ? (totalBuyAvg / countAvg).toFixed((currency === 'rub' || currency === 'try') ? 4 : 3) : '- - -';
+            const avgSellDom = countAvg > 0 ? (totalSellAvg / countAvg).toFixed((currency === 'rub' || currency === 'try') ? 4 : 3) : '- - -';
+            const avgSpreadDom = countAvg > 0 ? ((totalSellAvg / countAvg) - (totalBuyAvg / countAvg)).toFixed((currency === 'rub' || currency === 'try') ? 4 : 3) : '- - -';
             
             setInnerText(`${currency}-market-buy`, avgBuyDom);
             setInnerText(`${currency}-market-sell`, avgSellDom);
@@ -1039,6 +1171,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     eurData = [...originalData]; applySorting("eur");
                 gbpData = [...originalData]; applySorting("gbp");
                 rubData = [...originalData]; applySorting("rub");
+                tryData = [...originalData]; applySorting("try");
                     
                     
                     renderHomePage();
