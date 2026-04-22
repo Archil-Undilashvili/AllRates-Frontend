@@ -398,25 +398,26 @@
 
 <script>
     const LOGOS = {
-        'rico': 'Logos/rico.png',
-        'valuto': 'Logos/valuto.png',
-        'kursige': 'Logos/kursige.png',
-        'crystal': 'Logos/crystal.png',
-        'bog': 'Logos/bog.png',
-        'tbc': 'Logos/tbc.png',
-        'liberty': 'Logos/Liberty.png',
-        'bb': 'Logos/bb.png',
-        'credo': 'Logos/credo.png',
-        'cartu': 'Logos/cartu.png',
+        'rico': 'Logos/rico_icon.png',
+        'valuto': 'Logos/valuto_icon.png',
+        'kursige': 'Logos/kursige_icon.png',
+        'crystal': 'Logos/crystal_icon.png',
+        'bog': 'Logos/bog_icon.png',
+        'tbc': 'Logos/tbc_icon.png',
+        'liberty': 'Logos/liberty_icon.png',
+        'bb': 'Logos/bb_icon.png',
+        'credo': 'Logos/credo_icon.png',
+        'cartu': 'Logos/cartu_icon.ico',
         'inex': 'Logos/Inex.png',
-        'giro': 'Logos/Giro.png',
-        'goa': 'Logos/Goa.png',
-        'hash': 'Logos/Hash.png',
-        'mbc': 'Logos/mbc.png',
-        'tera': 'Logos/TERA.png',
-        'halyk': 'Logos/HALYK.png',
-        'is': 'Logos/IS.png',
-        'silk': 'Logos/silk.png'
+        'giro': 'Logos/giro_icon.png',
+        'goa': 'Logos/goa_icon.png',
+        'hash': 'Logos/hash_icon.ico',
+        'mbc': 'Logos/mbc_icon.png',
+        'tera': 'Logos/tera_icon.png',
+        'halyk': 'Logos/halyk_icon.ico',
+        'is': 'Logos/is_icon.png',
+        'silk': 'Logos/silk_icon.png',
+        'paysera': 'Logos/paysera_icon.png'
     };
 
     const COMPANY_NAMES_KA = {
@@ -725,12 +726,24 @@
                     <span class="rank-number">${index + 1}</span>
             `;
             if (item.base !== 'nbg') {
-                html += `<div class="company-logo-wrapper"><img src="${logoPath}" alt="logo" class="${logoClass}" onerror="this.src='Logos/logo.jpg'"></div>`;
+                html += `<div class="company-logo-wrapper" style="width: 32px; height: 32px; border-radius: 8px; background: #ffffff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; overflow: hidden; padding: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-right: 10px;"><img src="${logoPath}" alt="logo" class="${logoClass}" onerror="this.src='Logos/logo.jpg'" style="width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 6px;"></div>`;
             }
+            // Check if it's buy or sell based on user actions. But since it's just a generalized final rate calculation:
+            // We can color it dynamically depending on if user is buying or selling the bottom currency relative to the top currency.
+            // A simple approach: use the primary color, but user asked for red/green for rates.
+            // Let's use the --buy-color since they are providing options. Wait, user said "მწვანე და წითელი ფერები კურსებისთვის". 
+            // If the user inputs GEL and gets USD, they are buying USD. If they input USD and get GEL, they are selling USD.
+            // Let's color the rate green as it's the "best" rates, or color them green/red based on direction.
+            // Actually, we can just use the buy-color (green) for the rate value since these are the top rates and higher/lower is already sorted for the user's benefit.
+            // Choose color based on user action (buy/sell relative to base)
+            let rateColor = "var(--text-main)";
+            if (valTopCcy === 'GEL') rateColor = "var(--sell-color)"; // User is buying foreign currency with GEL (selling GEL)
+            else rateColor = "var(--buy-color)"; // User is selling foreign currency for GEL
+
             html += `
-                    <div class="company-name">${item.company}</div>
+                    <div class="company-name" style="color: var(--text-main); font-weight: 600; font-size: 0.95rem;">${item.company}</div>
                 </div>
-                <div class="top10-rate">${formatted}</div>
+                <div class="top10-rate" style="color: ${rateColor}; font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums;">${formatted}</div>
             `;
             div.innerHTML = html;
             top10List.appendChild(div);
