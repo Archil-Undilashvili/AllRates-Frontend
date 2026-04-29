@@ -17,9 +17,9 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
         // კატეგორიები
-        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader'];
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit'];
         const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc', 'leader'];
-        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader'];
+        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit'];
 
         let currentTab = 'all';
 
@@ -160,7 +160,9 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         'halyk': 'https://halykbank.ge/ka/individuals',
         'is': 'http://isbank.ge/ka/individual',
         'silk': 'https://silkbank.ge/',
-        'paysera': 'https://www.paysera.ge/v2/ka-GE/index'
+        'paysera': 'https://www.paysera.ge/v2/ka-GE/index',
+        'procredit': 'https://procreditbank.ge/',
+        'leader': 'https://leadercredit.ge/'
     };
 
         const LOGOS = {
@@ -1434,7 +1436,9 @@ const COMPANY_INFO_DATA = {
     'giro': { fullName: 'შპს "გირო კრედიტი"', branches: ['ყაზბეგის გამზ. 14 (სათაო)', 'წერეთლის 116', 'გურამიშვილის 15'], mapUrl: 'https://girocredit.ge/branch/' },
     'goa': { fullName: 'შპს "გოა კრედიტი"', branches: ['თევდორე მღვდლის ქ. 13', 'წერეთლის 73'], mapUrl: 'https://goacredit.ge' },
     'hash': { fullName: 'სს "ჰაშ ბანკი"', branches: ['რუსთაველის გამზ. 12', 'ზ. ფალიაშვილის 15'], mapUrl: 'https://hashbank.ge' },
-    'mbc': { fullName: 'შპს "მიკრო ბიზნეს კაპიტალი (MBC)"', branches: ['წერეთლის გამზ. 114', 'ალ. ყაზბეგის 15', 'პეკინის გამზ. 14', 'ქეთევან დედოფლის გამზ. 67'], mapUrl: 'https://mbc.com.ge/ka/contact/branches' }
+    'mbc': { fullName: 'შპს "მიკრო ბიზნეს კაპიტალი (MBC)"', branches: ['წერეთლის გამზ. 114', 'ალ. ყაზბეგის 15', 'პეკინის გამზ. 14', 'ქეთევან დედოფლის გამზ. 67'], mapUrl: 'https://mbc.com.ge/ka/contact/branches' },
+    'procredit': { fullName: 'სს "პროკრედიტ ბანკი"', branches: ['ალ. ყაზბეგის გამზ. 21 (სათაო ოფისი)', 'წერეთლის გამზ. 105', 'დავით აღმაშენებლის გამზ. 154', 'რუსთაველის გამზ. 31'], mapUrl: 'https://www.procreditbank.ge/ge/contact' },
+    'leader': { fullName: 'შპს "ლიდერ კრედიტი"', branches: ['თბილისი, დადიანის ქ. 7', 'თბილისი, ჭავჭავაძის გამზ. 39', 'ბათუმი, გორგილაძის ქ. 54', 'ქუთაისი, წერეთლის ქ. 2'], mapUrl: 'https://leadercredit.ge' }
 };
 
 window.openCompanyInfo = function(key, displayName) {
