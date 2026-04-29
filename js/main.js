@@ -21,7 +21,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc', 'leader'];
         const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit'];
 
-        let currentTab = 'all';
+        let currentTab = localStorage.getItem('allrates_current_tab') || 'all';
 
         function switchPage(page) {
             ['home-page','rates-page','api-page','contact-page'].forEach(id => {
@@ -837,6 +837,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         function switchTab(tab) {
             currentTab = tab;
+            localStorage.setItem('allrates_current_tab', tab);
             
             // ღილაკების ვიზუალის განახლება
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1486,6 +1487,15 @@ window.openCompanyInfo = function(key, displayName) {
 
 // Also close it correctly
 document.addEventListener('DOMContentLoaded', () => {
+    const savedTab = localStorage.getItem('allrates_current_tab');
+    if (savedTab) {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        if (tabBtns.length > 0) {
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.querySelector(`.tab-btn[onclick="switchTab('${savedTab}')"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+    }
     const infoModal = document.getElementById('company-info-modal');
     if (infoModal) {
         infoModal.addEventListener('click', (e) => {
