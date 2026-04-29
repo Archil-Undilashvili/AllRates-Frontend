@@ -182,6 +182,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
             'halyk': 'Logos/halyk_icon.png',
             'is': 'Logos/is_icon.png',
             'silk': 'Logos/silk_icon.png',
+            'procredit': 'Logos/procredit.jpg',
             'paysera': 'Logos/paysera_icon.png'
         };
 
