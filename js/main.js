@@ -17,9 +17,9 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
         // კატეგორიები
-        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit'];
-        const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
-        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit'];
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader'];
+        const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc', 'leader'];
+        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader'];
 
         let currentTab = 'all';
 
@@ -136,6 +136,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         'is': 'იშბანკი',
         'silk': 'სილქ ბანკი',
         'procredit': 'პროკრედიტ ბანკი',
+        'leader': 'ლიდერ კრედიტი',
         'paysera': 'Paysera'
     };
 
@@ -183,6 +184,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
             'is': 'Logos/is_icon.png',
             'silk': 'Logos/silk_icon.png',
             'procredit': 'Logos/procredit.jpg',
+            'leader': 'Logos/leader.jpg',
             'paysera': 'Logos/paysera_icon.png'
         };
 
@@ -481,6 +483,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                             if (base === 'hashbank') base = 'hash';
                             if (base === 'basisbank') base = 'bb';
                             if (base === 'procredit') base = 'procredit';
+                            if (base === 'leader') base = 'leader';
                             
                             return {
                                 Company: item.company,
