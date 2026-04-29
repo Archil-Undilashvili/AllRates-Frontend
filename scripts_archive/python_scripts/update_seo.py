@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="ka">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ვალუტის კურსები</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/style.css">
+import os
+import glob
+import re
 
-    <!-- SEO Meta Tags -->
+new_seo_content = """<!-- SEO Meta Tags -->
     <meta name="description" content="ვალუტის კურსები, ვალუტის კონვერტაცია, ლარი დოლარში, ვალუტის კალკულატორი. გაიგეთ რა ღირს დოლარი დღეს, ბაზრის კურსები, ეროვნული ბანკის (NBG) ოფიციალური კურსი, ბანკების, მიკროსაფინანსოების და ჯიხურების კურსები. ისტორიული კურსები, ექსპორტი ექსელში, ფორექსი, კრიპტოვალუტების, ოქროს, ნავთობის და აქციების ფასები. Allrates.ge">
     <meta name="keywords" content="კურსები, კურსი, ვალუტის კონვერტაცია, ლარი დოლარში, რამდენი ლარია 100 დოლარი, კონვერტაცია, ბაზრის კურსები, დოლარის კურსი, ევროს კურსი, ვალუტის კალკულატორი, ეროვნული ბანკის კურსი, ეროვნული ბანკის კურსები, ოფიციალური კურსი, ოფიციალური კურსები, NBG rate, NBG rates, კურსების ექსპორტი ექსელში, კურსის ექსპორტი, ექსპორტი xls, ექსპორტი xlsx, ისტორიული კურსები, მიკროსაფინანსო ორგანიზაციების კურსები, ბანკების კურსები, სავალუტო ჯიხურების კურსები, რა ღირს დოლარი დღეს, რა ღირს დოლარი ახლა, ფორექს კურსები, forex rates, forex კურსები, ევრო-დოლარის კურსი, ევრო დოლარის კურსი ახლა, კრიპტოვალუტის ფასები, კრიპტოვალუტის კურსები, ბიტკოინის ფასი, ნავთობის ფასი, ოქროს ფასი, ვერცხლის ფასი, ტესლას ფასი, ეფლის ფასი, ვალუტის კურსი, valuta, valutis kursebi, lari to usd, currency exchange georgia, komerciuli bankebis kursebi, jixurebis kursebi, allrates, allrates.ge">
     <meta property="og:title" content="ვალუტის კურსები და კონვერტაცია - AllRates.ge">
@@ -26,19 +20,21 @@
       "keywords": "კურსები, ეროვნული ბანკის კურსი, ოფიციალური კურსები, ბაზრის კურსები, ვალუტის კონვერტაცია, ვალუტა"
     }
     </script>
-</head>
-<body>
-<script src="js/header.js"></script>
-    <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 10px; text-align: center;">⏳ მონაცემები იტვირთება...</div>
-    <div id="error-msg" class="error" style="display: none; text-align: center; color: red;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
-    
-<div id="api-page" class="page-section" style="">
-        <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: column; align-items: flex-start;">
-            <h2 style="color: var(--primary);">API სერვისი</h2>
-            <p style="color: var(--text-muted); font-size: 16px;">მალე დაემატება...</p>
-        </div>
-    <
+</head>"""
 
-<script src="js/main.js"></script>
-</body>
-</html>
+html_files = glob.glob(os.path.expanduser('~/Desktop/allrates.ge/*.html'))
+
+for file_path in html_files:
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    pattern = re.compile(r'<!-- SEO Meta Tags -->.*?</head>', re.DOTALL)
+    
+    if pattern.search(content):
+        new_content = pattern.sub(new_seo_content, content)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        print(f"Updated SEO tags in {file_path}")
+    else:
+        print(f"SEO block not found in {file_path}")
+

@@ -122,17 +122,55 @@
                 white-space: nowrap;
             }
         }
-    </style>
+    
+        .sidebar-col { width: 320px; flex-shrink: 0; }
+        @media (max-width: 900px) {
+            .sidebar-col { width: 100%; }
+            .page-container { flex-direction: column; }
+        }
+</style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ვალუტის კურსები, ვალუტის კონვერტაცია, ლარი დოლარში, ვალუტის კალკულატორი. გაიგეთ რა ღირს დოლარი დღეს, ბაზრის კურსები, ეროვნული ბანკის (NBG) ოფიციალური კურსი, ბანკების, მიკროსაფინანსოების და ჯიხურების კურსები. ისტორიული კურსები, ექსპორტი ექსელში, ფორექსი, კრიპტოვალუტების, ოქროს, ნავთობის და აქციების ფასები. Allrates.ge">
+    <meta name="keywords" content="კურსები, კურსი, ვალუტის კონვერტაცია, ლარი დოლარში, რამდენი ლარია 100 დოლარი, კონვერტაცია, ბაზრის კურსები, დოლარის კურსი, ევროს კურსი, ვალუტის კალკულატორი, ეროვნული ბანკის კურსი, ეროვნული ბანკის კურსები, ოფიციალური კურსი, ოფიციალური კურსები, NBG rate, NBG rates, კურსების ექსპორტი ექსელში, კურსის ექსპორტი, ექსპორტი xls, ექსპორტი xlsx, ისტორიული კურსები, მიკროსაფინანსო ორგანიზაციების კურსები, ბანკების კურსები, სავალუტო ჯიხურების კურსები, რა ღირს დოლარი დღეს, რა ღირს დოლარი ახლა, ფორექს კურსები, forex rates, forex კურსები, ევრო-დოლარის კურსი, ევრო დოლარის კურსი ახლა, კრიპტოვალუტის ფასები, კრიპტოვალუტის კურსები, ბიტკოინის ფასი, ნავთობის ფასი, ოქროს ფასი, ვერცხლის ფასი, ტესლას ფასი, ეფლის ფასი, ვალუტის კურსი, valuta, valutis kursebi, lari to usd, currency exchange georgia, komerciuli bankebis kursebi, jixurebis kursebi, allrates, allrates.ge">
+    <meta property="og:title" content="ვალუტის კურსები და კონვერტაცია - AllRates.ge">
+    <meta property="og:description" content="ყველა ვალუტის კურსი ერთ სივრცეში: ეროვნული ბანკი, კომერციული ბანკები, ჯიხურები. კრიპტოვალუტები, აქციები და კალკულატორი.">
+    <meta property="og:type" content="website">
+    
+    <!-- Hidden Structural Data for Google (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "AllRates.ge",
+      "url": "https://allrates.ge",
+      "description": "ყველაზე ზუსტი ვალუტის კურსები, ბაზრის კურსები და ვალუტის კონვერტაცია. ეროვნული ბანკის (NBG), მიკროსაფინანსოების, ბანკების და ჯიხურების კურსები. კრიპტოვალუტები და აქციები.",
+      "keywords": "კურსები, ეროვნული ბანკის კურსი, ოფიციალური კურსები, ბაზრის კურსები, ვალუტის კონვერტაცია, ვალუტა"
+    }
+    </script>
 </head>
 <body>
 <script src="js/header.js"></script>
 
 <div class="page-section" style="display: flex; justify-content: center; padding: 20px;">
-    <div style="width: 100%; max-width: 1000px;">
-        <h1 style="color: var(--text-main); margin-bottom: 25px; font-size: 28px;">საქართველოს ეროვნული ბანკის ოფიციალური კურსები</h1>
+    <div style="width: 100%; max-width: 1250px;">
         
-        <div class="search-container">
+        <div style="width: 100%; display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: transparent;">
+                <img src="Logos/nbg_logo_perfect.jpg" alt="NBG" style="width: 100%; height: 100%; object-fit: cover; transform: scale(1.05);">
+            </div>
+            <h1 style="color: var(--text-main); margin: 0; font-size: 28px; line-height: 1.2;">საქართველოს ეროვნული ბანკის ოფიციალური კურსები</h1>
+        </div>
+
+        <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap;" class="page-container">
+            <!-- Left Column: Main Content -->
+            <div style="flex: 1; min-width: 300px;">
+
+        
+
+        
+        <div class="search-container" style="margin-top: 0;">
             <input type="text" id="searchInput" class="search-input" placeholder="მოძებნე ვალუტა (მაგ. დოლარი, USD...)" style="flex: 1; max-width: 350px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span id="dateLabel" style="color: var(--text-muted); font-weight: 500; font-size: 13px; text-align: right;">აირჩიეთ თარიღი:</span>
@@ -161,6 +199,86 @@
                 </tbody>
             </table>
         </div>
+        </div>
+        <!-- Right Column: Sidebar -->
+        <div class="sidebar-col">
+            <!-- Export Panel -->
+        <div class="search-container" style="flex-direction: column; align-items: stretch; gap: 15px; margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 5px;">
+                <h3 style="color: var(--text-main); margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    ისტორიული მონაცემების ექსპორტი (Excel)
+                </h3>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="width: 100%;">
+                    <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px; font-weight: 500;">ვალუტა</label>
+                    <select id="exportCurrency" class="search-input" style="width: 100%; box-sizing: border-box; padding: 10px; cursor: pointer;">
+                        <option value="USD">USD - აშშ დოლარი</option>
+<option value="EUR">EUR - ევრო</option>
+<option value="AED">AED - არაბეთის გაერთიანებული საამიროების დირჰამი</option>
+<option value="AMD">AMD - სომხური დრამი</option>
+<option value="AUD">AUD - ავსტრალიური დოლარი</option>
+<option value="AZN">AZN - აზერბაიჯანული მანათი</option>
+<option value="BRL">BRL - ბრაზილიური რიალი</option>
+<option value="BYN">BYN - ბელარუსული რუბლი</option>
+<option value="CAD">CAD - კანადური დოლარი</option>
+<option value="CHF">CHF - შვეიცარიული ფრანკი</option>
+<option value="CNY">CNY - ჩინური იუანი</option>
+<option value="CZK">CZK - ჩეხური კრონა</option>
+<option value="DKK">DKK - დანიური კრონი</option>
+<option value="EGP">EGP - ეგვიპტური გირვანქა</option>
+<option value="GBP">GBP - დიდი ბრიტანეთის გირვანქა სტერლინგი</option>
+<option value="HKD">HKD - ჰონკონგური დოლარი</option>
+<option value="HUF">HUF - უნგრული ფორინტი</option>
+<option value="ILS">ILS - ისრაელის შეკელი</option>
+<option value="INR">INR - ინდური რუპია</option>
+<option value="IRR">IRR - ირანული რიალი</option>
+<option value="ISK">ISK - ისლანდიური კრონი</option>
+<option value="JPY">JPY - იაპონური იენი</option>
+<option value="KGS">KGS - ყირგიზული სომი</option>
+<option value="KRW">KRW - სამხრეთ კორეული ვონი</option>
+<option value="KWD">KWD - ქუვეითური დინარი</option>
+<option value="KZT">KZT - ყაზახური ტენგე</option>
+<option value="MDL">MDL - მოლდოვური ლეი</option>
+<option value="NOK">NOK - ნორვეგიული კრონი</option>
+<option value="NZD">NZD - ახალზელანდიური დოლარი</option>
+<option value="PLN">PLN - პოლონური ზლოტი</option>
+<option value="QAR">QAR - კატარული რიალი</option>
+<option value="RON">RON - რუმინული ლეი</option>
+<option value="RSD">RSD - სერბიული დინარი</option>
+<option value="RUB">RUB - რუსული რუბლი</option>
+<option value="SEK">SEK - შვედური კრონი</option>
+<option value="SGD">SGD - სინგაპურული დოლარი</option>
+<option value="TJS">TJS - ტაჯიკური სომონი</option>
+<option value="TMT">TMT - თურქმენული მანათი</option>
+<option value="TRY">TRY - თურქული ლირა</option>
+<option value="UAH">UAH - უკრაინული გრივნა</option>
+<option value="UZS">UZS - უზბეკური სუმი</option>
+<option value="ZAR">ZAR - სამხრეთ აფრიკული რანდი</option>
+                    </select>
+                </div>
+                <div style="width: 100%;">
+                    <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px; font-weight: 500;">საიდან</label>
+                    <input type="date" id="exportDateFrom" class="search-input" style="width: 100%; box-sizing: border-box; padding: 9px; cursor: pointer;">
+                </div>
+                <div style="width: 100%;">
+                    <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px; font-weight: 500;">სადამდე</label>
+                    <input type="date" id="exportDateTo" class="search-input" style="width: 100%; box-sizing: border-box; padding: 9px; cursor: pointer;">
+                </div>
+                <div>
+                    <button id="exportBtn" style="background: var(--primary); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 14px; transition: opacity 0.2s;">
+                        ექსპორტი
+                    </button>
+                </div>
+            </div>
+            <div id="exportStatus" style="font-size: 13px; color: var(--text-muted); display: none; text-align: right; font-weight: 500;"></div>
+        </div>
+        </div>
+
+
+        
+
     </div>
 </div>
 
@@ -325,19 +443,203 @@
 </script>
 
 
-    <!-- Footer Section -->
-    <footer style="margin-top: 40px; padding: 20px; background: var(--card-bg); border-top: 1px solid var(--border); border-radius: 12px 12px 0 0; text-align: center; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-            <h4 style="margin: 0; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
+            <!-- Footer Section -->
+    <footer style="margin-top: 60px; padding: 40px 20px 20px; border-top: 1px solid var(--border); background: transparent;">
+        <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; text-align: center;">
+            
+            <!-- Column 1: Menu -->
+            <div>
+                <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    ნავიგაცია
+                </h4>
+                <style>
+                    .footer-nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.95em; transition: color 0.2s; display: inline-block; padding: 4px 0; }
+                    .footer-nav-link:hover { color: var(--primary); }
+                    .footer-social-link { color: var(--text-muted); transition: all 0.2s; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); }
+                    .footer-social-link:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+                
+        .sidebar-col { width: 320px; flex-shrink: 0; }
+        @media (max-width: 900px) {
+            .sidebar-col { width: 100%; }
+            .page-container { flex-direction: column; }
+        }
+</style>
+                <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                    <li><a href="index.html" class="footer-nav-link">მთავარი</a></li>
+                    <li><a href="rates.html" class="footer-nav-link">ყველა კურსი</a></li>
+                    <li><a href="official.html" class="footer-nav-link">ოფიციალური კურსები</a></li>
+                    <li><a href="calculator.html" class="footer-nav-link">კალკულატორი</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 2: Important Info (Center) -->
+            <div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <h4 style="margin: 0; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
+                </div>
+                <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6;">
+                    ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>. 
+                    ჩვენ არ ვიღებთ პასუხისმგებლობას ინფორმაციის აბსოლუტურ სიზუსტეზე, დაგვიანებაზე ან ამ მონაცემებზე დაყრდნობით მიღებულ ფინანსურ გადაწყვეტილებებსა და შესაძლო ზარალზე.
+                </p>
+            </div>
+
+            <!-- Column 3: Social -->
+            <div>
+                <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    კონტაქტი
+                </h4>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <a href="#" target="_blank" title="Facebook" class="footer-social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                    <a href="#" target="_blank" title="Instagram" class="footer-social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                </div>
+                <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9em; line-height: 1.5;">
+                    გამოგვყევით სოციალურ ქსელებში, რათა არ გამოტოვოთ სიახლეები.
+                </p>
+            </div>
+
         </div>
-        <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6; max-width: 800px; margin: 0 auto;">
-            ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>. 
-            ჩვენ არ ვიღებთ პასუხისმგებლობას ინფორმაციის აბსოლუტურ სიზუსტეზე, დაგვიანებაზე ან ამ მონაცემებზე დაყრდნობით მიღებულ ფინანსურ გადაწყვეტილებებსა და შესაძლო ზარალზე.
-        </p>
+        
+        <div style="max-width: 1200px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85em;">
+            &copy; <span id="current-year"></span> AllRates.ge. ყველა უფლება დაცულია.
+        </div>
+        <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     </footer>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date();
+        const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+        
+        // Formating to YYYY-MM-DD taking into account local timezone issues
+        const formatDate = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+        
+        document.getElementById('exportDateFrom').value = formatDate(firstDayOfYear);
+        document.getElementById('exportDateTo').value = formatDate(today);
+        
+        
+
+        document.getElementById('exportBtn').addEventListener('click', async function() {
+            const currency = document.getElementById('exportCurrency').value;
+            const fromDateStr = document.getElementById('exportDateFrom').value;
+            const toDateStr = document.getElementById('exportDateTo').value;
+            const statusEl = document.getElementById('exportStatus');
+            const btn = document.getElementById('exportBtn');
+            
+            if (!fromDateStr || !toDateStr) {
+                alert("გთხოვთ აირჩიოთ ორივე თარიღი.");
+                return;
+            }
+
+            const fromDate = new Date(fromDateStr);
+            const toDate = new Date(toDateStr);
+            
+            if (fromDate > toDate) {
+                alert("საწყისი თარიღი არ შეიძლება იყოს საბოლოო თარიღზე გვიან.");
+                return;
+            }
+
+            const diffTime = Math.abs(toDate - fromDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            
+            if (diffDays > 365) {
+                alert("მაქსიმალური დიაპაზონი შეზღუდულია 1 წლით (365 დღე).");
+                return;
+            }
+            
+            const datesToFetch = [];
+            let currDate = new Date(fromDate);
+            while (currDate <= toDate) {
+                datesToFetch.push(currDate.toISOString().split('T')[0]);
+                currDate.setDate(currDate.getDate() + 1);
+            }
+
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            statusEl.style.display = 'block';
+            statusEl.style.color = 'var(--text-muted)';
+            statusEl.innerText = `მონაცემების ჩამოტვირთვა... 0 / ${datesToFetch.length}`;
+
+            const results = [];
+            let completed = 0;
+            let hasError = false;
+
+            const batchSize = 20;
+            for (let i = 0; i < datesToFetch.length; i += batchSize) {
+                const batch = datesToFetch.slice(i, i + batchSize);
+                
+                const promises = batch.map(dateStr => {
+                    return fetch(`https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json/?date=${dateStr}`)
+                        .then(res => {
+                            if (!res.ok) throw new Error("API Error");
+                            return res.json();
+                        })
+                        .then(data => {
+                            if (data && data.length > 0 && data[0].currencies) {
+                                const c = data[0].currencies.find(x => x.code === currency);
+                                if (c) {
+                                    results.push({
+                                        'თარიღი': dateStr,
+                                        'კურსი': c.rate,
+                                        'რაოდენობა': c.quantity,
+                                        'ცვლილება': c.diffFormated
+                                    });
+                                }
+                            }
+                            completed++;
+                            statusEl.innerText = `მონაცემების ჩამოტვირთვა... ${completed} / ${datesToFetch.length}`;
+                        })
+                        .catch(err => {
+                            hasError = true;
+                        });
+                });
+                
+                await Promise.all(promises);
+            }
+
+            if (results.length === 0) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = hasError ? "შეცდომა სერვერიდან." : "მონაცემები ვერ მოიძებნა.";
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                return;
+            }
+
+            results.sort((a, b) => new Date(a['თარიღი']) - new Date(b['თარიღი']));
+
+            try {
+                const worksheet = XLSX.utils.json_to_sheet(results);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, `${currency}_Rates`);
+                XLSX.writeFile(workbook, `NBG_${currency}_${fromDateStr}_to_${toDateStr}.xlsx`);
+                
+                statusEl.style.color = '#10b981';
+                statusEl.innerText = "ექსპორტი წარმატებით დასრულდა!";
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = "შეცდომა ექსპორტის დროს.";
+            }
+
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        });
+    });
+</script>
 
 </body>
 </html>

@@ -17,9 +17,9 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
         // კატეგორიები
-        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk'];
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit'];
         const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
-        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk'];
+        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit'];
 
         let currentTab = 'all';
 
@@ -64,9 +64,19 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
             success.style.display = 'none';
             error.style.display = 'none';
 
+            const emailInput = document.getElementById('c-email');
+            emailInput.style.borderColor = ''; // reset border color
+
             if (!email || !message) {
                 error.textContent = '✗   გთხოვთ შეავსოთ სავალდებულო ველები (ელ-ფოსტა და შეტყობინება).';
                 error.style.display = 'block';
+                return;
+            }
+
+            if (!email.includes('@')) {
+                error.textContent = '✗   ელ ფოსტა არასწორია (არ შეიცავს @ სიმბოლოს).';
+                error.style.display = 'block';
+                emailInput.style.borderColor = '#dc2626'; // Red border
                 return;
             }
 
@@ -74,7 +84,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
             btn.textContent = 'იგზავნება...';
 
             try {
-                const res = await fetch('https://formsubmit.co/ajax/archilundilashvili@gmail.com', {
+                const res = await fetch('https://formsubmit.co/ajax/info@allrates.ge', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
@@ -125,6 +135,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         'halyk': 'ხალიკ ბანკი',
         'is': 'იშბანკი',
         'silk': 'სილქ ბანკი',
+        'procredit': 'პროკრედიტ ბანკი',
         'paysera': 'Paysera'
     };
 
@@ -468,6 +479,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                             if (base === 'cartubank') base = 'cartu';
                             if (base === 'hashbank') base = 'hash';
                             if (base === 'basisbank') base = 'bb';
+                            if (base === 'procredit') base = 'procredit';
                             
                             return {
                                 Company: item.company,
@@ -1118,7 +1130,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
                 tr.innerHTML = `
                     <td class="company-name">
-                        <a href="${compUrl}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; display: block;">
+                        <a href="javascript:void(0)" onclick="searchRates(this, '${item.baseCompany || companyKey}', '${item.Company.replace(/'/g, "\\'")}')" style="text-decoration: none; display: block; cursor: pointer;">
                             <div style="display: flex; align-items: center; gap: 14px; padding: 4px 0;">
                                 ${logoUrl ? `<div style="width: 42px; height: 42px; border-radius: 12px; background: #ffffff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; overflow: hidden; padding: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><img src="${logoUrl}" alt="${compNameKa}" class="${logoClass}" style="width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 8px;"></div>` : `<div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><span style="font-weight:bold; font-size: 18px; color:${initialColor};">${mainName.charAt(0)}</span></div>`}
                                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.25; max-width: 160px;">
@@ -1476,3 +1488,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
+window.searchRates = function(element, baseKey, companyNameRaw) {
+    if (!originalData) return;
+    
+    let targetItem = null;
+    let nameKa = "";
+    
+    originalData.forEach(item => {
+        if (item.Company === companyNameRaw) {
+            targetItem = item;
+            let base = item.baseCompany || item.Company.split(' ')[0].toLowerCase();
+            
+            if (item.baseCompany && COMPANY_NAMES_KA[item.baseCompany]) {
+                const match = item.Company.match(/\((.*?)\)/);
+                if (match) {
+                    nameKa = COMPANY_NAMES_KA[item.baseCompany] + ' (' + match[1] + ')';
+                } else {
+                    nameKa = COMPANY_NAMES_KA[item.baseCompany];
+                }
+            } else if (COMPANY_NAMES_KA[base]) {
+                nameKa = COMPANY_NAMES_KA[base];
+            } else {
+                nameKa = item.Company;
+            }
+        }
+    });
+    
+    if (targetItem) {
+        let finalBase = targetItem.baseCompany || targetItem.Company.split(' ')[0].toLowerCase();
+        showCompanyRatesModal(targetItem, nameKa, finalBase);
+    }
+};
