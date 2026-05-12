@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /create-dashboard
+Disallow: /create-alert
+
+Sitemap: https://allrates.ge/sitemap.xml
