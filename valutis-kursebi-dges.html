@@ -578,50 +578,7 @@
         </div>
     </section>
 </main>
-
-<footer style="margin-top: 60px; padding: 40px 20px 20px; border-top: 1px solid var(--border); background: transparent;">
-    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; text-align: center;">
-        <div>
-            <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px;">ნავიგაცია</h4>
-            <style>
-                .footer-nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.95em; transition: color 0.2s; display: inline-block; padding: 4px 0; }
-                .footer-nav-link:hover { color: var(--primary); }
-            </style>
-            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-                <li><a href="/" class="footer-nav-link">მთავარი</a></li>
-                <li><a href="/rates" class="footer-nav-link">ყველა კურსი</a></li>
-                <li><a href="/official" class="footer-nav-link">ოფიციალური კურსები</a></li>
-                <li><a href="/valutis-kursebi-dges" class="footer-nav-link">NBG სტატისტიკა</a></li>
-                <li><a href="/calculator" class="footer-nav-link">კალკულატორი</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 style="margin: 0 0 15px; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
-            <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6;">
-                ვებგვერდზე განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და არ წარმოადგენს ფინანსურ რჩევას.
-            </p>
-        </div>
-        <div>
-            <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px;">კონტაქტი</h4>
-            <style>
-                .footer-social-link { color: var(--text-muted); transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); margin: 0 5px; }
-                .footer-social-link:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
-            </style>
-            <div>
-                <a href="#" target="_blank" title="Facebook" class="footer-social-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                </a>
-                <a href="#" target="_blank" title="LinkedIn" class="footer-social-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                </a>
-            </div>
-        </div>
-    </div>
-    <div style="max-width: 1200px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85em;">
-        &copy; <span id="current-year"></span> AllRates.ge. ყველა უფლება დაცულია.
-    </div>
-</footer>
-
+<script src="js/footer.js"></script>
 <script>
     const NBG_API_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json/';
     const DEFAULT_CODES = ['USD', 'EUR', 'GBP', 'CHF', 'RUB'];
@@ -644,8 +601,6 @@
     const COLORS = ['#38bdf8', '#34d399'];
     const pageState = { days: [], selectedCodes: [...DEFAULT_CODES], allCurrencies: [] };
     const chartState = { period: '1m', chart: null, cache: {} };
-
-    document.getElementById('current-year').textContent = new Date().getFullYear();
 
     function formatApiDate(date) {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;

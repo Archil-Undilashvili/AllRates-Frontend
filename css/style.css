@@ -55,9 +55,17 @@
         .site-brand {
             text-decoration: none;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+
+        .site-brand-main {
+            display: flex;
             align-items: center;
             gap: 10px;
-            min-width: 0;
         }
 
         .site-logo {
@@ -73,6 +81,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             white-space: nowrap;
+            line-height: 1;
         }
 
         .site-brand-text span {
@@ -80,6 +89,17 @@
             -webkit-text-fill-color: #f1f5f9;
             font-weight: 600;
             font-size: 20px;
+        }
+
+        .site-brand-tagline {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.15;
+            white-space: nowrap;
+            text-align: center;
+            width: 100%;
+            letter-spacing: 0;
         }
 
         .site-nav-links {
@@ -106,7 +126,7 @@
             color: var(--primary);
         }
 
-        .calculator-nav-link span {
+        .nav-link-with-note span {
             position: absolute;
             top: 100%;
             left: 50%;
@@ -1597,6 +1617,195 @@
             border-color: rgba(52, 211, 153, 0.35);
         }
 
+        .home-faq-section {
+            width: 100%;
+            max-width: 1600px;
+            margin: 34px auto 0;
+            padding: 28px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow-sm);
+            box-sizing: border-box;
+        }
+
+        .home-faq-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 18px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .home-faq-heading h2 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 28px;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .home-faq-heading h2 span {
+            color: var(--text-main);
+            font-size: 0.72em;
+        }
+
+        .home-faq-heading p {
+            max-width: 680px;
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        .home-faq-list {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 12px;
+        }
+
+        .home-faq-list details {
+            background: rgba(15, 23, 42, 0.22);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+        }
+
+        .home-faq-list details:hover,
+        .home-faq-list details[open] {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.45);
+            background: rgba(56, 189, 248, 0.06);
+        }
+
+        .home-faq-list summary {
+            cursor: pointer;
+            color: var(--text-main);
+            font-weight: 800;
+            line-height: 1.45;
+            list-style-position: outside;
+        }
+
+        .home-faq-list p {
+            margin: 12px 0 0;
+            color: var(--text-muted);
+            line-height: 1.75;
+            font-size: 15px;
+            max-width: 1120px;
+        }
+
+        .home-faq-list a {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .allrates-footer {
+            width: 100%;
+            margin-top: 60px;
+            padding: 40px 20px 22px;
+            border-top: 1px solid var(--border);
+            background: transparent;
+            box-sizing: border-box;
+        }
+
+        .allrates-footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.45fr 0.8fr;
+            gap: 34px;
+            align-items: start;
+        }
+
+        .allrates-footer-column h4 {
+            margin: 0 0 14px;
+            color: var(--text-main);
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .allrates-footer-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .allrates-footer-column a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+
+        .allrates-footer-column a:hover {
+            color: var(--primary);
+            transform: translateX(2px);
+        }
+
+        .allrates-footer-note p,
+        .allrates-footer-contact {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .allrates-footer-socials {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .allrates-footer-socials a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .allrates-footer-socials a:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .allrates-footer-socials svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .allrates-footer-contact {
+            margin-top: 14px;
+            font-weight: 700;
+        }
+
+        .allrates-footer-bottom {
+            max-width: 1400px;
+            margin: 34px auto 0;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 13px;
+        }
+
         .home-eurusd-chart-title {
             color: var(--buy-color);
         }
@@ -2343,6 +2552,13 @@ th.sortable.active-sort .sort-icon {
         font-size: 17px;
     }
 
+    .site-brand-tagline {
+        font-size: 10px;
+        max-width: 190px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .mobile-menu-toggle {
         display: flex;
         margin-left: auto;
@@ -2498,7 +2714,7 @@ th.sortable.active-sort .sort-icon {
         background: rgba(56, 189, 248, 0.12);
     }
 
-    .calculator-nav-link span {
+    .nav-link-with-note span {
         position: static;
         display: block;
         transform: none;
@@ -2536,10 +2752,51 @@ th.sortable.active-sort .sort-icon {
         gap: 26px !important;
     }
 
+    .allrates-footer {
+        padding: 30px 14px 20px;
+        margin-top: 34px;
+    }
+
+    .allrates-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        text-align: left;
+    }
+
+    .allrates-footer-column ul {
+        gap: 7px;
+    }
+
+    .allrates-footer-column a {
+        font-size: 13px;
+    }
+
     .home-charts-row { flex-direction: column; gap: 18px; }
     .home-nbg-chart-header { flex-direction: column; align-items: stretch; }
     .home-nbg-chart-controls { flex-wrap: wrap; }
     .home-nbg-chart-tabs { justify-content: flex-start; }
+    .home-faq-section {
+        padding: 20px 14px;
+        margin-top: 18px;
+    }
+    .home-faq-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .home-faq-heading h2 {
+        font-size: 23px;
+    }
+    .home-faq-heading p {
+        text-align: left;
+        font-size: 13px;
+    }
+    .home-faq-list {
+        grid-template-columns: 1fr;
+    }
+    .home-faq-list details {
+        padding: 14px;
+    }
     .home-rates-grid {
         display: grid !important;
         grid-template-columns: 1fr !important;
@@ -2880,6 +3137,11 @@ th.sortable.active-sort .sort-icon {
 
     .site-brand-text span {
         font-size: 15px;
+    }
+
+    .site-brand-tagline {
+        font-size: 9px;
+        max-width: 168px;
     }
 
     .site-logo {
