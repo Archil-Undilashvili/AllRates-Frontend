@@ -9,6 +9,18 @@
 /create-dashboard.html      /create-dashboard         301!
 /create-alert.html          /create-alert             301!
 /valutis-kursebi-dges.html  /valutis-kursebi-dges     301!
+/dolaris-kursi.html             /dolaris-kursi            301!
+/evros-kursi.html               /evros-kursi              301!
+/funtis-kursi.html              /funtis-kursi             301!
+/rublis-kursi.html              /rublis-kursi             301!
+/liris-kursi.html               /liris-kursi              301!
+/erovnuli-bankis-kursi.html     /erovnuli-bankis-kursi    301!
+/bankebis-kursebi.html          /bankebis-kursebi         301!
+/jixurebis-kursebi.html         /jixurebis-kursebi        301!
+/valutis-kalkulatori.html       /valutis-kalkulatori      301!
+/bitcoinis-fasi.html            /bitcoinis-fasi           301!
+/kriptovalutis-kursebi.html     /kriptovalutis-kursebi    301!
+/oqros-fasi.html                /oqros-fasi               301!
 
 /rates                    /rates.html                 200
 /calculator               /calculator.html            200
@@ -20,3 +32,15 @@
 /create-dashboard         /create-dashboard.html      200
 /create-alert             /create-alert.html          200
 /valutis-kursebi-dges     /valutis-kursebi-dges.html  200
+/dolaris-kursi            /dolaris-kursi.html       200
+/evros-kursi              /evros-kursi.html         200
+/funtis-kursi             /funtis-kursi.html        200
+/rublis-kursi             /rublis-kursi.html        200
+/liris-kursi              /liris-kursi.html         200
+/erovnuli-bankis-kursi    /erovnuli-bankis-kursi.html 200
+/bankebis-kursebi         /bankebis-kursebi.html    200
+/jixurebis-kursebi        /jixurebis-kursebi.html   200
+/valutis-kalkulatori      /valutis-kalkulatori.html 200
+/bitcoinis-fasi           /bitcoinis-fasi.html      200
+/kriptovalutis-kursebi    /kriptovalutis-kursebi.html 200
+/oqros-fasi               /oqros-fasi.html          200
