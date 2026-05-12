@@ -2920,6 +2920,8 @@ th.sortable.active-sort .sort-icon {
 .seo-hero-panel,
 .seo-info-card,
 .seo-related-card,
+.seo-translit-card,
+.seo-faq-card,
 .seo-keyword-cloud {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -3003,12 +3005,16 @@ th.sortable.active-sort .sort-icon {
 
 .seo-info-card,
 .seo-related-card,
+.seo-translit-card,
+.seo-faq-card,
 .seo-keyword-cloud {
     padding: 26px;
 }
 
 .seo-info-card h2,
 .seo-related-card h2,
+.seo-translit-card h2,
+.seo-faq-card h2,
 .seo-keyword-cloud h2 {
     margin: 0 0 16px;
     color: var(--text-main);
@@ -3053,6 +3059,47 @@ th.sortable.active-sort .sort-icon {
     margin-top: 22px;
 }
 
+.seo-translit-card,
+.seo-faq-card {
+    margin-top: 22px;
+}
+
+.seo-translit-card div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.seo-translit-card span {
+    color: var(--text-muted);
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 9px 13px;
+    font-weight: 700;
+}
+
+.seo-faq-card details {
+    border-top: 1px solid var(--border);
+    padding: 14px 0;
+}
+
+.seo-faq-card details:first-of-type {
+    border-top: 0;
+}
+
+.seo-faq-card summary {
+    cursor: pointer;
+    color: var(--text-main);
+    font-weight: 800;
+}
+
+.seo-faq-card p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin: 10px 0 0;
+}
+
 .seo-footer {
     display: flex;
     flex-wrap: wrap;
@@ -3093,6 +3140,8 @@ th.sortable.active-sort .sort-icon {
 
     .seo-info-card,
     .seo-related-card,
+    .seo-translit-card,
+    .seo-faq-card,
     .seo-keyword-cloud {
         padding: 20px;
     }

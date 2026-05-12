@@ -21,6 +21,11 @@
 /bitcoinis-fasi.html            /bitcoinis-fasi           301!
 /kriptovalutis-kursebi.html     /kriptovalutis-kursebi    301!
 /oqros-fasi.html                /oqros-fasi               301!
+/valutis-kursi.html                /valutis-kursi               301!
+/valutis-kursebi.html              /valutis-kursebi             301!
+/laris-kursi.html                  /laris-kursi                 301!
+/valutis-gacvla.html               /valutis-gacvla              301!
+/valutis-konvertacia.html          /valutis-konvertacia         301!
 
 /rates                    /rates.html                 200
 /calculator               /calculator.html            200
@@ -44,3 +49,8 @@
 /bitcoinis-fasi           /bitcoinis-fasi.html      200
 /kriptovalutis-kursebi    /kriptovalutis-kursebi.html 200
 /oqros-fasi               /oqros-fasi.html          200
+/valutis-kursi               /valutis-kursi.html            200
+/valutis-kursebi             /valutis-kursebi.html          200
+/laris-kursi                 /laris-kursi.html              200
+/valutis-gacvla              /valutis-gacvla.html           200
+/valutis-konvertacia         /valutis-konvertacia.html      200
