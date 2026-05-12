@@ -59,11 +59,17 @@
 
         .category-tabs, .ccy-tabs {
             display: flex;
-            flex-wrap: nowrap;
             gap: 8px;
-            overflow-x: auto;
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+        .category-tabs {
+            flex-wrap: wrap;
+            overflow-x: visible;
+        }
+        .ccy-tabs {
+            flex-wrap: nowrap;
+            overflow-x: auto;
         }
         .category-tabs::-webkit-scrollbar, .ccy-tabs::-webkit-scrollbar {
             display: none;
@@ -77,12 +83,27 @@
             border: 1px solid var(--border);
             background: var(--bg-color);
             color: var(--text-main);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: inherit;
             text-align: center;
+        }
+        .category-tabs .cat-tab {
+            flex: 1 1 calc(50% - 8px);
+            min-width: 0;
+            white-space: normal;
+            line-height: 1.25;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        .category-tabs .official-tab {
+            flex-basis: 100%;
+        }
+        .ccy-tabs .ccy-tab {
+            flex: 1;
+            min-width: max-content;
         }
         .cat-tab:hover, .ccy-tab:hover {
             background: var(--border);
@@ -93,6 +114,23 @@
             color: #ffffff;
             border-color: var(--primary);
             box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .cat-tab.official-tab {
+            color: #fde68a;
+            border-color: rgba(250, 204, 21, 0.45);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+            box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.12);
+        }
+        .cat-tab.official-tab:hover {
+            background: rgba(250, 204, 21, 0.12);
+            color: #fef3c7;
+        }
+        .cat-tab.official-tab.active {
+            background: #f59e0b;
+            color: #111827;
+            border-color: #facc15;
+            box-shadow: 0 4px 10px -2px rgba(245, 158, 11, 0.35);
         }
 
         .calc-boxes-wrapper {
@@ -344,8 +382,9 @@
                     <div class="category-tabs" id="calc-category-tabs">
                         <button class="cat-tab active" data-cat="all">ყველა კომპანია</button>
                         <button class="cat-tab" data-cat="banks">ბანკები</button>
-                        <button class="cat-tab" data-cat="mfos">მისო და სხვა</button>
-                        <button class="cat-tab" data-cat="nbg">ეროვნული ბანკი</button>
+                        <button class="cat-tab" data-cat="mfos">მიკროსაფინანსოები</button>
+                        <button class="cat-tab" data-cat="kiosks">ჯიხურები</button>
+                        <button class="cat-tab official-tab" data-cat="official">ოფიციალური კურსი</button>
                     </div>
                 </div>
 
@@ -436,6 +475,8 @@
         'halyk': 'Logos/halyk_icon.png',
         'is': 'Logos/is_icon.png',
         'silk': 'Logos/silk_icon.png',
+        'procredit': 'Logos/procredit.jpg',
+        'leader': 'Logos/leader.jpg',
         'paysera': 'Logos/paysera_icon.png'
     };
 
@@ -459,6 +500,8 @@
         'halyk': 'ხალიკ ბანკი',
         'is': 'იშბანკი',
         'silk': 'სილქ ბანკი',
+        'procredit': 'პროკრედიტ ბანკი',
+        'leader': 'ლიდერ კრედიტი',
         'paysera': 'Paysera'
     };
     const COMPANY_URLS = {
@@ -480,11 +523,16 @@
         'tera': 'https://terabank.ge/ka/retail',
         'halyk': 'https://halykbank.ge/ka/individuals',
         'is': 'http://isbank.ge/ka/individual',
-        'silk': 'https://silkbank.ge/'
+        'silk': 'https://silkbank.ge/',
+        'procredit': 'https://procreditbank.ge/',
+        'leader': 'https://leadercredit.ge/',
+        'paysera': 'https://www.paysera.ge/v2/ka-GE/index'
     };
 
-    const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk'];
-    const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc'];
+    const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'paysera'];
+    const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
+    const MFO_COMPANIES = ['rico', 'inex', 'giro', 'goa', 'leader'];
+    const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
 
     const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'RUB': 4, 'GEL': 5 };
     const flags = { 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'RUB': '🇷🇺', 'GEL': '🇬🇪' };
@@ -515,6 +563,32 @@
     const rateSourceText = document.getElementById('rate-source-text');
     const swapBtn = document.getElementById('swap-btn');
     const top10List = document.getElementById('top10-list');
+    const CALC_CACHE_KEY = 'cachedCalculatorTopOffers';
+
+    function loadCachedCalculatorState() {
+        try {
+            const cached = localStorage.getItem(CALC_CACHE_KEY);
+            if (!cached) return;
+
+            const data = JSON.parse(cached);
+            if (data.top10Html && top10List) top10List.innerHTML = data.top10Html;
+            if (data.rateDisplayHtml && rateDisplay) rateDisplay.innerHTML = data.rateDisplayHtml;
+            if (data.rateSourceText && rateSourceText) rateSourceText.innerText = data.rateSourceText;
+        } catch (err) {
+            console.error('კალკულატორის ქეშის ჩატვირთვა ვერ მოხერხდა', err);
+        }
+    }
+
+    function cacheCalculatorState() {
+        if (!top10List || !rateDisplay || !rateSourceText) return;
+        if (!top10List.querySelector('.top10-item')) return;
+
+        localStorage.setItem(CALC_CACHE_KEY, JSON.stringify({
+            top10Html: top10List.innerHTML,
+            rateDisplayHtml: rateDisplay.innerHTML,
+            rateSourceText: rateSourceText.innerText
+        }));
+    }
 
     function renderCcyTabs() {
         // Top Container (ვიყიდი)
@@ -595,9 +669,9 @@
             return [{ company: "N/A", base: "N/A", rate: 1, originalName: "N/A" }];
         }
 
-        if (category === 'nbg') {
+        if (category === 'official') {
             const r = nbgRates[ccyTop] / nbgRates[ccyBottom];
-            return [{ company: "ეროვნული ბანკი", base: "nbg", rate: r, originalName: "ეროვნული ბანკი" }];
+            return [{ company: "ოფიციალური კურსი", base: "nbg", rate: r, originalName: "ოფიციალური კურსი" }];
         }
 
         let filtered = commercialRates;
@@ -605,6 +679,8 @@
             filtered = commercialRates.filter(c => BANK_COMPANIES.includes(getBaseCompany(c.company)));
         } else if (category === 'mfos') {
             filtered = commercialRates.filter(c => MFO_COMPANIES.includes(getBaseCompany(c.company)));
+        } else if (category === 'kiosks') {
+            filtered = commercialRates.filter(c => KIOSK_COMPANIES.includes(getBaseCompany(c.company)));
         }
 
         let results = [];
@@ -707,14 +783,15 @@
             <span>${displayRate < 0.01 ? displayRate.toFixed(4) : displayRate.toFixed(4)} ${quoteCcy}</span>
         `;
         
-        let sourceLabel = bestOption.base === 'nbg' ? 'ეროვნული ბანკი' : (COMPANY_NAMES_KA[bestOption.base] || 'კომერციული ბანკი');
-        if (cat === 'all' || cat === 'banks' || cat === 'mfos') {
+        let sourceLabel = cat === 'official' ? 'ოფიციალური კურსი' : (bestOption.base === 'nbg' ? 'ეროვნული ბანკი' : (COMPANY_NAMES_KA[bestOption.base] || 'კომერციული ბანკი'));
+        if (cat === 'all' || cat === 'banks' || cat === 'mfos' || cat === 'kiosks') {
             rateSourceText.innerText = "საუკეთესო: " + (bestOption.originalName.split(' ')[0]);
         } else {
             rateSourceText.innerText = sourceLabel;
         }
 
         renderTop10(topRates.slice(0, 10), baseCcy, quoteCcy, isReversedForDisplay);
+        cacheCalculatorState();
     }
 
     function renderTop10(ratesArr, baseCcy, quoteCcy, isReversedForDisplay) {
@@ -784,6 +861,7 @@
         updateAll();
     });
 
+    loadCachedCalculatorState();
     loadData();
 </script>
 
@@ -804,10 +882,10 @@
                     .footer-social-link:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
                 </style>
                 <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-                    <li><a href="index.html" class="footer-nav-link">მთავარი</a></li>
-                    <li><a href="rates.html" class="footer-nav-link">ყველა კურსი</a></li>
-                    <li><a href="official.html" class="footer-nav-link">ოფიციალური კურსები</a></li>
-                    <li><a href="calculator.html" class="footer-nav-link">კალკულატორი</a></li>
+                    <li><a href="/" class="footer-nav-link">მთავარი</a></li>
+                    <li><a href="/rates" class="footer-nav-link">ყველა კურსი</a></li>
+                    <li><a href="/official" class="footer-nav-link">ოფიციალური კურსები</a></li>
+                    <li><a href="/calculator" class="footer-nav-link">კალკულატორი</a></li>
                 </ul>
             </div>
 
@@ -835,8 +913,8 @@
                     <a href="#" target="_blank" title="Facebook" class="footer-social-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                     </a>
-                    <a href="#" target="_blank" title="Instagram" class="footer-social-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <a href="#" target="_blank" title="LinkedIn" class="footer-social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                     </a>
                 </div>
                 <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9em; line-height: 1.5;">

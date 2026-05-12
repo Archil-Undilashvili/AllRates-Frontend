@@ -14,7 +14,7 @@
     <meta property="og:title" content="ვალუტის კურსები და კონვერტაცია - AllRates.ge">
     <meta property="og:description" content="ყველა ვალუტის კურსი ერთ სივრცეში: ეროვნული ბანკი, კომერციული ბანკები, ჯიხურები. კრიპტოვალუტები, აქციები და კალკულატორი.">
     <meta property="og:type" content="website">
-    
+
     <!-- Hidden Structural Data for Google (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -31,7 +31,7 @@
 <script src="js/header.js"></script>
     <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 10px; text-align: center;">⏳ მონაცემები იტვირთება...</div>
     <div id="error-msg" class="error" style="display: none; text-align: center; color: red;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
-    
+
 
     <!-- Ticker Marquee -->
     <div class="ticker-wrap" id="main-ticker-wrap" style="display: none;">
@@ -41,17 +41,40 @@
     </div>
 
 <div id="home-page" class="page-section" style="display: flex;">
-        <div style="width: 100%; max-width: 1400px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 30px; align-items: stretch; margin-left: 0;">
-            
-            <!-- Box 1 -->
-            <div class="home-card-uniform">
-                <div class="card-uniform-title">
-                    ვალუტის კურსები ქართულ ბაზარზე <span class="card-uniform-subtitle">(Top 10 საშუალო)</span>
+        <div id="home-rates-grid" class="home-rates-grid" style="width: 100%; max-width: 1600px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 30px; align-items: stretch; margin-left: 0;">
+
+            <div class="home-card-uniform home-official-card home-card-collapsible">
+                <div class="card-uniform-title market-card-title">
+                    <span>ოფიციალური კურსები</span>
+                    <button type="button" class="market-search-toggle" data-search-target="home-official-list" data-search-panel="official-search-panel" aria-label="ოფიციალური კურსების ძებნა" aria-expanded="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m16 16 4 4"></path>
+                        </svg>
+                    </button>
                 </div>
+                <div class="home-official-date-note" id="home-official-date-note"></div>
+                <div class="market-search-panel" id="official-search-panel" hidden>
+                    <input type="search" data-filter-list="home-official-list" placeholder="მოძებნე ვალუტა...">
+                </div>
+                <a href="/valutis-kursebi-dges" class="home-detail-link">(ნახე დეტალურად)</a>
+                <div class="card-uniform-content home-official-list" id="home-official-list" style="justify-content: flex-start;">
+                    <div class="home-section">
+                        <div class="section-title">იტვირთება...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 1 -->
+            <div class="home-card-uniform home-market-card home-card-collapsible">
+                <div class="card-uniform-title">
+                    საბაზრო კურსები <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                </div>
+                <a href="/rates" class="home-detail-link">(ნახე დეტალურად)</a>
                 <div class="card-uniform-content" style="justify-content: flex-start;">
-                    
-                    <div class="home-section interactive-card" onclick="window.location.href='rates.html#usd-container'">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/US.png" alt="US Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USD / აშშ დოლარი</div>
+
+                    <div class="home-section interactive-card" onclick="window.location.href='/rates#usd-container'">
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/US.png" alt="US Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USD / აშშ დოლარი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -63,13 +86,13 @@
                             </div>
                             <div class="rate-block">
                                 <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-usd-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-value" id="home-usd-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 0.95em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="home-section interactive-card" onclick="window.location.href='rates.html#eur-container'">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/EU.png" alt="EU Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">EUR / ევრო</div>
+                    <div class="home-section interactive-card" onclick="window.location.href='/rates#eur-container'">
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/EU.png" alt="EU Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">EUR / ევრო</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -81,13 +104,13 @@
                             </div>
                             <div class="rate-block">
                                 <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-eur-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-value" id="home-eur-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 0.95em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="home-section interactive-card" onclick="window.location.href='rates.html#gbp-container'">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/GB.png" alt="GB Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">GBP / გირვანქა სტერლინგი</div>
+                    <div class="home-section interactive-card" onclick="window.location.href='/rates#gbp-container'">
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/GB.png" alt="GB Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">GBP/ფუნტი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -99,13 +122,13 @@
                             </div>
                             <div class="rate-block">
                                 <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-gbp-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-value" id="home-gbp-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 0.95em;">--.---</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="home-section interactive-card" onclick="window.location.href='rates.html#rub-container'">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/RU.png" alt="RU Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">RUB / რუბლი</div>
+                    <div class="home-section interactive-card" onclick="window.location.href='/rates#rub-container'">
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/RU.png" alt="RU Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">RUB / რუბლი</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -117,12 +140,12 @@
                             </div>
                             <div class="rate-block">
                                 <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-rub-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-value" id="home-rub-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 0.95em;">--.---</div>
                             </div>
                         </div>
                     </div>
-                    <div class="home-section interactive-card" onclick="window.location.href='rates.html#try-container'">
-                        <div class="section-title" style="margin-bottom: 15px; justify-content: center; display: flex; align-items: center; gap: 10px;"><img src="Logos/TR.png" alt="TR Flag" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">TRY / ლირა</div>
+                    <div class="home-section interactive-card" onclick="window.location.href='/rates#try-container'">
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/TR.png" alt="TR Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">TRY / ლირა</div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -134,7 +157,7 @@
                             </div>
                             <div class="rate-block">
                                 <div class="rate-label" style="color: var(--text-muted); font-weight: 600;">სპრედი</div>
-                                <div class="rate-value" id="home-try-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 1.05em;">--.---</div>
+                                <div class="rate-value" id="home-try-market-spread" style="color: var(--text-muted); font-weight: 600; font-size: 0.95em;">--.---</div>
                             </div>
                         </div>
                     </div>
@@ -144,11 +167,20 @@
             </div>
 
             <!-- Box 2 -->
-            <div class="home-card-uniform">
-                <div class="card-uniform-title">
-                    Forex ვალუტის კურსები
+            <div class="home-card-uniform home-card-collapsible">
+                <div class="card-uniform-title market-card-title">
+                    <span>FOREX <span class="live-badge"><span class="live-dot"></span>LIVE</span></span>
+                    <button type="button" class="market-search-toggle" data-search-target="intl-rates-container" data-search-panel="forex-search-panel" aria-label="Forex ძებნა" aria-expanded="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m16 16 4 4"></path>
+                        </svg>
+                    </button>
                 </div>
-                
+                <div class="market-search-panel" id="forex-search-panel" hidden>
+                    <input type="search" data-filter-list="intl-rates-container" placeholder="მოძებნე Forex წყვილი...">
+                </div>
+
                 <div class="card-uniform-content intl-rates-list" id="intl-rates-container" style="justify-content: flex-start;">
                     <div class="intl-rate-item">
                         <span class="intl-pair">EUR / USD</span>
@@ -194,68 +226,166 @@
             </div>
 
             <!-- Box 4: Crypto Rates -->
-            <div class="home-card-uniform">
-                <div class="card-uniform-title">
-                    კრიპტოვალუტები
+            <div class="home-card-uniform home-card-collapsible">
+                <div class="card-uniform-title market-card-title">
+                    <span>კრიპტოები <span class="live-badge"><span class="live-dot"></span>LIVE</span></span>
+                    <button type="button" class="market-search-toggle" data-search-target="crypto-rates-list" data-search-panel="crypto-search-panel" aria-label="კრიპტოს ძებნა" aria-expanded="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m16 16 4 4"></path>
+                        </svg>
+                    </button>
                 </div>
-                
-                <div class="card-uniform-content intl-rates-list" style="justify-content: flex-start;">
+                <div class="market-search-panel" id="crypto-search-panel" hidden>
+                    <input type="search" id="crypto-search-input" data-filter-list="crypto-rates-list" placeholder="მოძებნე კრიპტო...">
+                </div>
+
+                <div class="card-uniform-content intl-rates-list crypto-rates-list" id="crypto-rates-list" style="justify-content: flex-start;">
                     <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BTC.png" alt="BTC" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Bitcoin (BTC)</span>
-                        <span class="intl-value" id="crypto-btc">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ETH.png" alt="ETH" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Ethereum (ETH)</span>
-                        <span class="intl-value" id="crypto-eth">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDT.png" alt="USDT" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Tether (USDT)</span>
-                        <span class="intl-value" id="crypto-usdt">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/BNB.png" alt="BNB" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">BNB (BNB)</span>
-                        <span class="intl-value" id="crypto-bnb">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/SOL.png" alt="SOL" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Solana (SOL)</span>
-                        <span class="intl-value" id="crypto-sol">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/USDC.png" alt="USDC" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USDC (USDC)</span>
-                        <span class="intl-value" id="crypto-usdc">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/XRP.png" alt="XRP" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">XRP (XRP)</span>
-                        <span class="intl-value" id="crypto-xrp">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/DOGE.png" alt="DOGE" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Dogecoin (DOGE)</span>
-                        <span class="intl-value" id="crypto-doge">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/TON.png" alt="TON" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Toncoin (TON)</span>
-                        <span class="intl-value" id="crypto-ton">- - -</span>
-                    </div>
-                    <div class="intl-rate-item">
-                        <span class="intl-pair" style="display: flex; align-items: center;"><img src="Logos/ADA.png" alt="ADA" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 12px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">Cardano (ADA)</span>
-                        <span class="intl-value" id="crypto-ada">- - -</span>
+                        <span class="intl-pair">იტვირთება...</span>
+                        <span class="intl-value">- - -</span>
                     </div>
                 </div>
             </div>
 
             <!-- Box 5: Popular Assets -->
-            <div class="home-card-uniform">
-                <div class="card-uniform-title">სხვა პოპულარული აქტივები</div>
+            <div class="home-card-uniform home-card-collapsible">
+                <div class="card-uniform-title market-card-title">
+                    <span>აქციები და სხვ. <span class="live-badge"><span class="live-dot"></span>LIVE</span></span>
+                    <button type="button" class="market-search-toggle" data-search-target="popular-assets-list" data-search-panel="assets-search-panel" aria-label="აქტივების ძებნა" aria-expanded="false">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <path d="m16 16 4 4"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="market-search-panel" id="assets-search-panel" hidden>
+                    <input type="search" data-filter-list="popular-assets-list" placeholder="მოძებნე აქტივი...">
+                </div>
                 <div class="card-uniform-content intl-rates-list" id="popular-assets-list" style="justify-content: flex-start;"></div>
             </div>
 
+        <div class="home-charts-row">
+            <div class="home-nbg-chart-panel" id="home-nbg-chart-panel" data-chart-type="usdgel">
+                <div class="home-nbg-chart-header">
+                    <div class="home-nbg-chart-heading">
+                        <div class="home-nbg-chart-title">ქართული ლარი vs უცხოური ვალუტები</div>
+                        <div class="home-nbg-chart-subtitle" id="home-gel-chart-subtitle">USD/GEL</div>
+                    </div>
+                    <div class="home-nbg-chart-controls">
+                        <select class="home-chart-pair-select" id="home-gel-pair-select" aria-label="ლარის წყვილის არჩევა">
+                            <option value="USDGEL" selected>USD/GEL</option>
+                            <option value="EURGEL">EUR/GEL</option>
+                            <option value="GBPGEL">GBP/GEL</option>
+                            <option value="RUBGEL">RUB/GEL</option>
+                            <option value="TRYGEL">TRY/GEL</option>
+                            <option value="AZNGEL">AZN/GEL</option>
+                            <option value="AMDGEL">AMD/GEL</option>
+                            <option value="AUDGEL">AUD/GEL</option>
+                            <option value="BGNGEL">BGN/GEL</option>
+                            <option value="CADGEL">CAD/GEL</option>
+                            <option value="CHFGEL">CHF/GEL</option>
+                            <option value="CNYGEL">CNY/GEL</option>
+                            <option value="DKKGEL">DKK/GEL</option>
+                            <option value="HKDGEL">HKD/GEL</option>
+                            <option value="HUFGEL">HUF/GEL</option>
+                            <option value="ILSGEL">ILS/GEL</option>
+                            <option value="INRGEL">INR/GEL</option>
+                            <option value="JPYGEL">JPY/GEL</option>
+                            <option value="KZTGEL">KZT/GEL</option>
+                            <option value="NOKGEL">NOK/GEL</option>
+                            <option value="NZDGEL">NZD/GEL</option>
+                            <option value="PLNGEL">PLN/GEL</option>
+                            <option value="SEKGEL">SEK/GEL</option>
+                            <option value="SGDGEL">SGD/GEL</option>
+                            <option value="UAHGEL">UAH/GEL</option>
+                        </select>
+                        <div class="home-nbg-chart-tabs">
+                            <button type="button" class="home-nbg-period-btn home-usdgel-period-btn active" data-period="1w">1 კვირა</button>
+                            <button type="button" class="home-nbg-period-btn home-usdgel-period-btn" data-period="1m">1 თვე</button>
+                            <button type="button" class="home-nbg-period-btn home-usdgel-period-btn" data-period="3m">3 თვე</button>
+                            <button type="button" class="home-nbg-period-btn home-usdgel-period-btn" data-period="1y">1 წელი</button>
+                            <button type="button" class="home-nbg-period-btn home-usdgel-period-btn" data-period="5y">5 წელი</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="home-nbg-chart-body">
+                    <canvas id="home-nbg-usd-chart"></canvas>
+                    <div class="home-nbg-chart-loading" id="home-nbg-chart-loading">იტვირთება...</div>
+                </div>
+            </div>
+
+            <div class="home-nbg-chart-panel home-eurusd-chart-panel" id="home-eurusd-chart-panel" data-chart-type="eurusd">
+                <div class="home-nbg-chart-header">
+                    <div class="home-nbg-chart-heading">
+                        <div class="home-nbg-chart-title home-eurusd-chart-title">Forex კურსები</div>
+                        <div class="home-nbg-chart-subtitle" id="home-cross-chart-subtitle">EUR/USD</div>
+                    </div>
+                    <div class="home-nbg-chart-controls">
+                        <select class="home-chart-pair-select home-cross-pair-select" id="home-cross-pair-select" aria-label="Forex წყვილის არჩევა">
+                            <option value="EURUSD" selected>EUR/USD</option>
+                            <option value="GBPUSD">GBP/USD</option>
+                            <option value="USDCHF">USD/CHF</option>
+                            <option value="USDRUB">USD/RUB</option>
+                            <option value="USDTRY">USD/TRY</option>
+                            <option value="EURGBP">EUR/GBP</option>
+                            <option value="EURCHF">EUR/CHF</option>
+                            <option value="EURTRY">EUR/TRY</option>
+                            <option value="GBPCHF">GBP/CHF</option>
+                            <option value="AUDUSD">AUD/USD</option>
+                            <option value="NZDUSD">NZD/USD</option>
+                            <option value="USDCAD">USD/CAD</option>
+                            <option value="USDJPY">USD/JPY</option>
+                            <option value="USDCNY">USD/CNY</option>
+                            <option value="EURJPY">EUR/JPY</option>
+                            <option value="EURCAD">EUR/CAD</option>
+                            <option value="GBPEUR">GBP/EUR</option>
+                            <option value="GBPJPY">GBP/JPY</option>
+                            <option value="CHFJPY">CHF/JPY</option>
+                        </select>
+                        <div class="home-nbg-chart-tabs">
+                            <button type="button" class="home-nbg-period-btn home-eurusd-period-btn active" data-period="1w">1 კვირა</button>
+                            <button type="button" class="home-nbg-period-btn home-eurusd-period-btn" data-period="1m">1 თვე</button>
+                            <button type="button" class="home-nbg-period-btn home-eurusd-period-btn" data-period="3m">3 თვე</button>
+                            <button type="button" class="home-nbg-period-btn home-eurusd-period-btn" data-period="1y">1 წელი</button>
+                            <button type="button" class="home-nbg-period-btn home-eurusd-period-btn" data-period="5y">5 წელი</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="home-nbg-chart-body">
+                    <canvas id="home-eurusd-chart"></canvas>
+                    <div class="home-nbg-chart-loading" id="home-eurusd-chart-loading">იტვირთება...</div>
+                </div>
+            </div>
         </div>
+        </div>
+
+        <div class="home-chart-modal" id="home-chart-modal" aria-hidden="true">
+            <div class="home-chart-modal-content" role="dialog" aria-modal="true" aria-label="ოფიციალური USD/GEL კურსის დინამიკა">
+                <div class="home-chart-modal-header">
+                    <div>
+                        <div class="home-nbg-chart-title" id="home-chart-modal-title">ქართული ლარი vs უცხოური ვალუტები</div>
+                        <div class="home-nbg-chart-subtitle" id="home-chart-modal-subtitle">USD/GEL</div>
+                    </div>
+                    <button type="button" class="home-chart-modal-close" id="home-chart-modal-close" aria-label="დახურვა">&times;</button>
+                </div>
+                <div class="home-nbg-chart-tabs home-chart-modal-tabs">
+                    <button type="button" class="home-nbg-period-btn home-modal-period-btn active" data-period="1w">1 კვირა</button>
+                    <button type="button" class="home-nbg-period-btn home-modal-period-btn" data-period="1m">1 თვე</button>
+                    <button type="button" class="home-nbg-period-btn home-modal-period-btn" data-period="3m">3 თვე</button>
+                    <button type="button" class="home-nbg-period-btn home-modal-period-btn" data-period="1y">1 წელი</button>
+                    <button type="button" class="home-nbg-period-btn home-modal-period-btn" data-period="5y">5 წელი</button>
+                </div>
+                <div class="home-chart-modal-canvas-wrap">
+                    <canvas id="home-chart-modal-canvas"></canvas>
+                </div>
+            </div>
         </div>
 
             <!-- Footer Section -->
     <footer style="margin-top: 60px; padding: 40px 20px 20px; border-top: 1px solid var(--border); background: transparent;">
         <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; text-align: center;">
-            
+
             <!-- Column 1: Menu -->
             <div>
                 <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -269,10 +399,10 @@
                     .footer-social-link:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
                 </style>
                 <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-                    <li><a href="index.html" class="footer-nav-link">მთავარი</a></li>
-                    <li><a href="rates.html" class="footer-nav-link">ყველა კურსი</a></li>
-                    <li><a href="official.html" class="footer-nav-link">ოფიციალური კურსები</a></li>
-                    <li><a href="calculator.html" class="footer-nav-link">კალკულატორი</a></li>
+                    <li><a href="/" class="footer-nav-link">მთავარი</a></li>
+                    <li><a href="/rates" class="footer-nav-link">ყველა კურსი</a></li>
+                    <li><a href="/official" class="footer-nav-link">ოფიციალური კურსები</a></li>
+                    <li><a href="/calculator" class="footer-nav-link">კალკულატორი</a></li>
                 </ul>
             </div>
 
@@ -285,7 +415,7 @@
                     <h4 style="margin: 0; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
                 </div>
                 <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6;">
-                    ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>. 
+                    ვებგვერდზე (allrates.ge) განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და <strong>არ წარმოადგენს ფინანსურ ან საინვესტიციო რჩევას</strong>.
                     ჩვენ არ ვიღებთ პასუხისმგებლობას ინფორმაციის აბსოლუტურ სიზუსტეზე, დაგვიანებაზე ან ამ მონაცემებზე დაყრდნობით მიღებულ ფინანსურ გადაწყვეტილებებსა და შესაძლო ზარალზე.
                 </p>
             </div>
@@ -300,8 +430,8 @@
                     <a href="#" target="_blank" title="Facebook" class="footer-social-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                     </a>
-                    <a href="#" target="_blank" title="Instagram" class="footer-social-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <a href="#" target="_blank" title="LinkedIn" class="footer-social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                     </a>
                 </div>
                 <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9em; line-height: 1.5;">
@@ -310,7 +440,7 @@
             </div>
 
         </div>
-        
+
         <div style="max-width: 1200px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85em;">
             &copy; <span id="current-year"></span> AllRates.ge. ყველა უფლება დაცულია.
         </div>

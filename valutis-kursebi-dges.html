@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valutis Kursebi Dges - ოფიციალური კურსები | AllRates.ge</title>
+    <meta name="description" content="Valutis kursebi dges - ეროვნული ბანკის ოფიციალური ვალუტის კურსები, ბოლო 10 დღის ისტორია და გრაფიკული დინამიკა.">
+    <meta name="keywords" content="valutis kursebi, valutis kursebi dges, ოფიციალური კურსები, ეროვნული ბანკის კურსი, NBG rates">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        .official-detail-page {
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 6px 20px 0;
+            box-sizing: border-box;
+        }
+
+        .official-detail-head {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: start;
+            gap: 16px;
+            margin: 0 0 12px;
+        }
+
+        .official-detail-title {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.22rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .official-detail-date {
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .official-detail-title-wrap {
+            grid-column: 2;
+            text-align: center;
+        }
+
+        .official-title-line {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+        }
+
+        .official-title-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .market-cta {
+            grid-column: 3;
+            justify-self: end;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            max-width: 360px;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            font-weight: 900;
+            line-height: 1.35;
+            transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+        }
+
+        .market-cta:hover {
+            border-color: var(--primary);
+            background: rgba(56, 189, 248, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .market-cta svg {
+            width: 24px;
+            height: 24px;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .top-actions {
+            grid-column: 3;
+            justify-self: end;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .excel-cta {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.38);
+        }
+
+        .excel-cta:hover {
+            border-color: var(--buy-color);
+            background: rgba(34, 197, 94, 0.16);
+        }
+
+        .excel-cta svg {
+            color: var(--buy-color);
+        }
+
+        .official-history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .official-tools {
+            display: grid;
+            grid-column: 1;
+            grid-row: 1;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            align-items: start;
+            justify-content: start;
+            margin-bottom: 0;
+            max-width: 360px;
+        }
+
+        .official-date-tool,
+        .official-currency-tool {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 14px;
+            box-sizing: border-box;
+        }
+
+        .official-date-tool-title,
+        .official-currency-tool-title {
+            color: var(--text-main);
+            font-weight: 900;
+            font-size: 0.88rem;
+            margin-bottom: 10px;
+        }
+
+        .official-date-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 800;
+            padding: 10px;
+        }
+
+        .official-currency-dropdown {
+            position: relative;
+        }
+
+        .official-currency-dropdown-btn {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.86rem;
+            font-weight: 900;
+            padding: 9px 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .official-currency-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            z-index: 50;
+            display: none;
+            max-height: 290px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-lg);
+            padding: 8px;
+        }
+
+        .official-currency-dropdown.open .official-currency-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .official-currency-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .official-currency-option:hover,
+        .official-currency-option:has(input:checked) {
+            color: var(--text-main);
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        .official-currency-option input {
+            accent-color: var(--primary);
+        }
+
+        .official-currency-option img {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .official-currency-help {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            margin-top: 10px;
+        }
+
+        .official-history-card,
+        .official-chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            box-sizing: border-box;
+        }
+
+        .official-history-card {
+            min-width: 0;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .official-history-card:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .official-history-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--primary);
+            font-weight: 900;
+            font-size: 1rem;
+            white-space: nowrap;
+            margin-bottom: 12px;
+        }
+
+        .official-history-title img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .official-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .official-history-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 9px;
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.22);
+        }
+
+        .official-history-row span:first-child {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .official-history-row span:last-child {
+            color: var(--buy-color);
+            font-size: 0.9rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .official-charts-grid {
+            display: block;
+            margin-top: 24px;
+        }
+
+        .official-chart-card {
+            min-height: 420px;
+            padding: 18px;
+        }
+
+        .official-chart-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .official-chart-title {
+            color: var(--primary);
+            font-weight: 900;
+            font-size: 1.05rem;
+            white-space: nowrap;
+        }
+
+        .official-chart-tabs {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .official-chart-tab {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.72rem;
+            font-weight: 900;
+            padding: 7px 10px;
+            cursor: pointer;
+        }
+
+        .official-chart-tab.active,
+        .official-chart-tab:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .official-chart-body {
+            position: relative;
+            height: 340px;
+        }
+
+        .official-chart-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-weight: 800;
+            background: rgba(30, 41, 59, 0.72);
+            border-radius: 10px;
+        }
+
+        .official-chart-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .official-pair-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .official-pair-input {
+            width: 130px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 900;
+            padding: 8px 10px;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        .official-pair-input:focus {
+            border-color: var(--primary);
+        }
+
+        .official-compare-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 900;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .official-compare-toggle input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        .official-second-pair-wrap[hidden] {
+            display: none;
+        }
+
+        .official-chart-error {
+            color: var(--sell-color);
+            font-size: 0.78rem;
+            font-weight: 800;
+            min-height: 1em;
+        }
+
+        @media (max-width: 1200px) {
+            .official-tools {
+                grid-column: auto;
+                grid-row: auto;
+                grid-template-columns: 1fr;
+                justify-self: center;
+                width: min(100%, 360px);
+            }
+
+            .official-detail-head {
+                grid-template-columns: 1fr;
+            }
+
+            .official-detail-title-wrap,
+            .top-actions {
+                grid-column: auto;
+                justify-self: center;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .official-detail-page {
+                padding: 12px 12px 0;
+            }
+
+            .official-history-grid,
+            .official-charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .official-chart-head {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .official-chart-tabs {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<script src="js/header.js"></script>
+
+<main class="official-detail-page">
+    <section class="official-detail-head">
+        <section class="official-tools" aria-label="ოფიციალური კურსების ფილტრები">
+            <div class="official-date-tool">
+                <div class="official-date-tool-title">მოძებნე კურსი თარიღის მიხედვით</div>
+                <input type="date" id="official-history-date" class="official-date-input" aria-label="თარიღის არჩევა">
+            </div>
+            <div class="official-currency-tool">
+                <div class="official-currency-tool-title">აირჩიე NBG კურსები</div>
+                <div class="official-currency-dropdown" id="official-currency-dropdown">
+                    <button type="button" class="official-currency-dropdown-btn" id="official-currency-dropdown-btn">
+                        <span id="official-currency-summary">არჩეულია 5 კურსი</span>
+                        <span aria-hidden="true">⌄</span>
+                    </button>
+                    <div class="official-currency-menu" id="official-currency-checks"></div>
+                </div>
+                <div class="official-currency-help" id="official-currency-help">ერთდროულად შეგიძლია მონიშნო მაქსიმუმ 5 კურსი.</div>
+            </div>
+        </section>
+        <div class="official-detail-title-wrap">
+            <div class="official-title-line">
+                <img src="Logos/nbg_logo_perfect.jpg" alt="NBG" class="official-title-logo">
+                <h1 class="official-detail-title">ოფიციალური კურსები</h1>
+            </div>
+            <div class="official-detail-date" id="official-detail-date">იტვირთება...</div>
+        </div>
+        <div class="top-actions">
+            <a href="/rates" class="market-cta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 21h18"></path>
+                    <path d="M5 21V8l7-4 7 4v13"></path>
+                    <path d="M9 21v-7h6v7"></path>
+                    <path d="M9 10h.01"></path>
+                    <path d="M15 10h.01"></path>
+                </svg>
+                <span>ნახე რა კურსები აქვთ ახლა ბანკებს, მიკროსაფინანსოებს და ჯიხურებს</span>
+            </a>
+            <a href="/official" class="market-cta excel-cta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <path d="M14 2v6h6"></path>
+                    <path d="m8 13 4 4"></path>
+                    <path d="m12 13-4 4"></path>
+                    <path d="M15 17h1"></path>
+                </svg>
+                <span>ჩამოტვირთე კურსები</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="official-history-grid" id="official-history-grid" aria-label="ბოლო 10 დღის ოფიციალური კურსები"></section>
+
+    <section class="official-charts-grid">
+        <div class="official-chart-card">
+            <div class="official-chart-head">
+                <div class="official-chart-title">ვალუტის კურსის დინამიკა</div>
+                <div class="official-chart-tabs" data-chart-tabs="main"></div>
+            </div>
+            <div class="official-chart-controls">
+                <div class="official-pair-controls">
+                    <input class="official-pair-input" id="official-primary-pair" value="USDGEL" maxlength="6" aria-label="პირველი სავალუტო წყვილი">
+                    <label class="official-compare-toggle">
+                        <input type="checkbox" id="official-compare-toggle">
+                        <span>შეადარე კურსები</span>
+                    </label>
+                    <span class="official-second-pair-wrap" id="official-second-pair-wrap" hidden>
+                        <input class="official-pair-input" id="official-secondary-pair" value="EURUSD" maxlength="6" aria-label="მეორე სავალუტო წყვილი">
+                    </span>
+                </div>
+                <div class="official-chart-error" id="official-chart-error"></div>
+            </div>
+            <div class="official-chart-body">
+                <canvas id="official-main-chart"></canvas>
+                <div class="official-chart-loading" id="official-main-loading">იტვირთება...</div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer style="margin-top: 60px; padding: 40px 20px 20px; border-top: 1px solid var(--border); background: transparent;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; text-align: center;">
+        <div>
+            <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px;">ნავიგაცია</h4>
+            <style>
+                .footer-nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.95em; transition: color 0.2s; display: inline-block; padding: 4px 0; }
+                .footer-nav-link:hover { color: var(--primary); }
+            </style>
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                <li><a href="/" class="footer-nav-link">მთავარი</a></li>
+                <li><a href="/rates" class="footer-nav-link">ყველა კურსი</a></li>
+                <li><a href="/official" class="footer-nav-link">ოფიციალური კურსები</a></li>
+                <li><a href="/valutis-kursebi-dges" class="footer-nav-link">NBG სტატისტიკა</a></li>
+                <li><a href="/calculator" class="footer-nav-link">კალკულატორი</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="margin: 0 0 15px; color: var(--text-main); font-size: 1.1em;">მნიშვნელოვანი ინფორმაცია</h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.85em; line-height: 1.6;">
+                ვებგვერდზე განთავსებული მონაცემები ატარებს მხოლოდ საინფორმაციო ხასიათს და არ წარმოადგენს ფინანსურ რჩევას.
+            </p>
+        </div>
+        <div>
+            <h4 style="color: var(--text-main); font-size: 1.1em; margin-bottom: 15px;">კონტაქტი</h4>
+            <style>
+                .footer-social-link { color: var(--text-muted); transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border); margin: 0 5px; }
+                .footer-social-link:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+            </style>
+            <div>
+                <a href="#" target="_blank" title="Facebook" class="footer-social-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                </a>
+                <a href="#" target="_blank" title="LinkedIn" class="footer-social-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div style="max-width: 1200px; margin: 40px auto 0; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 0.85em;">
+        &copy; <span id="current-year"></span> AllRates.ge. ყველა უფლება დაცულია.
+    </div>
+</footer>
+
+<script>
+    const NBG_API_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json/';
+    const DEFAULT_CODES = ['USD', 'EUR', 'GBP', 'CHF', 'RUB'];
+    const MAX_SELECTED_CODES = 5;
+    const PERIODS = {
+        '1w': { label: '1 კვირა', days: 7, step: 1 },
+        '1m': { label: '1 თვე', months: 1, step: 1 },
+        '3m': { label: '3 თვე', months: 3, step: 3 },
+        '1y': { label: '1 წელი', months: 12, step: 7 },
+        '5y': { label: '5 წელი', months: 60, step: 30 }
+    };
+    const FLAG_MAP = {
+        AED: 'ae', AMD: 'am', AUD: 'au', AZN: 'az', BRL: 'br', BYN: 'by', CAD: 'ca',
+        CHF: 'ch', CNY: 'cn', CZK: 'cz', DKK: 'dk', EGP: 'eg', EUR: 'eu', GBP: 'gb',
+        HKD: 'hk', HUF: 'hu', ILS: 'il', INR: 'in', IRR: 'ir', ISK: 'is', JPY: 'jp',
+        KGS: 'kg', KRW: 'kr', KWD: 'kw', KZT: 'kz', MDL: 'md', NOK: 'no', NZD: 'nz',
+        PLN: 'pl', QAR: 'qa', RON: 'ro', RSD: 'rs', RUB: 'ru', SEK: 'se', SGD: 'sg',
+        TJS: 'tj', TMT: 'tm', TRY: 'tr', UAH: 'ua', USD: 'us', UZS: 'uz', ZAR: 'za'
+    };
+    const COLORS = ['#38bdf8', '#34d399'];
+    const pageState = { days: [], selectedCodes: [...DEFAULT_CODES], allCurrencies: [] };
+    const chartState = { period: '1m', chart: null, cache: {} };
+
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    function formatApiDate(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatPrettyDate(dateLike) {
+        const date = typeof dateLike === 'string' ? new Date(`${dateLike.split('T')[0]}T00:00:00`) : dateLike;
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    function getRateForCode(currencies, code) {
+        const item = currencies.find(currency => currency.code === code);
+        if (!item) return null;
+        return Number(item.rate) / Number(item.quantity || 1);
+    }
+
+    function parsePair(pair) {
+        const normalized = normalizePair(pair);
+        return { base: normalized.slice(0, 3), quote: normalized.slice(3, 6) };
+    }
+
+    function normalizePair(pair) {
+        return String(pair || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 6);
+    }
+
+    function formatPairLabel(pair) {
+        const normalized = normalizePair(pair);
+        return normalized.length === 6 ? `${normalized.slice(0, 3)}/${normalized.slice(3)}` : normalized;
+    }
+
+    function pairValue(pair, rates) {
+        const { base, quote } = parsePair(pair);
+        if (quote === 'GEL') return rates[base] || null;
+        if (!rates[base] || !rates[quote]) return null;
+        return rates[base] / rates[quote];
+    }
+
+    async function fetchNbgDate(dateStr) {
+        const res = await fetch(`${NBG_API_URL}?date=${dateStr}`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const row = data?.[0];
+        if (!row?.currencies?.length) return null;
+        const rates = { GEL: 1 };
+        row.currencies.forEach(currency => {
+            const rate = Number(currency.rate);
+            const quantity = Number(currency.quantity || 1);
+            if (currency.code && Number.isFinite(rate) && quantity) rates[currency.code] = rate / quantity;
+        });
+        return {
+            date: row.validFromDate || row.date || dateStr,
+            dateKey: (row.validFromDate || row.date || dateStr).split('T')[0],
+            currencies: row.currencies,
+            rates
+        };
+    }
+
+    async function getRecentNbgDays(count, anchorDate = new Date()) {
+        const results = [];
+        const seen = new Set();
+        const cursor = new Date(anchorDate);
+        for (let i = 0; results.length < count && i < 30; i++) {
+            const row = await fetchNbgDate(formatApiDate(cursor));
+            if (row && !seen.has(row.dateKey)) {
+                seen.add(row.dateKey);
+                results.push(row);
+            }
+            cursor.setDate(cursor.getDate() - 1);
+        }
+        return results;
+    }
+
+    function flagUrl(code) {
+        const country = FLAG_MAP[code] || code.slice(0, 2).toLowerCase();
+        return `https://flagcdn.com/w40/${country}.png`;
+    }
+
+    function sortCurrencies(currencies) {
+        const priority = [...DEFAULT_CODES, 'TRY'];
+        return [...currencies].sort((a, b) => {
+            const pa = priority.indexOf(a.code);
+            const pb = priority.indexOf(b.code);
+            if (pa !== -1 || pb !== -1) return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
+            return a.code.localeCompare(b.code);
+        });
+    }
+
+    function renderCurrencyCheckboxes(currencies) {
+        const wrap = document.getElementById('official-currency-checks');
+        pageState.allCurrencies = sortCurrencies(currencies);
+        wrap.innerHTML = pageState.allCurrencies.map(currency => `
+            <label class="official-currency-option" title="${currency.name}">
+                <input type="checkbox" value="${currency.code}" ${pageState.selectedCodes.includes(currency.code) ? 'checked' : ''}>
+                <img src="${flagUrl(currency.code)}" alt="${currency.code}" onerror="this.style.display='none'">
+                <span>${currency.code} - ${currency.name}</span>
+            </label>
+        `).join('');
+        updateCurrencySummary();
+
+        wrap.querySelectorAll('input[type="checkbox"]').forEach(input => {
+            input.addEventListener('change', () => {
+                const checked = [...wrap.querySelectorAll('input:checked')].map(item => item.value);
+                if (checked.length > MAX_SELECTED_CODES) {
+                    input.checked = false;
+                    document.getElementById('official-currency-help').textContent = 'მაქსიმუმ 5 კურსის მონიშვნა შეგიძლია.';
+                    return;
+                }
+                pageState.selectedCodes = checked;
+                document.getElementById('official-currency-help').textContent = 'ერთდროულად შეგიძლია მონიშნო მაქსიმუმ 5 კურსი.';
+                updateCurrencySummary();
+                renderHistoryCards(pageState.days);
+            });
+        });
+    }
+
+    function updateCurrencySummary() {
+        const summary = document.getElementById('official-currency-summary');
+        if (!summary) return;
+        summary.textContent = pageState.selectedCodes.length
+            ? pageState.selectedCodes.join(', ')
+            : 'აირჩიე კურსები';
+    }
+
+    function initCurrencyDropdown() {
+        const dropdown = document.getElementById('official-currency-dropdown');
+        const button = document.getElementById('official-currency-dropdown-btn');
+        if (!dropdown || !button) return;
+        button.addEventListener('click', () => dropdown.classList.toggle('open'));
+        document.addEventListener('click', event => {
+            if (!event.target.closest('#official-currency-dropdown')) dropdown.classList.remove('open');
+        });
+    }
+
+    function renderHistoryCards(days) {
+        const grid = document.getElementById('official-history-grid');
+        const latest = days[0];
+        document.getElementById('official-detail-date').textContent = latest ? `(${formatPrettyDate(latest.dateKey)})` : '';
+
+        grid.innerHTML = pageState.selectedCodes.map(code => {
+            const rows = days.map(day => {
+                const value = getRateForCode(day.currencies, code);
+                return `
+                    <div class="official-history-row">
+                        <span>${formatPrettyDate(day.dateKey)}</span>
+                        <span>${value ? value.toFixed(4) : '--'}</span>
+                    </div>
+                `;
+            }).join('');
+            return `
+                <article class="official-history-card" onclick="window.location.href='/official'">
+                    <div class="official-history-title">
+                        <img src="${flagUrl(code)}" alt="${code}" onerror="this.style.display='none'">
+                        <span>${code}/GEL</span>
+                    </div>
+                    <div class="official-history-list">${rows}</div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    function sampleDates(periodKey) {
+        const config = PERIODS[periodKey] || PERIODS['1m'];
+        const end = new Date();
+        const start = new Date();
+        if (config.days) start.setDate(start.getDate() - config.days);
+        else start.setMonth(start.getMonth() - config.months);
+        const dates = [];
+        for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + config.step)) {
+            dates.push(formatApiDate(cursor));
+        }
+        const today = formatApiDate(end);
+        if (dates[dates.length - 1] !== today) dates.push(today);
+        return dates;
+    }
+
+    async function loadChartPoints(periodKey) {
+        if (chartState.cache[periodKey]) return chartState.cache[periodKey];
+        const rows = await Promise.all(sampleDates(periodKey).map(fetchNbgDate));
+        const seen = new Set();
+        const points = rows
+            .filter(Boolean)
+            .filter(row => {
+                if (seen.has(row.dateKey)) return false;
+                seen.add(row.dateKey);
+                return true;
+            })
+            .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+        chartState.cache[periodKey] = points;
+        return points;
+    }
+
+    const chartLabelPlugin = {
+        id: 'officialPointLabels',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            ctx.save();
+            ctx.font = '700 11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+                const values = dataset.data.filter(value => Number.isFinite(value));
+                if (!values.length) return;
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                const meta = chart.getDatasetMeta(datasetIndex);
+                const labelIndexes = new Set();
+                dataset.data.forEach((value, index) => {
+                    if (value === min || value === max) labelIndexes.add(index);
+                });
+                const candidates = [0, dataset.data.length - 1, Math.floor(dataset.data.length / 3), Math.floor(dataset.data.length * 2 / 3), Math.floor(dataset.data.length / 2)];
+                candidates.forEach(index => {
+                    if (Number.isFinite(dataset.data[index])) labelIndexes.add(index);
+                });
+                dataset.data.forEach((value, index) => {
+                    if (!labelIndexes.has(index) || !Number.isFinite(value)) return;
+                    const point = meta.data[index];
+                    if (!point) return;
+                    ctx.fillStyle = dataset.borderColor;
+                    ctx.fillText(Number(value).toFixed(4), point.x, point.y - 8);
+                });
+            });
+            ctx.restore();
+        }
+    };
+
+    function getSelectedPairs() {
+        const primaryInput = document.getElementById('official-primary-pair');
+        const secondaryInput = document.getElementById('official-secondary-pair');
+        const compare = document.getElementById('official-compare-toggle').checked;
+        const primary = normalizePair(primaryInput.value || 'USDGEL');
+        const secondary = normalizePair(secondaryInput.value || 'EURUSD');
+        primaryInput.value = primary || 'USDGEL';
+        secondaryInput.value = secondary || 'EURUSD';
+        return compare ? [primary || 'USDGEL', secondary || 'EURUSD'] : [primary || 'USDGEL'];
+    }
+
+    function validatePairs(pairs, points) {
+        return pairs.filter(pair => {
+            if (pair.length !== 6) return false;
+            return points.some(point => pairValue(pair, point.rates));
+        });
+    }
+
+    function makeChartConfig(points, pairs) {
+        return {
+            type: 'line',
+            data: {
+                labels: points.map(point => formatPrettyDate(point.dateKey)),
+                datasets: pairs.map((pair, index) => ({
+                    label: formatPairLabel(pair),
+                    data: points.map(point => {
+                        const value = pairValue(pair, point.rates);
+                        return value ? Number(value.toFixed(4)) : null;
+                    }),
+                    borderColor: COLORS[index % COLORS.length],
+                    backgroundColor: `${COLORS[index % COLORS.length]}22`,
+                    borderWidth: 2,
+                    yAxisID: index === 0 ? 'y' : 'y1',
+                    pointRadius: 1.5,
+                    pointHoverRadius: 4,
+                    tension: 0.32,
+                    spanGaps: true
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1', font: { weight: 800 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.dataset.label}: ${Number(ctx.raw).toFixed(4)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8', maxTicksLimit: 7 }, grid: { color: 'rgba(148, 163, 184, 0.12)' } },
+                    y: {
+                        position: 'left',
+                        ticks: { color: COLORS[0], callback: value => Number(value).toFixed(3) },
+                        grid: { color: 'rgba(148, 163, 184, 0.12)' }
+                    },
+                    y1: {
+                        display: pairs.length > 1,
+                        position: 'right',
+                        ticks: { color: COLORS[1], callback: value => Number(value).toFixed(3) },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            },
+            plugins: [chartLabelPlugin]
+        };
+    }
+
+    async function renderChart() {
+        const loader = document.getElementById('official-main-loading');
+        const canvas = document.getElementById('official-main-chart');
+        const error = document.getElementById('official-chart-error');
+        loader.style.display = 'flex';
+        error.textContent = '';
+        const points = await loadChartPoints(chartState.period);
+        const requestedPairs = getSelectedPairs();
+        const pairs = validatePairs(requestedPairs, points);
+        if (!pairs.length) {
+            error.textContent = 'არჩეული სავალუტო წყვილი ვერ მოიძებნა.';
+            loader.style.display = 'none';
+            return;
+        }
+        if (pairs.length < requestedPairs.length) {
+            error.textContent = 'ერთი სავალუტო წყვილი ვერ მოიძებნა და გრაფიკში არ აისახა.';
+        }
+        if (chartState.chart) chartState.chart.destroy();
+        chartState.chart = new Chart(canvas, makeChartConfig(points, pairs));
+        loader.style.display = 'none';
+    }
+
+    function initTabs() {
+        const container = document.querySelector('[data-chart-tabs="main"]');
+        container.innerHTML = Object.entries(PERIODS).map(([key, period]) => `
+            <button type="button" class="official-chart-tab ${key === chartState.period ? 'active' : ''}" data-period="${key}">${period.label}</button>
+        `).join('');
+        container.addEventListener('click', event => {
+            const button = event.target.closest('.official-chart-tab');
+            if (!button) return;
+            chartState.period = button.dataset.period;
+            container.querySelectorAll('.official-chart-tab').forEach(tab => tab.classList.toggle('active', tab === button));
+            renderChart();
+        });
+    }
+
+    function initPairControls() {
+        const primary = document.getElementById('official-primary-pair');
+        const secondary = document.getElementById('official-secondary-pair');
+        const toggle = document.getElementById('official-compare-toggle');
+        const secondaryWrap = document.getElementById('official-second-pair-wrap');
+        const rerender = () => renderChart();
+        [primary, secondary].forEach(input => {
+            input.addEventListener('input', () => {
+                input.value = normalizePair(input.value);
+                clearTimeout(input._renderTimer);
+                input._renderTimer = setTimeout(rerender, 350);
+            });
+            input.addEventListener('change', rerender);
+        });
+        toggle.addEventListener('change', () => {
+            secondaryWrap.hidden = !toggle.checked;
+            rerender();
+        });
+    }
+
+    function initDateControl() {
+        const input = document.getElementById('official-history-date');
+        input.max = formatApiDate(new Date());
+        input.value = formatApiDate(new Date());
+        const onDateChange = async () => {
+            if (!input.value) return;
+            document.getElementById('official-detail-date').textContent = 'იტვირთება...';
+            pageState.days = await getRecentNbgDays(10, new Date(`${input.value}T00:00:00`));
+            if (pageState.days[0]?.currencies?.length) {
+                renderCurrencyCheckboxes(pageState.days[0].currencies);
+            }
+            renderHistoryCards(pageState.days);
+        };
+        if (window.flatpickr) {
+            flatpickr(input, {
+                dateFormat: 'Y-m-d',
+                maxDate: 'today',
+                defaultDate: input.value,
+                onChange: onDateChange
+            });
+        } else {
+            input.addEventListener('change', onDateChange);
+        }
+    }
+
+    async function initOfficialDetailPage() {
+        try {
+            initTabs();
+            initPairControls();
+            initCurrencyDropdown();
+            initDateControl();
+            pageState.days = await getRecentNbgDays(10);
+            if (pageState.days[0]?.currencies?.length) renderCurrencyCheckboxes(pageState.days[0].currencies);
+            renderHistoryCards(pageState.days);
+            await renderChart();
+        } catch (error) {
+            console.error('Official detail page load failed', error);
+            document.getElementById('official-history-grid').innerHTML = '<div class="official-history-card">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initOfficialDetailPage);
+</script>
+</body>
+</html>

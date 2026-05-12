@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>შექმენი დეშბორდი - AllRates.ge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <script src="js/header.js"></script>
+
+    <main class="dashboard-builder-page">
+        <p id="userSpaceStatus" class="user-space-muted" style="margin: 0;"></p>
+
+        <div class="dashboard-view-filter" aria-label="დეშბორდის ბოქსების ფილტრი">
+            <div class="dashboard-filter-options">
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="company" checked>
+                    <span>კომპანიები</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="forex" checked>
+                    <span>Forex კურსები</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="crypto" checked>
+                    <span>კრიპტოები</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="asset" checked>
+                    <span>პოპულარული აქტივები</span>
+                </label>
+            </div>
+            <div class="dashboard-save-wrap">
+                <span id="dashboardSaveStatus" class="dashboard-save-status" aria-live="polite"></span>
+                <button type="button" id="saveDashboardBtn" class="dashboard-save-btn" disabled>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path>
+                        <path d="M17 21v-8H7v8"></path>
+                        <path d="M7 3v5h8"></path>
+                    </svg>
+                    <span>შეინახე დეშბორდი</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-builder-grid" id="dashboardBuilderGrid">
+            <div class="dashboard-slot" data-slot="company">
+                <div class="dashboard-slot-top">
+                    <span>დაამატე კომპანია</span>
+                    <button type="button" class="dashboard-add-btn" aria-label="კომპანიის დამატება">+</button>
+                </div>
+                <div class="dashboard-slot-items"></div>
+                <div class="dashboard-picker" hidden>
+                    <input type="search" class="dashboard-search" placeholder="მოძებნე კომპანია...">
+                    <div class="dashboard-picker-list" id="companyPickerList">იტვირთება...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-slot" data-slot="forex">
+                <div class="dashboard-slot-top">
+                    <span>დაამატე Forex სავალუტო წყვილი</span>
+                    <button type="button" class="dashboard-add-btn" aria-label="Forex წყვილის დამატება">+</button>
+                </div>
+                <div class="dashboard-slot-items"></div>
+                <div class="dashboard-picker" hidden>
+                    <input type="search" class="dashboard-search" placeholder="მოძებნე Forex წყვილი...">
+                    <div class="dashboard-picker-list" id="forexPickerList">იტვირთება...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-slot" data-slot="crypto">
+                <div class="dashboard-slot-top">
+                    <span>დაამატე კრიპტოვალუტა</span>
+                    <button type="button" class="dashboard-add-btn" aria-label="კრიპტოვალუტის დამატება">+</button>
+                </div>
+                <div class="dashboard-slot-items"></div>
+                <div class="dashboard-picker" hidden>
+                    <input type="search" class="dashboard-search" placeholder="მოძებნე კრიპტო...">
+                    <div class="dashboard-picker-list" id="cryptoPickerList">იტვირთება...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-slot" data-slot="asset">
+                <div class="dashboard-slot-top">
+                    <span>დაამატე პოპულარული აქტივი</span>
+                    <button type="button" class="dashboard-add-btn" aria-label="აქტივის დამატება">+</button>
+                </div>
+                <div class="dashboard-slot-items"></div>
+                <div class="dashboard-picker" hidden>
+                    <input type="search" class="dashboard-search" placeholder="მოძებნე აქტივი...">
+                    <div class="dashboard-picker-list" id="assetPickerList">იტვირთება...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = localStorage.getItem("token");
+            const status = document.getElementById("userSpaceStatus");
+            const apiOrigin = window.ALLRATES_API_ORIGIN
+                || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api.onrender.com");
+
+            if (!token) {
+                window.location.href = "/";
+                return;
+            }
+
+            try {
+                const res = await fetch(`${apiOrigin}/api/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    window.location.href = "/";
+                    return;
+                }
+
+                localStorage.setItem("user", JSON.stringify(data.user));
+                status.textContent = "";
+                await initDashboardBuilder(apiOrigin, token, data.user);
+            } catch (error) {
+                status.textContent = "სერვერთან კავშირის შეცდომა";
+            }
+        });
+
+        const COMPANY_NAMES_KA = {
+            rico: "რიკო", valuto: "ვალუტო", kursige: "კურსიჯი", crystal: "კრისტალი",
+            bog: "საქართველოს ბანკი", tbc: "თიბისი ბანკი", liberty: "ლიბერთი ბანკი",
+            bb: "ბაზისბანკი", credo: "კრედო ბანკი", cartu: "ბანკი ქართუ",
+            inex: "ინტელიექსპრესი", giro: "გირო კრედიტი", goa: "გოა კრედიტი",
+            hash: "ჰაშ ბანკი", mbc: "ემბისი", tera: "ტერაბანკი", halyk: "ხალიკ ბანკი",
+            is: "იშბანკი", silk: "სილქ ბანკი", procredit: "პროკრედიტ ბანკი",
+            leader: "ლიდერ კრედიტი", paysera: "Paysera"
+        };
+
+        const COMPANY_LOGOS = {
+            rico: "Logos/rico_icon.png", valuto: "Logos/valuto_icon.png", kursige: "Logos/kursige_icon.png",
+            crystal: "Logos/crystal_icon.png", bog: "Logos/bog_icon.png", tbc: "Logos/tbc_icon.png",
+            liberty: "Logos/liberty_icon.png", bb: "Logos/bb_icon.png", credo: "Logos/credo_icon.png",
+            cartu: "Logos/cartu_icon.ico", inex: "Logos/Inex.png", giro: "Logos/giro_icon.png",
+            goa: "Logos/goa_icon.png", hash: "Logos/hash_icon.ico", mbc: "Logos/mbc_icon.png",
+            tera: "Logos/tera_icon.png", halyk: "Logos/halyk_icon.png", is: "Logos/is_icon.png",
+            silk: "Logos/silk_icon.png", procredit: "Logos/procredit.jpg", leader: "Logos/leader.jpg",
+            paysera: "Logos/paysera_icon.png"
+        };
+
+        const COMPANY_KEY_ALIASES = {
+            basisbank: "bb",
+            inteliexpress: "inex",
+            hashbank: "hash",
+            isbank: "is",
+            terabank: "tera",
+            leadercredit: "leader",
+            cartubank: "cartu",
+            bankofgeorgia: "bog"
+        };
+
+        const COMPANY_PAIRS = [
+            { pair: "USDGEL", buy: ["usdBuy", "USDGEL (Buy)"], sell: ["usdSell", "USDGEL (Sell)"], digits: 4 },
+            { pair: "EURGEL", buy: ["eurBuy", "EURGEL (Buy)"], sell: ["eurSell", "EURGEL (Sell)"], digits: 4 },
+            { pair: "GBPGEL", buy: ["gbpBuy", "GBPGEL (Buy)"], sell: ["gbpSell", "GBPGEL (Sell)"], digits: 4 },
+            { pair: "RUBGEL", buy: ["rubBuy", "RUBGEL (Buy)"], sell: ["rubSell", "RUBGEL (Sell)"], digits: 4 },
+            { pair: "TRYGEL", buy: ["tryBuy", "TRYGEL (Buy)"], sell: ["trySell", "TRYGEL (Sell)"], digits: 4 }
+        ];
+
+        const FOREX_PAIRS = ["EURUSD", "GBPUSD", "USDCHF", "USDJPY", "USDRUB", "USDTRY", "USDCNY", "USDCAD", "AUDUSD", "NZDUSD", "EURGBP", "EURCHF", "EURJPY", "GBPJPY"];
+        const CRYPTO_NAMES = {
+            BTC: "Bitcoin", ETH: "Ethereum", USDT: "Tether", BNB: "BNB", SOL: "Solana",
+            USDC: "USDC", XRP: "XRP", DOGE: "Dogecoin", TON: "Toncoin", ADA: "Cardano",
+            TRX: "TRON", AVAX: "Avalanche", LINK: "Chainlink", SUI: "Sui", XLM: "Stellar",
+            BCH: "Bitcoin Cash", HBAR: "Hedera", LTC: "Litecoin", DOT: "Polkadot",
+            UNI: "Uniswap", AAVE: "Aave", PEPE: "Pepe", NEAR: "NEAR Protocol"
+        };
+        const CRYPTO_LOGOS = {
+            BTC: "Logos/BTC.png", ETH: "Logos/ETH.png", USDT: "Logos/USDT.png", BNB: "Logos/BNB.png",
+            SOL: "Logos/SOL.png", USDC: "Logos/USDC.png", XRP: "Logos/XRP.png", DOGE: "Logos/DOGE.png",
+            TON: "Logos/TON.png", ADA: "Logos/ADA.png"
+        };
+        const ASSET_ITEMS = [
+            { name: "Gold", aliases: ["gold", "ოქრო"], value: "—", logo: "Logos/GOLD.png" },
+            { name: "Silver", aliases: ["silver", "ვერცხლი"], value: "—", logo: "Logos/SILVER.png" },
+            { name: "Platinium", aliases: ["platinum", "platinium", "პლატინა"], value: "—", logo: "Logos/PLATINIUM.png" },
+            { name: "WTI Crude Oil", aliases: ["wti", "oil", "ნავთობი"], value: "—", logo: "Logos/WTI.png" },
+            { name: "Brent Crude Oil", aliases: ["brent", "oil", "ნავთობი"], value: "—", logo: "Logos/BRENT.png" },
+            { name: "Natural Gas", aliases: ["gas", "naturalgas", "გაზი"], value: "—", logo: "Logos/Natural Gas.png" },
+            { name: "S&P 500", aliases: ["sp500", "s&p500"], value: "—", logo: "Logos/SP500.png" },
+            { name: "Dow Jones", aliases: ["dow", "dji", "dowjones"], value: "—", logo: "Logos/DJI.png" },
+            { name: "Apple", aliases: ["aapl", "apple"], value: "—", logo: "Logos/AAPL.png" },
+            { name: "Tesla", aliases: ["tsla", "tesla"], value: "—", logo: "Logos/TSLA.png" },
+            { name: "NVIDIA", aliases: ["nvda", "nvidia"], value: "—", logo: "Logos/NVDA.png" }
+        ];
+        const ASSETS_API_URL = "https://sheets-api-t266.onrender.com/api/data";
+        const DASHBOARD_SLOT_KEYS = ["company", "forex", "crypto", "asset"];
+
+        function escapeHtml(value) {
+            return String(value || "").replace(/[&<>"']/g, char => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+            }[char]));
+        }
+
+        function readNumber(item, keys) {
+            for (const key of keys) {
+                const value = Number(item[key]);
+                if (!Number.isNaN(value) && value > 0) return value;
+            }
+            return null;
+        }
+
+        function companyKey(item) {
+            const raw = String(item.company || item.Company || "").toLowerCase();
+            const compact = raw.split("(")[0].replace(/[^a-z]/g, "");
+            return COMPANY_KEY_ALIASES[compact] || compact;
+        }
+
+        function flagCode(code) {
+            const map = { usd: "us", eur: "eu", gbp: "gb", jpy: "jp", chf: "ch", aud: "au", cad: "ca", nzd: "nz", try: "tr", rub: "ru", cny: "cn" };
+            return map[String(code).toLowerCase()] || "un";
+        }
+
+        function forexLogo(pair) {
+            const base = pair.slice(0, 3);
+            const quote = pair.slice(3, 6);
+            return `
+                <span class="dashboard-flags">
+                    <img src="https://flagcdn.com/w40/${flagCode(base)}.png" alt="${base}">
+                    <img src="https://flagcdn.com/w40/${flagCode(quote)}.png" alt="${quote}">
+                </span>
+            `;
+        }
+
+        function rowHtml(item) {
+            return `
+                <button type="button" class="dashboard-picker-row" data-id="${escapeHtml(item.id || "")}" data-kind="${escapeHtml(item.kind || "")}" data-search="${escapeHtml(item.search)}" data-rate="${escapeHtml(item.rate)}" data-buy="${escapeHtml(item.buy || "")}" data-sell="${escapeHtml(item.sell || "")}" data-selected-title="${escapeHtml(item.selectedTitle || item.title)}">
+                    <span class="dashboard-row-main">
+                        ${item.logoHtml}
+                        <span>
+                            <strong>${escapeHtml(item.title)}</strong>
+                            <small>${escapeHtml(item.subtitle || "")}</small>
+                        </span>
+                    </span>
+                </button>
+            `;
+        }
+
+        function selectedHtml(row) {
+            const kind = row.dataset.kind || "";
+            const logo = row.querySelector(".dashboard-logo, .dashboard-flags")?.outerHTML || "";
+            const selectedTitle = row.dataset.selectedTitle || "";
+            const main = kind === "company"
+                ? `${logo}<span><strong>${escapeHtml(selectedTitle)}</strong></span>`
+                : row.querySelector(".dashboard-row-main")?.innerHTML || "";
+            const rate = row.dataset.rate || "—";
+            const rateHtml = kind === "company"
+                ? `<span class="dashboard-rate-buy">${escapeHtml(row.dataset.buy || "-")}</span><span class="dashboard-rate-separator">/</span><span class="dashboard-rate-sell">${escapeHtml(row.dataset.sell || "-")}</span>`
+                : escapeHtml(rate);
+            return `
+                <div class="dashboard-selected-item" data-id="${escapeHtml(row.dataset.id || "")}">
+                    <span class="dashboard-row-main">${main}</span>
+                    <span class="dashboard-selected-side">
+                        <span class="dashboard-row-rate">${rateHtml}</span>
+                        <span class="dashboard-item-menu">
+                            <button type="button" class="dashboard-item-menu-btn" aria-label="ფუნქციები">⋯</button>
+                            <span class="dashboard-item-dropdown">
+                                <button type="button" data-dashboard-action="delete">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M8 6V4h8v2"></path>
+                                        <path d="M6 6l1 15h10l1-15"></path>
+                                        <path d="M10 11v6"></path>
+                                        <path d="M14 11v6"></path>
+                                    </svg>
+                                    <span>წაშლა</span>
+                                </button>
+                                <button type="button" data-dashboard-action="notify">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                                        <path d="M10 21h4"></path>
+                                    </svg>
+                                    <span>შეტყობინება</span>
+                                </button>
+                            </span>
+                        </span>
+                    </span>
+                </div>
+            `;
+        }
+
+        async function initDashboardBuilder(apiOrigin, token, user) {
+            bindSlots();
+            bindDashboardFilters();
+            bindDashboardSave(apiOrigin, token, user);
+            restoreDashboardCache(user);
+            await Promise.allSettled([
+                loadCompanyPicker(apiOrigin),
+                loadForexPicker(),
+                loadCryptoPicker(),
+                loadAssetPicker()
+            ]);
+            await loadSavedDashboard(apiOrigin, token);
+            cacheDashboardSnapshot(user);
+            document.getElementById("saveDashboardBtn").disabled = false;
+        }
+
+        function bindSlots() {
+            document.querySelectorAll(".dashboard-slot").forEach(slot => {
+                const addButton = slot.querySelector(".dashboard-add-btn");
+                const picker = slot.querySelector(".dashboard-picker");
+                const search = slot.querySelector(".dashboard-search");
+
+                addButton.addEventListener("click", event => {
+                    event.stopPropagation();
+                    document.querySelectorAll(".dashboard-picker").forEach(openPicker => {
+                        if (openPicker !== picker) openPicker.hidden = true;
+                    });
+                    picker.hidden = !picker.hidden;
+                    if (!picker.hidden) {
+                        search.value = "";
+                        filterPicker(slot, "");
+                        search.focus();
+                    }
+                });
+
+                search.addEventListener("input", () => filterPicker(slot, search.value));
+            });
+
+            document.addEventListener("click", event => {
+                if (!event.target.closest(".dashboard-slot")) {
+                    document.querySelectorAll(".dashboard-picker").forEach(picker => picker.hidden = true);
+                }
+            });
+
+            document.addEventListener("click", event => {
+                const menuButton = event.target.closest(".dashboard-item-menu-btn");
+                const deleteButton = event.target.closest('[data-dashboard-action="delete"]');
+                const notifyButton = event.target.closest('[data-dashboard-action="notify"]');
+
+                if (menuButton) {
+                    event.stopPropagation();
+                    const menu = menuButton.closest(".dashboard-item-menu");
+                    const shouldOpen = !menu.classList.contains("open");
+                    closeItemMenus();
+                    if (shouldOpen) menu.classList.add("open");
+                    return;
+                }
+
+                if (deleteButton) {
+                    event.stopPropagation();
+                    deleteButton.closest(".dashboard-selected-item")?.remove();
+                    closeItemMenus();
+                    return;
+                }
+
+                if (notifyButton) {
+                    event.stopPropagation();
+                    closeItemMenus();
+                    return;
+                }
+
+                if (!event.target.closest(".dashboard-item-menu")) closeItemMenus();
+            });
+        }
+
+        function bindDashboardFilters() {
+            const grid = document.getElementById("dashboardBuilderGrid");
+            const filters = Array.from(document.querySelectorAll("[data-filter-slot]"));
+            if (!grid || !filters.length) return;
+
+            const updateVisibleSlots = changedFilter => {
+                const checkedFilters = filters.filter(filter => filter.checked);
+                if (!checkedFilters.length && changedFilter) changedFilter.checked = true;
+
+                let visibleCount = 0;
+                filters.forEach(filter => {
+                    const slot = grid.querySelector(`[data-slot="${filter.dataset.filterSlot}"]`);
+                    if (!slot) return;
+                    slot.hidden = !filter.checked;
+                    if (filter.checked) visibleCount += 1;
+                });
+
+                const columns = Math.max(1, visibleCount);
+                grid.style.gridTemplateColumns = `repeat(${columns}, minmax(210px, 1fr))`;
+            };
+
+            window.updateDashboardVisibleSlots = updateVisibleSlots;
+
+            filters.forEach(filter => {
+                filter.addEventListener("change", () => updateVisibleSlots(filter));
+            });
+
+            updateVisibleSlots();
+        }
+
+        function bindDashboardSave(apiOrigin, token, user) {
+            const saveButton = document.getElementById("saveDashboardBtn");
+            if (!saveButton) return;
+
+            saveButton.addEventListener("click", async () => {
+                saveButton.disabled = true;
+                setDashboardStatus("loading", "ინახება...");
+
+                try {
+                    const res = await fetch(`${apiOrigin}/api/dashboard`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify(collectDashboardState())
+                    });
+
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.message || "დეშბორდი ვერ შეინახა");
+
+                    cacheDashboardSnapshot(user);
+                    setDashboardStatus("success", "დეშბორდი შენახულია");
+                } catch (error) {
+                    setDashboardStatus("error", error.message || "დეშბორდი ვერ შეინახა");
+                } finally {
+                    saveButton.disabled = false;
+                }
+            });
+        }
+
+        function collectDashboardState() {
+            const filters = {};
+            const items = {};
+
+            DASHBOARD_SLOT_KEYS.forEach(slotKey => {
+                filters[slotKey] = Boolean(document.querySelector(`[data-filter-slot="${slotKey}"]`)?.checked);
+                items[slotKey] = Array.from(document.querySelectorAll(`[data-slot="${slotKey}"] .dashboard-selected-item`))
+                    .map(item => item.dataset.id)
+                    .filter(Boolean);
+            });
+
+            return { filters, items };
+        }
+
+        async function loadSavedDashboard(apiOrigin, token) {
+            const status = document.getElementById("dashboardSaveStatus");
+            try {
+                const res = await fetch(`${apiOrigin}/api/dashboard`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+
+                const dashboard = await res.json();
+                restoreDashboardFilters(dashboard.filters || {});
+                restoreDashboardItems(dashboard.items || {});
+            } catch (error) {
+                if (status) setDashboardStatus("error", "შენახული დეშბორდი ვერ ჩაიტვირთა");
+            }
+        }
+
+        function restoreDashboardFilters(filters) {
+            DASHBOARD_SLOT_KEYS.forEach(slotKey => {
+                const input = document.querySelector(`[data-filter-slot="${slotKey}"]`);
+                if (input && typeof filters[slotKey] === "boolean") input.checked = filters[slotKey];
+            });
+
+            window.updateDashboardVisibleSlots?.();
+        }
+
+        function restoreDashboardItems(items) {
+            DASHBOARD_SLOT_KEYS.forEach(slotKey => {
+                const slot = document.querySelector(`[data-slot="${slotKey}"]`);
+                const selectedItems = slot?.querySelector(".dashboard-slot-items");
+                if (!slot || !selectedItems) return;
+
+                selectedItems.innerHTML = "";
+                (Array.isArray(items[slotKey]) ? items[slotKey] : []).forEach(itemId => {
+                    const row = slot.querySelector(`.dashboard-picker-row[data-id="${cssEscape(itemId)}"]`);
+                    if (row) selectedItems.insertAdjacentHTML("beforeend", selectedHtml(row));
+                });
+            });
+        }
+
+        function dashboardCacheKey(user) {
+            const id = user?.id || user?._id || user?.email || "guest";
+            return `allrates-dashboard-cache:${id}`;
+        }
+
+        function cacheDashboardSnapshot(user) {
+            try {
+                const snapshot = collectDashboardState();
+                snapshot.html = {};
+
+                DASHBOARD_SLOT_KEYS.forEach(slotKey => {
+                    snapshot.html[slotKey] = document.querySelector(`[data-slot="${slotKey}"] .dashboard-slot-items`)?.innerHTML || "";
+                });
+
+                localStorage.setItem(dashboardCacheKey(user), JSON.stringify(snapshot));
+            } catch (error) {
+                // Cache is only a UX helper; MongoDB remains the source of truth.
+            }
+        }
+
+        function restoreDashboardCache(user) {
+            try {
+                const raw = localStorage.getItem(dashboardCacheKey(user));
+                if (!raw) return;
+
+                const snapshot = JSON.parse(raw);
+                restoreDashboardFilters(snapshot.filters || {});
+
+                DASHBOARD_SLOT_KEYS.forEach(slotKey => {
+                    const selectedItems = document.querySelector(`[data-slot="${slotKey}"] .dashboard-slot-items`);
+                    if (selectedItems && snapshot.html?.[slotKey]) selectedItems.innerHTML = snapshot.html[slotKey];
+                });
+            } catch (error) {
+                localStorage.removeItem(dashboardCacheKey(user));
+            }
+        }
+
+        function setDashboardStatus(state, message) {
+            const status = document.getElementById("dashboardSaveStatus");
+            if (!status) return;
+
+            status.dataset.state = state || "";
+            status.className = `dashboard-save-status${state ? ` ${state}` : ""}`;
+
+            if (state === "success") {
+                status.innerHTML = `
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                    <span>${escapeHtml(message)}</span>
+                `;
+                return;
+            }
+
+            status.textContent = message || "";
+        }
+
+        function cssEscape(value) {
+            if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
+            return String(value).replace(/["\\]/g, "\\$&");
+        }
+
+        function filterPicker(slot, value) {
+            const term = value.toLowerCase().trim();
+            const compactTerm = compactSearch(value);
+            slot.querySelectorAll(".dashboard-picker-row").forEach(row => {
+                const searchText = (row.dataset.search || "").toLowerCase();
+                const compactText = compactSearch(searchText);
+                const isMatch = !term || searchText.includes(term) || compactText.includes(compactTerm);
+                row.style.display = isMatch ? "" : "none";
+            });
+        }
+
+        function compactSearch(value) {
+            return String(value || "").toLowerCase().replace(/[\s/_-]+/g, "");
+        }
+
+        function dashboardItemId(...parts) {
+            return parts.map(part => compactSearch(part)).join(":");
+        }
+
+        function sortCryptoTickers(a, b) {
+            const priority = { BTCUSDT: 1, ETHUSDT: 2 };
+            if (priority[a.symbol] || priority[b.symbol]) return (priority[a.symbol] || 999) - (priority[b.symbol] || 999);
+            return Number(b.quoteVolume) - Number(a.quoteVolume);
+        }
+
+        function cryptoLogo(symbol) {
+            return CRYPTO_LOGOS[symbol] || `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`;
+        }
+
+        function closeItemMenus() {
+            document.querySelectorAll(".dashboard-item-menu.open").forEach(menu => menu.classList.remove("open"));
+        }
+
+        function bindPickerRows(list) {
+            list.querySelectorAll(".dashboard-picker-row").forEach(row => {
+                row.addEventListener("click", () => {
+                    const slot = row.closest(".dashboard-slot");
+                    const items = slot.querySelector(".dashboard-slot-items");
+                    const picker = slot.querySelector(".dashboard-picker");
+                    items.insertAdjacentHTML("beforeend", selectedHtml(row));
+                    picker.hidden = true;
+                });
+            });
+        }
+
+        async function loadCompanyPicker(apiOrigin) {
+            const list = document.getElementById("companyPickerList");
+            try {
+                let res = await fetch(`${apiOrigin}/api/rates/latest`);
+                if (!res.ok) res = await fetch("https://allrates-backend-api.onrender.com/api/rates/latest");
+                const data = await res.json();
+                const rows = [];
+
+                data.forEach(item => {
+                    const key = companyKey(item);
+                    const name = COMPANY_NAMES_KA[key] || item.company || item.Company || key;
+                    const rawName = item.company || item.Company || key;
+                    const logo = COMPANY_LOGOS[key] || "Logos/logo.jpg";
+
+                    COMPANY_PAIRS.forEach(pairConfig => {
+                        const buy = readNumber(item, pairConfig.buy);
+                        const sell = readNumber(item, pairConfig.sell);
+                        if (!buy && !sell) return;
+                        const buyText = buy ? buy.toFixed(pairConfig.digits) : "-";
+                        const sellText = sell ? sell.toFixed(pairConfig.digits) : "-";
+                        rows.push({
+                            id: dashboardItemId("company", rawName, pairConfig.pair),
+                            kind: "company",
+                            title: `${name} ${pairConfig.pair}`,
+                            subtitle: pairConfig.pair,
+                            selectedTitle: pairConfig.pair,
+                            search: `${name} ${rawName} ${key} ${pairConfig.pair}`,
+                            buy: buyText,
+                            sell: sellText,
+                            rate: `${buyText} / ${sellText}`,
+                            logoHtml: `<span class="dashboard-logo"><img src="${logo}" alt="${escapeHtml(name)}" onerror="this.onerror=null;this.src='Logos/logo.jpg';"></span>`
+                        });
+                    });
+                });
+
+                list.innerHTML = rows.length ? rows.map(rowHtml).join("") : "კომპანიების კურსები ვერ მოიძებნა";
+                bindPickerRows(list);
+            } catch (error) {
+                list.textContent = "კომპანიების სიის ჩატვირთვა ვერ მოხერხდა";
+            }
+        }
+
+        async function loadForexPicker() {
+            const list = document.getElementById("forexPickerList");
+            try {
+                const res = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json");
+                const data = await res.json();
+                const rates = {};
+                Object.entries(data.eur || {}).forEach(([key, value]) => rates[key.toUpperCase()] = Number(value));
+                rates.EUR = 1;
+
+                const rows = FOREX_PAIRS.map(pair => {
+                    const base = pair.slice(0, 3);
+                    const quote = pair.slice(3, 6);
+                    const value = rates[base] && rates[quote] ? rates[quote] / rates[base] : null;
+                    return {
+                        id: dashboardItemId("forex", pair),
+                        title: pair,
+                        subtitle: `${base}/${quote}`,
+                        search: `${pair} ${base} ${quote}`,
+                        rate: value ? value.toFixed(4) : "—",
+                        logoHtml: forexLogo(pair)
+                    };
+                });
+                list.innerHTML = rows.map(rowHtml).join("");
+                bindPickerRows(list);
+            } catch (error) {
+                list.textContent = "Forex სიის ჩატვირთვა ვერ მოხერხდა";
+            }
+        }
+
+        async function loadCryptoPicker() {
+            const list = document.getElementById("cryptoPickerList");
+            try {
+                const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
+                const data = await res.json();
+                const rows = data
+                    .filter(item => item.symbol.endsWith("USDT") && !item.symbol.includes("UPUSDT") && !item.symbol.includes("DOWNUSDT") && !item.symbol.includes("BULLUSDT") && !item.symbol.includes("BEARUSDT"))
+                    .sort(sortCryptoTickers)
+                    .slice(0, 100)
+                    .map(item => {
+                        const symbol = item.symbol.replace("USDT", "");
+                        const name = CRYPTO_NAMES[symbol] || symbol;
+                        const price = Number(item.lastPrice);
+                        return {
+                            id: dashboardItemId("crypto", item.symbol),
+                            title: `${name} (${symbol})`,
+                            subtitle: item.symbol.replace("USDT", "/USDT"),
+                            search: `${name} ${symbol} ${item.symbol}`,
+                            rate: Number.isFinite(price) ? `$ ${price.toLocaleString("en-US", { maximumFractionDigits: price > 1 ? 2 : 6 })}` : "—",
+                            logoHtml: `<span class="dashboard-logo"><img src="${cryptoLogo(symbol)}" alt="${name}" onerror="this.onerror=null;this.src='Logos/logo.jpg';"></span>`
+                        };
+                    });
+                list.innerHTML = rows.map(rowHtml).join("");
+                bindPickerRows(list);
+            } catch (error) {
+                list.textContent = "კრიპტოს სიის ჩატვირთვა ვერ მოხერხდა";
+            }
+        }
+
+        async function loadAssetPicker() {
+            const list = document.getElementById("assetPickerList");
+            const priceMap = await fetchAssetPrices();
+            const rows = ASSET_ITEMS.map(item => {
+                const price = priceMap.get(item.name.toLowerCase()) || item.value;
+                return {
+                    id: dashboardItemId("asset", item.name),
+                    title: item.name,
+                    subtitle: "პოპულარული აქტივი",
+                    search: `${item.name} ${(item.aliases || []).join(" ")}`,
+                    rate: price,
+                    logoHtml: `<span class="dashboard-logo"><img src="${item.logo}" alt="${item.name}" onerror="this.onerror=null;this.src='Logos/logo.jpg';"></span>`
+                };
+            });
+            list.innerHTML = rows.map(rowHtml).join("");
+            bindPickerRows(list);
+        }
+
+        async function fetchAssetPrices() {
+            const prices = new Map();
+            try {
+                const res = await fetch(ASSETS_API_URL);
+                if (!res.ok) return prices;
+                const raw = await res.json();
+                const rows = raw.data && Array.isArray(raw.data)
+                    ? raw.data.slice(1).map(row => {
+                        const obj = {};
+                        raw.data[0].forEach((header, index) => obj[header] = row[index]);
+                        return obj;
+                    })
+                    : raw;
+
+                rows.forEach(row => {
+                    const name = String(row.MEA || "").trim();
+                    const value = Number(row["Rate (MEA)"]);
+                    if (name && !Number.isNaN(value)) prices.set(name.toLowerCase(), value.toLocaleString("en-US", { maximumFractionDigits: 3 }));
+                });
+            } catch (error) {
+                return prices;
+            }
+            return prices;
+        }
+    </script>
+</body>
+</html>

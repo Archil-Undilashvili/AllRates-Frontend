@@ -29,9 +29,8 @@
 </head>
 <body>
 <script src="js/header.js"></script>
-<div id="rates-page" class="page-section" style="">
-        <div class="header-wrapper" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-        <h1 style="margin: 0;">მიმდინარე კურსები</h1>
+<div id="rates-page" class="page-section" style="margin-top: -52px;">
+        <div class="header-wrapper" style="display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 2px;">
         <div class="company-search-container">
             <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="company-search-input" placeholder="მოძებნე კომპანია..." autocomplete="off">
@@ -44,18 +43,19 @@
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('all')">ყველა კომპანია</button>
-        <button class="tab-btn" onclick="switchTab('mfo')">მისო და სხვა</button>
         <button class="tab-btn" onclick="switchTab('banks')">ბანკები</button>
+        <button class="tab-btn" onclick="switchTab('mfo')">მიკროსაფინანსოები</button>
+        <button class="tab-btn" onclick="switchTab('kiosks')">ჯიხურები</button>
     </div>
 
-    <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 10px;">⏳ მონაცემები იტვირთება...</div>
+    <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 6px;">⏳ მონაცემები იტვირთება...</div>
     <div id="error-msg" class="error" style="display: none;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
 
     <div class="tables-wrapper" id="tables-wrapper" style="display: flex;">
         
         <!-- USD Table -->
         <div class="container" id="usd-container">
-            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 12px;">
                 <img src="Logos/US.png" alt="US Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid var(--card-bg);">
                 <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">USD <span style="color: var(--text-muted); font-weight: 400;">/</span> GEL</h2>
             </div>
@@ -97,7 +97,7 @@
 
         <!-- EUR Table -->
         <div class="container" id="eur-container">
-            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 12px;">
                 <img src="Logos/EU.png" alt="EU Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid var(--card-bg);">
                 <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">EUR <span style="color: var(--text-muted); font-weight: 400;">/</span> GEL</h2>
             </div>
@@ -140,7 +140,7 @@
     
         <!-- GBP Table -->
         <div class="container" id="gbp-container">
-            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 12px;">
                 <img src="Logos/GB.png" alt="GB Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid var(--card-bg);">
                 <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">GBP <span style="color: var(--text-muted); font-weight: 400;">/</span> GEL</h2>
             </div>
@@ -182,7 +182,7 @@
 
         <!-- RUB Table -->
         <div class="container" id="rub-container">
-            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 12px;">
                 <img src="Logos/RU.png" alt="RU Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid var(--card-bg);">
                 <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">RUB <span style="color: var(--text-muted); font-weight: 400;">/</span> GEL</h2>
             </div>
@@ -223,7 +223,7 @@
         </div>
         <!-- TRY Table -->
         <div class="container" id="try-container">
-            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 24px;">
+            <div class="header-row" style="justify-content: center; align-items: center; gap: 14px; margin-bottom: 12px;">
                 <img src="Logos/TR.png" alt="TR Flag" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 2px solid var(--card-bg);">
                 <h2 style="margin: 0; font-size: 1.55em; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px;">TRY <span style="color: var(--text-muted); font-weight: 400;">/</span> GEL</h2>
             </div>
@@ -283,10 +283,10 @@
                     .footer-social-link:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
                 </style>
                 <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-                    <li><a href="index.html" class="footer-nav-link">მთავარი</a></li>
-                    <li><a href="rates.html" class="footer-nav-link">ყველა კურსი</a></li>
-                    <li><a href="official.html" class="footer-nav-link">ოფიციალური კურსები</a></li>
-                    <li><a href="calculator.html" class="footer-nav-link">კალკულატორი</a></li>
+                    <li><a href="/" class="footer-nav-link">მთავარი</a></li>
+                    <li><a href="/rates" class="footer-nav-link">ყველა კურსი</a></li>
+                    <li><a href="/official" class="footer-nav-link">ოფიციალური კურსები</a></li>
+                    <li><a href="/calculator" class="footer-nav-link">კალკულატორი</a></li>
                 </ul>
             </div>
 
@@ -314,8 +314,8 @@
                     <a href="#" target="_blank" title="Facebook" class="footer-social-link">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                     </a>
-                    <a href="#" target="_blank" title="Instagram" class="footer-social-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    <a href="#" target="_blank" title="LinkedIn" class="footer-social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                     </a>
                 </div>
                 <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9em; line-height: 1.5;">

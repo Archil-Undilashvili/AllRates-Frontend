@@ -17,9 +17,10 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
         // კატეგორიები
-        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit'];
-        const MFO_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'inex', 'giro', 'goa', 'mbc', 'leader'];
-        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit'];
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'paysera'];
+        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
+        const MFO_COMPANIES = ['rico', 'inex', 'giro', 'goa', 'leader'];
+        const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
 
         let currentTab = localStorage.getItem('allrates_current_tab') || 'all';
 
@@ -391,6 +392,12 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
                                 renderRates(intlRates, intlContainer, true);
                                 renderRates(popularAssetsRates, popularAssetsContainer, false);
+                                if (intlContainer && intlContainer.innerHTML.trim()) {
+                                    localStorage.setItem('cachedIntlRatesHtml', intlContainer.innerHTML);
+                                }
+                                if (popularAssetsContainer && popularAssetsContainer.innerHTML.trim()) {
+                                    localStorage.setItem('cachedPopularAssetsHtml', popularAssetsContainer.innerHTML);
+                                }
                                 
                             })
                             .catch(err => {
@@ -464,6 +471,12 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 };
                                 renderFallback(intlRates, intlContainer, true);
                                 renderFallback(popularAssetsRates, popularAssetsContainer, false);
+                                if (intlContainer && intlContainer.innerHTML.trim()) {
+                                    localStorage.setItem('cachedIntlRatesHtml', intlContainer.innerHTML);
+                                }
+                                if (popularAssetsContainer && popularAssetsContainer.innerHTML.trim()) {
+                                    localStorage.setItem('cachedPopularAssetsHtml', popularAssetsContainer.innerHTML);
+                                }
                                 
                             });
                     }
@@ -735,59 +748,151 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         async function fetchCrypto() {
             try {
-                // Binance public API for 24h ticker (price + change)
-                const symbols = '["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT","USDCUSDT","XRPUSDT","DOGEUSDT","TONUSDT","ADAUSDT"]';
-                const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbols)}`);
+                const res = await fetch('https://api.binance.com/api/v3/ticker/24hr');
                 if (!res.ok) return;
                 const data = await res.json();
-                
-                let cryptoData = { usdt: { price: "1.00", change: "0.0" } }; // Hardcode USDT
-                
-                data.forEach(item => {
-                    const coin = item.symbol.replace('USDT', '').toLowerCase();
-                    const val = parseFloat(item.lastPrice);
-                    const change = parseFloat(item.priceChangePercent);
-                    
-                    // Format nicely based on value
-                    let formatted;
-                    if (coin === 'usdc' || coin === 'usdt') formatted = val.toFixed(2);
-                    else if (val > 1000) formatted = val.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    else if (val > 1) formatted = val.toFixed(2);
-                    else if (val > 0.01) formatted = val.toFixed(4);
-                    else formatted = val.toFixed(5);
-                    
-                    cryptoData[coin] = { price: formatted, change: change.toFixed(1) };
-                });
-                
-                // Update DOM
-                const renderCrypto = (dataObj, elId) => {
-                    if (!dataObj) return;
-                    const el = document.getElementById(elId);
-                    if (!el) return;
-                    
-                    const changeVal = parseFloat(dataObj.change);
-                    let changeHtml = '';
-                    if (changeVal > 0) {
-                        changeHtml = `<span style="color: var(--buy-color); font-size: 0.65em; margin-left: 8px;">+${dataObj.change}%</span>`;
-                    } else if (changeVal < 0) {
-                        changeHtml = `<span style="color: var(--sell-color); font-size: 0.65em; margin-left: 8px;">${dataObj.change}%</span>`;
-                    } else {
-                        changeHtml = `<span style="color: var(--text-muted); font-size: 0.65em; margin-left: 8px;">0.0%</span>`;
-                    }
-                    
-                    el.innerHTML = `$ ${dataObj.price} ${changeHtml}`;
-                };
 
-                const cryptos = ['btc', 'eth', 'usdt', 'bnb', 'sol', 'usdc', 'xrp', 'doge', 'ton', 'ada'];
-                cryptos.forEach(c => renderCrypto(cryptoData[c], `crypto-${c}`));
-                
-                // Cache it
+                const cryptoData = data
+                    .filter(item => item.symbol.endsWith('USDT') && !item.symbol.includes('UPUSDT') && !item.symbol.includes('DOWNUSDT') && !item.symbol.includes('BULLUSDT') && !item.symbol.includes('BEARUSDT'))
+                    .sort(sortCryptoTickers)
+                    .slice(0, 100)
+                    .map(item => {
+                        const symbol = item.symbol.replace('USDT', '');
+                        return {
+                            symbol,
+                            name: CRYPTO_NAMES[symbol] || symbol,
+                            price: formatCryptoPrice(Number(item.lastPrice)),
+                            change: Number(item.priceChangePercent).toFixed(1),
+                            logo: getCryptoLogo(symbol)
+                        };
+                    });
+
+                renderCryptoList(cryptoData);
                 localStorage.setItem('cachedCryptoData', JSON.stringify(cryptoData));
-                
             } catch (err) {
                 console.error("კრიპტოს ჩატვირთვის შეცდომა:", err);
             }
         }
+
+        const CRYPTO_NAMES = {
+            BTC: 'Bitcoin', ETH: 'Ethereum', USDT: 'Tether', BNB: 'BNB', SOL: 'Solana',
+            USDC: 'USDC', XRP: 'XRP', DOGE: 'Dogecoin', TON: 'Toncoin', ADA: 'Cardano',
+            TRX: 'TRON', AVAX: 'Avalanche', LINK: 'Chainlink', SUI: 'Sui', XLM: 'Stellar',
+            BCH: 'Bitcoin Cash', HBAR: 'Hedera', LTC: 'Litecoin', DOT: 'Polkadot',
+            UNI: 'Uniswap', AAVE: 'Aave', PEPE: 'Pepe', NEAR: 'NEAR Protocol',
+            ETC: 'Ethereum Classic', ICP: 'Internet Computer', FIL: 'Filecoin',
+            ARB: 'Arbitrum', OP: 'Optimism', INJ: 'Injective', ATOM: 'Cosmos',
+            ALGO: 'Algorand', VET: 'VeChain', FET: 'Artificial Superintelligence Alliance',
+            RENDER: 'Render', WIF: 'dogwifhat', BONK: 'Bonk', JUP: 'Jupiter',
+            SEI: 'Sei', TIA: 'Celestia', GRT: 'The Graph', RUNE: 'THORChain',
+            ENA: 'Ethena', WLD: 'Worldcoin', PENDLE: 'Pendle', SAND: 'The Sandbox',
+            MANA: 'Decentraland', IMX: 'Immutable', GALA: 'Gala', LDO: 'Lido DAO'
+        };
+
+        const CRYPTO_LOGOS = {
+            BTC: 'Logos/BTC.png', ETH: 'Logos/ETH.png', USDT: 'Logos/USDT.png', BNB: 'Logos/BNB.png',
+            SOL: 'Logos/SOL.png', USDC: 'Logos/USDC.png', XRP: 'Logos/XRP.png', DOGE: 'Logos/DOGE.png',
+            TON: 'Logos/TON.png', ADA: 'Logos/ADA.png'
+        };
+
+        function sortCryptoTickers(a, b) {
+            const priority = { BTCUSDT: 1, ETHUSDT: 2 };
+            if (priority[a.symbol] || priority[b.symbol]) {
+                return (priority[a.symbol] || 999) - (priority[b.symbol] || 999);
+            }
+            return Number(b.quoteVolume) - Number(a.quoteVolume);
+        }
+
+        function getCryptoLogo(symbol) {
+            if (CRYPTO_LOGOS[symbol]) return CRYPTO_LOGOS[symbol];
+            return `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`;
+        }
+
+        function formatCryptoPrice(value) {
+            if (!Number.isFinite(value)) return '-';
+            if (value > 1000) return value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            if (value > 1) return value.toFixed(2);
+            if (value > 0.01) return value.toFixed(4);
+            return value.toFixed(6);
+        }
+
+        function renderCryptoList(cryptoData) {
+            const container = document.getElementById('crypto-rates-list');
+            if (!container || !Array.isArray(cryptoData) || !cryptoData.length) return;
+
+            container.innerHTML = cryptoData.map(item => {
+                const changeVal = Number(item.change);
+                const changeColor = changeVal > 0 ? 'var(--buy-color)' : changeVal < 0 ? 'var(--sell-color)' : 'var(--text-muted)';
+                const changeText = changeVal > 0 ? `+${item.change}%` : `${item.change}%`;
+                const logoHtml = item.logo
+                    ? `<img src="${item.logo}" alt="${item.symbol}" class="crypto-token-logo" onerror="this.outerHTML='<span class=&quot;crypto-token-initial&quot;>${item.symbol.charAt(0)}</span>';">`
+                    : `<span class="crypto-token-initial">${item.symbol.charAt(0)}</span>`;
+
+                return `
+                    <div class="intl-rate-item crypto-rate-item">
+                        <span class="intl-pair crypto-token-name" data-crypto-search="${`${item.name} ${item.symbol}`.toLowerCase()}">
+                            ${logoHtml}
+                            <span>${item.name} (${item.symbol})</span>
+                        </span>
+                        <span class="intl-value">$ ${item.price} <span style="color: ${changeColor}; font-size: 0.65em; margin-left: 8px;">${changeText}</span></span>
+                    </div>
+                `;
+            }).join('');
+            filterMarketList('crypto-rates-list', document.getElementById('crypto-search-input')?.value || '');
+        }
+
+        function bindMarketSearch() {
+            document.querySelectorAll('.market-search-toggle').forEach(toggle => {
+                const panel = document.getElementById(toggle.dataset.searchPanel);
+                const input = panel?.querySelector('input[data-filter-list]');
+                if (!panel || !input) return;
+
+                toggle.addEventListener('click', () => {
+                    const willOpen = panel.hidden;
+                    panel.hidden = !willOpen;
+                    toggle.classList.toggle('active', willOpen);
+                    toggle.setAttribute('aria-expanded', String(willOpen));
+                    if (willOpen) input.focus();
+                    else {
+                        input.value = '';
+                        filterMarketList(input.dataset.filterList, '');
+                    }
+                });
+
+                input.addEventListener('input', () => filterMarketList(input.dataset.filterList, input.value));
+            });
+        }
+
+        function filterMarketList(listId, value) {
+            const term = String(value || '').toLowerCase().trim();
+            const container = document.getElementById(listId);
+            if (!container) return;
+
+            container.classList.toggle('is-searching', Boolean(term));
+            container.querySelectorAll('.intl-rate-item, .home-section').forEach(item => {
+                const explicitSearch = item.dataset.marketSearch || item.querySelector('[data-market-search], [data-crypto-search]')?.dataset.marketSearch || item.querySelector('[data-crypto-search]')?.dataset.cryptoSearch;
+                const search = (explicitSearch || item.textContent || '').toLowerCase();
+                item.style.display = !term || search.includes(term) ? '' : 'none';
+            });
+        }
+
+        const HOME_OFFICIAL_PRIORITY = ['USD', 'EUR', 'GBP', 'RUB', 'TRY'];
+        const HOME_OFFICIAL_META = {
+            USD: { title: 'USD / აშშ დოლარი', logo: 'Logos/US.png' },
+            EUR: { title: 'EUR / ევრო', logo: 'Logos/EU.png' },
+            GBP: { title: 'GBP/ფუნტი', logo: 'Logos/GB.png' },
+            RUB: { title: 'RUB / რუბლი', logo: 'Logos/RU.png' },
+            TRY: { title: 'TRY / ლირა', logo: 'Logos/TR.png' }
+        };
+        const HOME_OFFICIAL_FLAG_COUNTRIES = {
+            AED: 'ae', AMD: 'am', AUD: 'au', AZN: 'az', BGN: 'bg', BRL: 'br', BYN: 'by',
+            CAD: 'ca', CHF: 'ch', CNY: 'cn', CZK: 'cz', DKK: 'dk', EGP: 'eg', EUR: 'eu',
+            GBP: 'gb', HKD: 'hk', HUF: 'hu', ILS: 'il', INR: 'in', IRR: 'ir', ISK: 'is',
+            JPY: 'jp', KGS: 'kg', KRW: 'kr', KWD: 'kw', KZT: 'kz', MDL: 'md', NOK: 'no',
+            NZD: 'nz', PLN: 'pl', QAR: 'qa', RON: 'ro', RSD: 'rs', RUB: 'ru', SEK: 'se',
+            SGD: 'sg', TJS: 'tj', TMT: 'tm', TRY: 'tr', UAH: 'ua', USD: 'us', UZS: 'uz',
+            ZAR: 'za'
+        };
 
         async function fetchNBG() {
             try {
@@ -796,10 +901,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
                 const dd = String(today.getDate()).padStart(2, '0');
                 const formattedDate = `${yyyy}-${mm}-${dd}`;
+                const previousDate = previousBusinessDate(today);
+                setHomeOfficialDateNote(today);
                 
-                const res = await fetch(`${API_NBG_URL}?date=${formattedDate}`);
+                const [res, previousRes] = await Promise.all([
+                    fetch(`${API_NBG_URL}?date=${formattedDate}`),
+                    fetch(`${API_NBG_URL}?date=${previousDate}`)
+                ]);
                 if (!res.ok) return;
                 const data = await res.json();
+                const previousData = previousRes.ok ? await previousRes.json() : [];
+                const previousCurrencies = previousData && previousData.length > 0 ? previousData[0].currencies || [] : [];
                 
                 if (data && data.length > 0 && data[0].currencies) {
                     const currencies = data[0].currencies;
@@ -816,6 +928,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         }
                     });
 
+                    renderHomeOfficialRates(currencies, previousCurrencies);
+                    cacheData.officialRates = buildHomeOfficialRates(currencies, previousCurrencies);
+
                     // Update special home elements if they exist
                     if (cacheData.usd && setInnerText('home-nbg-usd')) document.getElementById('home-nbg-usd', cacheData.usd);
                     if (cacheData.eur && setInnerText('home-nbg-eur')) document.getElementById('home-nbg-eur', cacheData.eur);
@@ -824,6 +939,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     const dateElem = document.getElementById('nbg-date');
                     if(dateElem) dateElem.innerText = dateStr;
                     if(setInnerText('home-nbg-date')) document.getElementById('home-nbg-date', dateStr);
+                    setHomeOfficialDateNote(today);
                     
                     setDisplay('nbg-rates-box', 'flex');
                     
@@ -832,6 +948,414 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 }
             } catch (err) {
                 console.error('ეროვნული ბანკის კურსების ჩატვირთვა ვერ მოხერხდა', err);
+            }
+        }
+
+        function previousBusinessDate(date) {
+            const d = new Date(date);
+            d.setDate(d.getDate() - 1);
+            while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+            return d.toISOString().split('T')[0];
+        }
+
+        function formatHomeOfficialDate(date) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function setHomeOfficialDateNote(date = new Date()) {
+            const el = document.getElementById('home-official-date-note');
+            if (el) el.textContent = `(${formatHomeOfficialDate(date)})`;
+        }
+
+        function buildHomeOfficialRates(currencies, previousCurrencies = []) {
+            const previousByCode = new Map(previousCurrencies.map(currency => [currency.code, currency]));
+            return [...currencies]
+                .filter(currency => currency && currency.code && Number.isFinite(Number(currency.rate)))
+                .sort((a, b) => {
+                    const priorityA = HOME_OFFICIAL_PRIORITY.indexOf(a.code);
+                    const priorityB = HOME_OFFICIAL_PRIORITY.indexOf(b.code);
+                    if (priorityA !== -1 || priorityB !== -1) {
+                        return (priorityA === -1 ? 999 : priorityA) - (priorityB === -1 ? 999 : priorityB);
+                    }
+                    return a.code.localeCompare(b.code);
+                })
+                .map(currency => {
+                    const rate = Number(currency.rate);
+                    const previousRate = Number(previousByCode.get(currency.code)?.rate);
+                    const change = Number.isFinite(previousRate) && previousRate !== 0
+                        ? ((rate - previousRate) / previousRate) * 100
+                        : null;
+                    return {
+                        code: currency.code,
+                        title: HOME_OFFICIAL_META[currency.code]?.title || `${currency.code} / ${currency.name || ''}`.trim(),
+                        logo: getHomeOfficialLogo(currency.code),
+                        rate: rate.toFixed(4),
+                        change: change === null ? '--' : `${change > 0 ? '+' : ''}${change.toFixed(2)}%`,
+                        changeClass: change === null ? 'home-official-change-neutral' : change > 0 ? 'home-official-change-positive' : change < 0 ? 'home-official-change-negative' : 'home-official-change-neutral'
+                    };
+                });
+        }
+
+        function getHomeOfficialLogo(code) {
+            if (HOME_OFFICIAL_META[code]?.logo) return HOME_OFFICIAL_META[code].logo;
+            const country = HOME_OFFICIAL_FLAG_COUNTRIES[code];
+            return country ? `https://flagcdn.com/w40/${country}.png` : '';
+        }
+
+        function renderHomeOfficialRates(currencies, previousCurrencies = []) {
+            const list = Array.isArray(currencies) && currencies.length && currencies[0]?.rate !== undefined && !currencies[0]?.changeClass
+                ? buildHomeOfficialRates(currencies, previousCurrencies)
+                : currencies;
+            const container = document.getElementById('home-official-list');
+            if (!container || !Array.isArray(list)) return;
+
+            container.innerHTML = list.map(item => `
+                <div class="home-section" data-market-search="${`${item.code} ${item.title}`.toLowerCase()}">
+                    <div class="section-title home-official-section-title">
+                        ${item.logo ? `<img src="${item.logo}" alt="${item.code} Flag" loading="lazy" onerror="this.style.display='none'">` : ''}
+                        <span>${item.title}</span>
+                    </div>
+                    <div class="rates-flex home-official-rate-row">
+                        <div class="rate-block home-official-rate-block">
+                            <div class="rate-label">კურსი</div>
+                            <div class="home-official-values">
+                                <span class="rate-value buy">${item.rate}</span>
+                                <span class="rate-value home-official-change ${item.changeClass}">${item.change}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        const nbgChartState = {
+            activeType: 'usdgel',
+            periodByType: { usdgel: '1w', eurusd: '1w' },
+            pairByType: { usdgel: 'USDGEL', eurusd: 'EURUSD' },
+            charts: {},
+            dataCache: {}
+        };
+
+        const nbgChartMeta = {
+            usdgel: {
+                title: 'ქართული ლარი vs უცხოური ვალუტები',
+                inlineCanvasId: 'home-nbg-usd-chart',
+                inlinePanelId: 'home-nbg-chart-panel',
+                loaderId: 'home-nbg-chart-loading',
+                buttonClass: 'home-usdgel-period-btn',
+                selectId: 'home-gel-pair-select',
+                subtitleId: 'home-gel-chart-subtitle',
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.14)',
+                yDigits: 2,
+                tooltipDigits: 4
+            },
+            eurusd: {
+                title: 'Forex კურსები',
+                inlineCanvasId: 'home-eurusd-chart',
+                inlinePanelId: 'home-eurusd-chart-panel',
+                loaderId: 'home-eurusd-chart-loading',
+                buttonClass: 'home-eurusd-period-btn',
+                selectId: 'home-cross-pair-select',
+                subtitleId: 'home-cross-chart-subtitle',
+                borderColor: '#34d399',
+                backgroundColor: 'rgba(52, 211, 153, 0.14)',
+                yDigits: 3,
+                tooltipDigits: 4
+            }
+        };
+
+        const nbgChartPeriods = {
+            '1w': { days: 7, stepDays: 1 },
+            '1m': { months: 1, stepDays: 1 },
+            '3m': { months: 3, stepDays: 3 },
+            '1y': { months: 12, stepDays: 7 },
+            '5y': { months: 60, stepDays: 30 }
+        };
+
+        function formatDateForApi(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function formatChartLabel(dateStr, compact = true) {
+            const date = new Date(`${dateStr}T00:00:00`);
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yy = String(date.getFullYear()).slice(-2);
+            return compact ? `${dd}/${mm}/${yy}` : `${dd}/${mm}/${date.getFullYear()}`;
+        }
+
+        function getNbgSampleDates(period) {
+            const config = nbgChartPeriods[period] || nbgChartPeriods['1m'];
+            const end = new Date();
+            const start = new Date();
+            if (config.days) {
+                start.setDate(start.getDate() - config.days);
+            } else {
+                start.setMonth(start.getMonth() - config.months);
+            }
+
+            const dates = [];
+            const cursor = new Date(start);
+            while (cursor <= end) {
+                dates.push(formatDateForApi(cursor));
+                cursor.setDate(cursor.getDate() + config.stepDays);
+            }
+            const todayStr = formatDateForApi(end);
+            if (dates[dates.length - 1] !== todayStr) dates.push(todayStr);
+            return dates;
+        }
+
+        async function fetchNbgRatesForDate(dateStr) {
+            const baseDate = new Date(`${dateStr}T00:00:00`);
+            for (let i = 0; i < 5; i++) {
+                const d = new Date(baseDate);
+                d.setDate(d.getDate() - i);
+                const queryDate = formatDateForApi(d);
+                const res = await fetch(`${API_NBG_URL}?date=${queryDate}`);
+                if (!res.ok) continue;
+                const data = await res.json();
+                const currencies = data?.[0]?.currencies || [];
+                const rates = { GEL: 1 };
+                currencies.forEach(currency => {
+                    const rate = Number(currency.rate);
+                    const quantity = Number(currency.quantity || 1);
+                    if (currency.code && rate && quantity) {
+                        rates[currency.code] = rate / quantity;
+                    }
+                });
+                if (rates.USD) {
+                    return {
+                        date: queryDate,
+                        rates
+                    };
+                }
+            }
+            return null;
+        }
+
+        function formatNbgPair(pair) {
+            if (!pair || pair.length < 6) return pair || '';
+            return `${pair.slice(0, 3)}/${pair.slice(3)}`;
+        }
+
+        function parseNbgPair(pair) {
+            const normalized = String(pair || '').replace('/', '').toUpperCase();
+            return {
+                base: normalized.slice(0, 3),
+                quote: normalized.slice(3, 6)
+            };
+        }
+
+        function valueFromNbgPoint(pair, point) {
+            const { base, quote } = parseNbgPair(pair);
+            const baseRate = point.rates?.[base];
+            const quoteRate = point.rates?.[quote];
+            if (!baseRate || !quoteRate) return null;
+            return Number((baseRate / quoteRate).toFixed(4));
+        }
+
+        async function loadNbgChartData(type, period, pair = nbgChartState.pairByType[type]) {
+            const cacheId = `${type}_${pair}_${period}`;
+            if (nbgChartState.dataCache[cacheId]) return nbgChartState.dataCache[cacheId];
+
+            const cacheKey = `cachedNbgChart_${cacheId}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    nbgChartState.dataCache[cacheId] = parsed;
+                    return parsed;
+                } catch {}
+            }
+
+            const samples = await Promise.all(getNbgSampleDates(period).map(fetchNbgRatesForDate));
+            const seen = new Set();
+            const points = samples
+                .filter(Boolean)
+                .map(point => ({ date: point.date, value: valueFromNbgPoint(pair, point) }))
+                .filter(point => point.value !== null)
+                .filter(point => {
+                    if (seen.has(point.date)) return false;
+                    seen.add(point.date);
+                    return true;
+                })
+                .sort((a, b) => a.date.localeCompare(b.date));
+
+            const data = {
+                labels: points.map(point => formatChartLabel(point.date)),
+                values: points.map(point => point.value)
+            };
+
+            if (data.values.length) {
+                nbgChartState.dataCache[cacheId] = data;
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+            }
+            return data;
+        }
+
+        function updateNbgPairText(type) {
+            const meta = nbgChartMeta[type];
+            const label = formatNbgPair(nbgChartState.pairByType[type]);
+            const subtitle = document.getElementById(meta.subtitleId);
+            if (subtitle) subtitle.textContent = label;
+            return label;
+        }
+
+        function setNbgChartLoading(type, isLoading) {
+            const loader = document.getElementById(nbgChartMeta[type]?.loaderId);
+            if (loader) loader.style.display = isLoading ? 'flex' : 'none';
+        }
+
+        function makeNbgChartConfig(type, data) {
+            const meta = nbgChartMeta[type] || nbgChartMeta.usdgel;
+            const label = formatNbgPair(nbgChartState.pairByType[type]);
+            return {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label,
+                        data: data.values,
+                        borderColor: meta.borderColor,
+                        backgroundColor: meta.backgroundColor,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `${label}: ${Number(ctx.raw).toFixed(meta.tooltipDigits)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8', maxTicksLimit: 7 },
+                            grid: { color: 'rgba(148, 163, 184, 0.12)' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8', callback: value => Number(value).toFixed(meta.yDigits) },
+                            grid: { color: 'rgba(148, 163, 184, 0.12)' }
+                        }
+                    }
+                }
+            };
+        }
+
+        function renderNbgChart(type, canvasId, data, chartKey) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || typeof Chart === 'undefined' || !data?.values?.length) return;
+            if (nbgChartState.charts[chartKey]) nbgChartState.charts[chartKey].destroy();
+            nbgChartState.charts[chartKey] = new Chart(canvas, makeNbgChartConfig(type, data));
+        }
+
+        function setNbgPeriodButtons(type, period) {
+            const selector = type === 'modal' ? '.home-modal-period-btn' : `.${nbgChartMeta[type].buttonClass}`;
+            document.querySelectorAll(selector).forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.period === period);
+            });
+        }
+
+        async function updateNbgChart(type, period = nbgChartState.periodByType[type]) {
+            if (!nbgChartMeta[type]) return;
+            nbgChartState.periodByType[type] = period;
+            const label = updateNbgPairText(type);
+            setNbgPeriodButtons(type, period);
+            if (nbgChartState.activeType === type) setNbgPeriodButtons('modal', period);
+            setNbgChartLoading(type, true);
+            try {
+                const data = await loadNbgChartData(type, period, nbgChartState.pairByType[type]);
+                renderNbgChart(type, nbgChartMeta[type].inlineCanvasId, data, `${type}InlineChart`);
+                if (nbgChartState.activeType === type) {
+                    const modalSubtitle = document.getElementById('home-chart-modal-subtitle');
+                    if (modalSubtitle) modalSubtitle.textContent = label;
+                    renderNbgChart(type, 'home-chart-modal-canvas', data, 'modalChart');
+                }
+            } catch (err) {
+                console.error(`${label} ჩარტის ჩატვირთვა ვერ მოხერხდა`, err);
+            } finally {
+                setNbgChartLoading(type, false);
+            }
+        }
+
+        function openNbgChartModal(type) {
+            const modal = document.getElementById('home-chart-modal');
+            if (!modal || !nbgChartMeta[type]) return;
+            nbgChartState.activeType = type;
+            const meta = nbgChartMeta[type];
+            const title = document.getElementById('home-chart-modal-title');
+            const subtitle = document.getElementById('home-chart-modal-subtitle');
+            if (title) title.textContent = meta.title;
+            if (subtitle) subtitle.textContent = formatNbgPair(nbgChartState.pairByType[type]);
+            setNbgPeriodButtons('modal', nbgChartState.periodByType[type]);
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            updateNbgChart(type, nbgChartState.periodByType[type]);
+            setTimeout(() => {
+                if (nbgChartState.charts.modalChart) nbgChartState.charts.modalChart.resize();
+            }, 60);
+        }
+
+        function initNbgCharts() {
+            if (typeof Chart === 'undefined') return;
+
+            const modal = document.getElementById('home-chart-modal');
+            const modalClose = document.getElementById('home-chart-modal-close');
+
+            Object.keys(nbgChartMeta).forEach(type => {
+                const panel = document.getElementById(nbgChartMeta[type].inlinePanelId);
+                if (panel) panel.addEventListener('click', () => openNbgChartModal(type));
+
+                const select = document.getElementById(nbgChartMeta[type].selectId);
+                if (select) {
+                    select.value = nbgChartState.pairByType[type];
+                    select.addEventListener('click', event => event.stopPropagation());
+                    select.addEventListener('change', event => {
+                        event.stopPropagation();
+                        nbgChartState.pairByType[type] = select.value;
+                        updateNbgChart(type, nbgChartState.periodByType[type]);
+                    });
+                }
+
+                document.querySelectorAll(`.${nbgChartMeta[type].buttonClass}`).forEach(btn => {
+                    btn.addEventListener('click', event => {
+                        event.stopPropagation();
+                        updateNbgChart(type, btn.dataset.period || '1w');
+                    });
+                });
+
+                updateNbgChart(type, nbgChartState.periodByType[type]);
+            });
+
+            document.querySelectorAll('.home-modal-period-btn').forEach(btn => {
+                btn.addEventListener('click', event => {
+                    event.stopPropagation();
+                    updateNbgChart(nbgChartState.activeType, btn.dataset.period || '1w');
+                });
+            });
+
+            const closeModal = () => {
+                if (!modal) return;
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            };
+
+            if (modalClose) modalClose.addEventListener('click', closeModal);
+            if (modal) {
+                modal.addEventListener('click', event => {
+                    if (event.target === modal) closeModal();
+                });
             }
         }
 
@@ -1024,6 +1548,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 if (currentTab === 'all') matchTab = true;
                 else if (currentTab === 'banks') matchTab = BANK_COMPANIES.includes(comp);
                 else if (currentTab === 'mfo') matchTab = MFO_COMPANIES.includes(comp);
+                else if (currentTab === 'kiosks') matchTab = KIOSK_COMPANIES.includes(comp);
                 
                 if (!matchTab) return false;
 
@@ -1183,6 +1708,18 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         function loadCachedData() {
             try {
+                const cachedIntlRatesHtml = localStorage.getItem('cachedIntlRatesHtml');
+                const intlContainer = document.querySelector('.intl-rates-list');
+                if (cachedIntlRatesHtml && intlContainer) {
+                    intlContainer.innerHTML = cachedIntlRatesHtml;
+                }
+
+                const cachedPopularAssetsHtml = localStorage.getItem('cachedPopularAssetsHtml');
+                const popularAssetsContainer = document.getElementById('popular-assets-list');
+                if (cachedPopularAssetsHtml && popularAssetsContainer) {
+                    popularAssetsContainer.innerHTML = cachedPopularAssetsHtml;
+                }
+
                 // Load main rates
                 const cachedRates = localStorage.getItem('cachedRatesData');
                 if (cachedRates) {
@@ -1202,33 +1739,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const cachedCrypto = localStorage.getItem('cachedCryptoData');
                 if (cachedCrypto) {
                     const crypto = JSON.parse(cachedCrypto);
-                    const cryptos = ['btc', 'eth', 'usdt', 'bnb', 'sol', 'usdc', 'xrp', 'doge', 'ton', 'ada'];
-                    
-                    const renderCrypto = (dataObj, elId) => {
-                        if (!dataObj) return;
-                        const el = document.getElementById(elId);
-                        if (!el) return;
-                        
-                        // Handle old cache format (string) vs new cache format (object with price/change)
-                        if (typeof dataObj === 'string') {
-                            el.innerHTML = `$ ${dataObj}`;
-                            return;
-                        }
-
-                        const changeVal = parseFloat(dataObj.change);
-                        let changeHtml = '';
-                        if (changeVal > 0) {
-                            changeHtml = `<span style="color: var(--buy-color); font-size: 0.65em; margin-left: 8px;">+${dataObj.change}%</span>`;
-                        } else if (changeVal < 0) {
-                            changeHtml = `<span style="color: var(--sell-color); font-size: 0.65em; margin-left: 8px;">${dataObj.change}%</span>`;
-                        } else {
-                            changeHtml = `<span style="color: var(--text-muted); font-size: 0.65em; margin-left: 8px;">0.0%</span>`;
-                        }
-                        
-                        el.innerHTML = `$ ${dataObj.price} ${changeHtml}`;
-                    };
-
-                    cryptos.forEach(c => renderCrypto(crypto[c], `crypto-${c}`));
+                    if (Array.isArray(crypto)) renderCryptoList(crypto);
                 }
                 
                 const cachedNBG = localStorage.getItem('cachedNBGData');
@@ -1246,8 +1757,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     if (nbg.date && setInnerText('nbg-date')) document.getElementById('nbg-date', nbg.date);
                     if (nbg.date && setInnerText('home-nbg-date')) document.getElementById('home-nbg-date', nbg.date);
+                    setHomeOfficialDateNote();
                     
                     setDisplay('nbg-rates-box', 'flex');
+                    if (Array.isArray(nbg.officialRates)) renderHomeOfficialRates(nbg.officialRates);
                 }
             } catch (err) {
                 console.error("ქეშის ჩატვირთვის შეცდომა:", err);
@@ -1504,6 +2017,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    bindMarketSearch();
+
+    initNbgCharts();
 });
 
 
