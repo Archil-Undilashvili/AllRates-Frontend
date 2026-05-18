@@ -12,7 +12,9 @@ function setDisplay(id, display) {
     if (el) el.style.display = display;
 }
 
-const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
+const API_MFO_URL = 'https://sheets-api-production-c989.up.railway.app/api/data';
+const API_GAS_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/latest';
+const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
@@ -206,6 +208,7 @@ const API_MFO_URL = 'https://sheets-api-t266.onrender.com/api/data';
         async function fetchRates() {
             fetchNBG();
             fetchCrypto();
+            fetchHomeGasMarketPrices();
                         // fetchCommodities();
             
             try {
@@ -486,7 +489,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 // --- NEW API CALL FOR GEORGIAN COMPANIES ---
                 let newApiData = [];
                 try {
-                    const newApiRes = await fetch('https://allrates-backend-api.onrender.com/api/rates/latest');
+                    const newApiRes = await fetch('https://allrates-backend-api-production.up.railway.app/api/rates/latest');
                     if (newApiRes.ok) {
                         const rawNewData = await newApiRes.json();
                         newApiData = rawNewData.map(item => {
@@ -841,6 +844,115 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             filterMarketList('crypto-rates-list', document.getElementById('crypto-search-input')?.value || '');
         }
 
+        const HOME_GAS_CATEGORIES = [
+            {
+                label: 'სუპერი',
+                match: text => (text.includes('სუპერ') || text.includes('super')) && !text.includes('premium') && !text.includes('პრემიუმ')
+            },
+            {
+                label: 'პრემიუმი',
+                match: text => text.includes('პრემიუმ') || text.includes('premium') || text.includes('avangard')
+            },
+            {
+                label: 'რეგულარი',
+                match: text => text.includes('რეგულარ') || text.includes('regular')
+            },
+            {
+                label: 'დიზელი',
+                match: text => text.includes('დიზელ') || text.includes('diesel')
+            },
+            {
+                label: 'თხევადი გაზი',
+                match: text => (text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
+            }
+        ];
+
+        function getHomeGasPrimaryPrice(price) {
+            if (price.standardPrice !== null && price.standardPrice !== undefined) return Number(price.standardPrice);
+            if (price.price !== null && price.price !== undefined) return Number(price.price);
+            return NaN;
+        }
+
+        function getHomeGasComparablePrice(price) {
+            const values = [];
+            const primary = getHomeGasPrimaryPrice(price);
+
+            if (Number.isFinite(primary) && primary > 0) values.push(primary);
+            if (Number(price.selfServicePrice) > 0) values.push(Number(price.selfServicePrice));
+            if (Number(price.onlinePrice) > 0) values.push(Number(price.onlinePrice));
+
+            return values.length ? Math.min(...values) : NaN;
+        }
+
+        function renderHomeGasMarketPrices(records) {
+            const container = document.getElementById('home-gas-rates-list');
+            if (!container) return;
+
+            const rows = HOME_GAS_CATEGORIES.map(category => {
+                const companyBestPrices = [];
+
+                (records || []).forEach(record => {
+                    const prices = Array.isArray(record.prices) ? record.prices : [];
+                    const companyCategoryPrices = prices
+                        .filter(price => category.match(`${price.product || ''} ${price.productEng || ''} ${price.code || ''}`.toLowerCase()))
+                        .map(getHomeGasComparablePrice)
+                        .filter(value => Number.isFinite(value) && value > 0);
+
+                    if (companyCategoryPrices.length) {
+                        companyBestPrices.push(Math.min(...companyCategoryPrices));
+                    }
+                });
+
+                const average = companyBestPrices.length
+                    ? companyBestPrices.reduce((sum, value) => sum + value, 0) / companyBestPrices.length
+                    : null;
+
+                return { label: category.label, average };
+            });
+
+            container.innerHTML = rows.map(row => `
+                <div class="intl-rate-item home-gas-rate-item" data-market-search="${row.label.toLowerCase()}">
+                    <span class="intl-pair home-gas-pair">${row.label}</span>
+                    <span class="intl-value home-gas-value">${row.average ? `${row.average.toFixed(2)} ₾` : '- - -'}</span>
+                </div>
+            `).join('');
+        }
+
+        async function fetchHomeGasMarketPrices() {
+            const container = document.getElementById('home-gas-rates-list');
+            if (!container) return;
+            let hasCachedGas = false;
+
+            try {
+                const cached = JSON.parse(localStorage.getItem(HOME_GAS_CACHE_KEY) || 'null');
+                if (Array.isArray(cached?.records) && cached.records.length) {
+                    renderHomeGasMarketPrices(cached.records);
+                    hasCachedGas = true;
+                }
+            } catch {
+                localStorage.removeItem(HOME_GAS_CACHE_KEY);
+            }
+
+            try {
+                const response = await fetch(API_GAS_URL, { headers: { accept: 'application/json' } });
+                if (!response.ok) throw new Error(`Gas API error: ${response.status}`);
+
+                const records = await response.json();
+                renderHomeGasMarketPrices(records);
+                localStorage.setItem(HOME_GAS_CACHE_KEY, JSON.stringify({ records, updatedAt: Date.now() }));
+            } catch (error) {
+                console.error('საწვავის საბაზრო ფასების ჩატვირთვის შეცდომა:', error);
+                if (!hasCachedGas) {
+                    container.innerHTML = `
+                        <div class="intl-rate-item home-gas-rate-item">
+                            <span class="intl-pair">საწვავის ფასები</span>
+                            <span class="intl-value">- - -</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
         function bindMarketSearch() {
             document.querySelectorAll('.market-search-toggle').forEach(toggle => {
                 const panel = document.getElementById(toggle.dataset.searchPanel);
@@ -861,6 +973,42 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
                 input.addEventListener('input', () => filterMarketList(input.dataset.filterList, input.value));
             });
+        }
+
+        function bindHomeMarketScrollControls() {
+            const frame = document.querySelector('.home-market-scroll-frame');
+            const scroller = document.querySelector('.home-market-scroll');
+            const leftButton = document.querySelector('.home-market-arrow-left');
+            const rightButton = document.querySelector('.home-market-arrow-right');
+            if (!frame || !scroller || !leftButton || !rightButton) return;
+
+            const getStep = () => {
+                const card = scroller.querySelector('.home-card-uniform');
+                const gap = Number.parseFloat(getComputedStyle(scroller).gap) || 0;
+                return card ? card.getBoundingClientRect().width + gap : scroller.clientWidth * 0.8;
+            };
+
+            const updateControls = () => {
+                const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+                const hasLeft = scroller.scrollLeft > 4;
+                const hasRight = maxScroll > 4 && scroller.scrollLeft < maxScroll - 4;
+
+                frame.classList.toggle('has-left-scroll', hasLeft);
+                frame.classList.toggle('has-right-scroll', hasRight);
+            };
+
+            leftButton.addEventListener('click', () => {
+                scroller.scrollBy({ left: -getStep(), behavior: 'smooth' });
+            });
+
+            rightButton.addEventListener('click', () => {
+                scroller.scrollBy({ left: getStep(), behavior: 'smooth' });
+            });
+
+            updateControls();
+            scroller.addEventListener('scroll', updateControls, { passive: true });
+            window.addEventListener('resize', updateControls);
+            setTimeout(updateControls, 400);
         }
 
         function filterMarketList(listId, value) {
@@ -2019,6 +2167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     bindMarketSearch();
+    bindHomeMarketScrollControls();
 
     initNbgCharts();
 });

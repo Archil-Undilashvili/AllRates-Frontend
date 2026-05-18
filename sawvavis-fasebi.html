@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>საწვავის ფასები საქართველოში | AllRates.ge</title>
+    <meta name="description" content="შეადარე საწვავის ფასები საქართველოში: Gulf, Wissol, Socar, Rompetrol, Lukoil და Portal-ის ბენზინისა და დიზელის მიმდინარე ფასები.">
+    <link rel="canonical" href="https://allrates.ge/sawvavis-fasebi">
+    <meta property="og:title" content="საწვავის ფასები საქართველოში | AllRates.ge">
+    <meta property="og:description" content="ერთ გვერდზე ნახე საქართველოში საწვავის კომპანიების მიმდინარე ფასები.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://allrates.ge/sawvavis-fasebi">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<script src="js/header.js"></script>
+
+<main class="gas-page-shell">
+    <div class="gas-toolbar">
+        <div>
+            <span class="gas-status-dot"></span>
+            <span id="gas-updated-label">ფასები იტვირთება...</span>
+        </div>
+        <a href="/rates" class="gas-back-link" id="gas-back-link">შეადარე კურსები</a>
+    </div>
+
+    <section class="gas-best-section" aria-labelledby="gas-best-title">
+        <article class="gas-best-panel">
+            <div class="gas-section-head">
+                <p class="gas-section-eyebrow">საუკეთესო ფასები</p>
+                <h1 id="gas-best-title">საწვავის ფასები</h1>
+            </div>
+            <div id="gas-best-grid" class="gas-best-grid"></div>
+        </article>
+    </section>
+
+    <div id="gas-loader" class="loader gas-loader">⛽ საწვავის ფასები იტვირთება...</div>
+    <div id="gas-error" class="error gas-error" style="display: none;">საწვავის ფასების ჩატვირთვა ვერ მოხერხდა.</div>
+    <section id="gas-companies-grid" class="gas-companies-grid" aria-live="polite"></section>
+</main>
+
+<script src="js/footer.js"></script>
+
+<script>
+const GAS_API_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/latest';
+const GAS_PAGE_CACHE_KEY = 'allrates_gas_page_cache_v1';
+
+const GAS_COMPANIES = [
+    { key: 'Gulf', name: 'Gulf', logo: 'Logos/gas/gulf.png' },
+    { key: 'Wissol', name: 'Wissol', logo: 'Logos/gas/wissol.svg' },
+    { key: 'Socar', name: 'Socar', logo: 'Logos/gas/socar.svg' },
+    { key: 'Rompetrol', name: 'Rompetrol', logo: 'Logos/gas/rompetrol.png' },
+    { key: 'Lukoil', name: 'Lukoil', logo: 'Logos/gas/lukoil.svg' },
+    { key: 'Portal', name: 'Portal', logo: 'Logos/gas/portal.ico', fallback: 'Portal' }
+];
+
+const GAS_BEST_CATEGORIES = [
+    {
+        key: 'super',
+        label: 'სუპერი',
+        match: text => (text.includes('სუპერ') || text.includes('super')) && !text.includes('premium') && !text.includes('პრემიუმ')
+    },
+    {
+        key: 'premium',
+        label: 'პრემიუმი',
+        match: text => text.includes('პრემიუმ') || text.includes('premium') || text.includes('avangard')
+    },
+    {
+        key: 'regular',
+        label: 'რეგულარი',
+        match: text => text.includes('რეგულარ') || text.includes('regular')
+    },
+    {
+        key: 'diesel',
+        label: 'დიზელი',
+        match: text => text.includes('დიზელ') || text.includes('diesel')
+    },
+    {
+        key: 'lpg',
+        label: 'თხევადი გაზი',
+        match: text => (text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
+    }
+];
+
+const GAS_COMPANY_META = new Map(GAS_COMPANIES.map(company => [company.key, company]));
+
+function formatGasPrice(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number.toFixed(2) : '—';
+}
+
+function getPrimaryPrice(price) {
+    if (price.standardPrice !== null && price.standardPrice !== undefined) return price.standardPrice;
+    if (price.price !== null && price.price !== undefined) return price.price;
+    return null;
+}
+
+function getSecondaryPrice(price) {
+    if (price.selfServicePrice !== null && price.selfServicePrice !== undefined) {
+        return { label: 'თვითმომსახურება', value: price.selfServicePrice };
+    }
+
+    if (price.onlinePrice !== null && price.onlinePrice !== undefined) {
+        return { label: 'ონლაინ', value: price.onlinePrice };
+    }
+
+    return null;
+}
+
+function getBestComparablePrice(price) {
+    const options = [];
+    const primary = getPrimaryPrice(price);
+    const secondary = getSecondaryPrice(price);
+
+    if (Number(primary) > 0) {
+        options.push({ label: 'ძირითადი ფასი', value: Number(primary) });
+    }
+
+    if (secondary && Number(secondary.value) > 0) {
+        options.push({ label: secondary.label, value: Number(secondary.value) });
+    }
+
+    return options.sort((a, b) => a.value - b.value)[0] || null;
+}
+
+function getProductText(price) {
+    return `${price.product || ''} ${price.productEng || ''} ${price.code || ''}`.toLowerCase();
+}
+
+function findCategoryGasPrices(records) {
+    return GAS_BEST_CATEGORIES.map(category => {
+        const byCompany = new Map();
+
+        records.forEach(record => {
+            const company = GAS_COMPANY_META.get(record.company) || { key: record.company, name: record.company, fallback: record.company };
+            const prices = Array.isArray(record.prices) ? record.prices : [];
+
+            prices.forEach(price => {
+                if (!category.match(getProductText(price))) return;
+
+                const comparable = getBestComparablePrice(price);
+                if (!comparable) return;
+
+                const existing = byCompany.get(company.key);
+                if (!existing || comparable.value < existing.value) {
+                    byCompany.set(company.key, {
+                        value: comparable.value,
+                        priceType: comparable.label,
+                        product: price.product || price.productEng || category.label,
+                        company
+                    });
+                }
+            });
+        });
+
+        return {
+            ...category,
+            prices: Array.from(byCompany.values()).sort((a, b) => a.value - b.value)
+        };
+    });
+}
+
+function renderBestPrices(records) {
+    const bestGrid = document.getElementById('gas-best-grid');
+    if (!bestGrid) return;
+
+    bestGrid.innerHTML = findCategoryGasPrices(records).map(category => {
+        if (!category.prices.length) {
+            return `
+                <section class="gas-best-category-block">
+                    <h2>${category.label}</h2>
+                    <div class="gas-best-empty">ფასი ვერ მოიძებნა</div>
+                </section>
+            `;
+        }
+
+        return `
+            <section class="gas-best-category-block">
+                <h2>${category.label}</h2>
+                <div class="gas-best-rows">
+                    ${category.prices.map((entry, index) => `
+                        <div class="gas-best-row ${index === 0 ? 'is-best' : ''}">
+                            <div class="gas-best-company-line">
+                                <span class="gas-best-rank">${index + 1}</span>
+                                <div class="gas-logo-box gas-best-logo">
+                                    ${entry.company.logo ? `<img src="${entry.company.logo}" alt="${entry.company.name} logo" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">` : ''}
+                                    <span class="gas-logo-fallback">${entry.company.fallback || entry.company.name}</span>
+                                </div>
+                                <div class="gas-best-company">
+                                    <strong>${entry.company.name}</strong>
+                                    <span>${entry.product}</span>
+                                </div>
+                            </div>
+                            <div class="gas-best-price">
+                                <strong>${formatGasPrice(entry.value)} ₾</strong>
+                                <span>${entry.priceType}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </section>
+        `;
+    }).join('');
+}
+
+function renderGasCompany(company, apiRecord) {
+    const prices = Array.isArray(apiRecord && apiRecord.prices) ? apiRecord.prices : [];
+    const updatedAt = apiRecord && (apiRecord.tbilisiDateString || apiRecord.createdAt || apiRecord.fetchedAt);
+
+    return `
+        <article class="gas-company-card">
+            <div class="gas-company-head">
+                <div class="gas-logo-box">
+                    <img src="${company.logo}" alt="${company.name} logo" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="gas-logo-fallback">${company.fallback || company.name}</span>
+                </div>
+                <div>
+                    <h2>${company.name}</h2>
+                    <p>${updatedAt ? `განახლებულია: ${updatedAt}` : 'მონაცემები დროებით მიუწვდომელია'}</p>
+                </div>
+            </div>
+            <div class="gas-products-list">
+                ${prices.length ? prices.map(price => {
+                    const secondary = getSecondaryPrice(price);
+                    return `
+                        <div class="gas-product-row">
+                            <div class="gas-product-name">
+                                <strong>${price.product || price.productEng || 'პროდუქტი'}</strong>
+                                ${price.code ? `<span>${price.code}</span>` : ''}
+                            </div>
+                            <div class="gas-product-price">
+                                <strong>${formatGasPrice(getPrimaryPrice(price))} ₾</strong>
+                                ${secondary ? `<span>${secondary.label}: ${formatGasPrice(secondary.value)} ₾</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('') : '<div class="gas-empty-state">ფასები ჯერ არ არის ჩატვირთული.</div>'}
+            </div>
+        </article>
+    `;
+}
+
+function renderGasPageRecords(records) {
+    const grid = document.getElementById('gas-companies-grid');
+    const updatedLabel = document.getElementById('gas-updated-label');
+    if (!grid || !updatedLabel) return;
+
+    const byCompany = new Map(records.map(record => [record.company, record]));
+
+    renderBestPrices(records);
+
+    grid.innerHTML = GAS_COMPANIES
+        .map(company => renderGasCompany(company, byCompany.get(company.key)))
+        .join('');
+
+    const latestDate = records
+        .map(record => record.createdAt || record.fetchedAt)
+        .filter(Boolean)
+        .sort()
+        .pop();
+
+    updatedLabel.textContent = latestDate
+        ? `ბოლო განახლება: ${new Date(latestDate).toLocaleString('ka-GE', { timeZone: 'Asia/Tbilisi' })}`
+        : 'ფასები განახლებულია';
+}
+
+async function loadGasPrices() {
+    const loader = document.getElementById('gas-loader');
+    const error = document.getElementById('gas-error');
+    const updatedLabel = document.getElementById('gas-updated-label');
+    let hasCachedGas = false;
+
+    try {
+        const cached = JSON.parse(localStorage.getItem(GAS_PAGE_CACHE_KEY) || 'null');
+        if (Array.isArray(cached?.records) && cached.records.length) {
+            renderGasPageRecords(cached.records);
+            hasCachedGas = true;
+            loader.style.display = 'none';
+            error.style.display = 'none';
+        }
+    } catch {
+        localStorage.removeItem(GAS_PAGE_CACHE_KEY);
+    }
+
+    try {
+        const response = await fetch(GAS_API_URL, { headers: { accept: 'application/json' } });
+        if (!response.ok) throw new Error(`Gas API error: ${response.status}`);
+
+        const records = await response.json();
+        renderGasPageRecords(records);
+        localStorage.setItem(GAS_PAGE_CACHE_KEY, JSON.stringify({ records, updatedAt: Date.now() }));
+
+        loader.style.display = 'none';
+        error.style.display = 'none';
+    } catch (err) {
+        loader.style.display = 'none';
+        error.style.display = hasCachedGas ? 'none' : 'block';
+        if (!hasCachedGas) updatedLabel.textContent = 'მონაცემები ვერ ჩაიტვირთა';
+        console.error('Gas prices load error:', err);
+    }
+}
+
+function getLocalGasHref(path) {
+    const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+    if (!isLocal) return path;
+    if (path === '/') return 'index.html';
+
+    const [pagePath, hash] = path.split('#');
+    const localPath = `${pagePath.replace(/^\//, '')}.html`;
+    return hash ? `${localPath}#${hash}` : localPath;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const backLink = document.getElementById('gas-back-link');
+    if (backLink) backLink.href = getLocalGasHref('/rates');
+    loadGasPrices();
+});
+</script>
+</body>
+</html>

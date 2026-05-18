@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const authBtn = document.getElementById("authBtn");
     const apiOrigin = window.ALLRATES_API_ORIGIN
-        || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api.onrender.com");
+        || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api-production.up.railway.app");
     const API_URL = `${apiOrigin}/api/auth`;
 
     const modalHTML = `

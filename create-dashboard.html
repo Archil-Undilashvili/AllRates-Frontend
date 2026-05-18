@@ -101,7 +101,7 @@
             const token = localStorage.getItem("token");
             const status = document.getElementById("userSpaceStatus");
             const apiOrigin = window.ALLRATES_API_ORIGIN
-                || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api.onrender.com");
+                || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api-production.up.railway.app");
 
             if (!token) {
                 window.location.href = "/";
@@ -195,7 +195,7 @@
             { name: "Tesla", aliases: ["tsla", "tesla"], value: "—", logo: "Logos/TSLA.png" },
             { name: "NVIDIA", aliases: ["nvda", "nvidia"], value: "—", logo: "Logos/NVDA.png" }
         ];
-        const ASSETS_API_URL = "https://sheets-api-t266.onrender.com/api/data";
+        const ASSETS_API_URL = "https://sheets-api-production-c989.up.railway.app/api/data";
         const DASHBOARD_SLOT_KEYS = ["company", "forex", "crypto", "asset"];
 
         function escapeHtml(value) {
@@ -591,7 +591,7 @@
             const list = document.getElementById("companyPickerList");
             try {
                 let res = await fetch(`${apiOrigin}/api/rates/latest`);
-                if (!res.ok) res = await fetch("https://allrates-backend-api.onrender.com/api/rates/latest");
+                if (!res.ok) res = await fetch("https://allrates-backend-api-production.up.railway.app/api/rates/latest");
                 const data = await res.json();
                 const rows = [];
 

@@ -654,7 +654,7 @@
                 }
             }
 
-            const comRes = await fetch('https://allrates-backend-api.onrender.com/api/rates/latest');
+            const comRes = await fetch('https://allrates-backend-api-production.up.railway.app/api/rates/latest');
             if (comRes.ok) {
                 commercialRates = await comRes.json();
             }

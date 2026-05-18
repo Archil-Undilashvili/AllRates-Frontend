@@ -33,7 +33,7 @@
             const token = localStorage.getItem("token");
             const status = document.getElementById("userSpaceStatus");
             const apiOrigin = window.ALLRATES_API_ORIGIN
-                || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api.onrender.com");
+                || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api-production.up.railway.app");
 
             if (!token) {
                 window.location.href = "/";

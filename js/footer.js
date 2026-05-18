@@ -1,28 +1,41 @@
+const isFooterLocalPreview = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+
+function getFooterHref(path) {
+    if (!isFooterLocalPreview) return path;
+    if (path === '/') return 'index.html';
+    if (path === '/#faq') return 'index.html#faq';
+
+    const [pagePath, hash] = path.split('#');
+    const localPath = `${pagePath.replace(/^\//, '')}.html`;
+    return hash ? `${localPath}#${hash}` : localPath;
+}
+
 document.write(`
 <footer class="allrates-footer">
     <div class="allrates-footer-grid">
         <div class="allrates-footer-column">
             <h4>ნავიგაცია</h4>
             <ul>
-                <li><a href="/">მთავარი</a></li>
-                <li><a href="/rates">შეადარე კურსები</a></li>
-                <li><a href="/calculator">კონვერტაციის კალკულატორი</a></li>
-                <li><a href="/official">ოფიციალური კურსები</a></li>
-                <li><a href="/valutis-kursebi-dges">NBG სტატისტიკა</a></li>
-                <li><a href="/#faq">FAQ</a></li>
-                <li><a href="/contact">კონტაქტი</a></li>
+                <li><a href="${getFooterHref('/')}">მთავარი</a></li>
+                <li><a href="${getFooterHref('/rates')}">შეადარე კურსები</a></li>
+                <li><a href="${getFooterHref('/sawvavis-fasebi')}">საწვავის ფასები</a></li>
+                <li><a href="${getFooterHref('/calculator')}">კონვერტაციის კალკულატორი</a></li>
+                <li><a href="${getFooterHref('/official')}">ოფიციალური კურსები</a></li>
+                <li><a href="${getFooterHref('/#faq')}">FAQ</a></li>
+                <li><a href="${getFooterHref('/contact')}">კონტაქტი</a></li>
             </ul>
         </div>
 
         <div class="allrates-footer-column">
             <h4>პოპულარული გვერდები</h4>
             <ul>
-                <li><a href="/valutis-kursi">ვალუტის კურსი</a></li>
-                <li><a href="/dolaris-kursi">დოლარის კურსი</a></li>
-                <li><a href="/evros-kursi">ევროს კურსი</a></li>
-                <li><a href="/laris-kursi">ლარის კურსი</a></li>
-                <li><a href="/valutis-gacvla">ვალუტის გაცვლა</a></li>
-                <li><a href="/bitcoinis-fasi">ბიტკოინის ფასი</a></li>
+                <li><a href="${getFooterHref('/valutis-kursi')}">ვალუტის კურსი</a></li>
+                <li><a href="${getFooterHref('/dolaris-kursi')}">დოლარის კურსი</a></li>
+                <li><a href="${getFooterHref('/evros-kursi')}">ევროს კურსი</a></li>
+                <li><a href="${getFooterHref('/laris-kursi')}">ლარის კურსი</a></li>
+                <li><a href="${getFooterHref('/valutis-gacvla')}">ვალუტის გაცვლა</a></li>
+                <li><a href="${getFooterHref('/bitcoinis-fasi')}">ბიტკოინის ფასი</a></li>
+                <li><a href="${getFooterHref('/valutis-kursebi-dges')}">NBG სტატისტიკა</a></li>
             </ul>
         </div>
 
