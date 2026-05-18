@@ -60,7 +60,7 @@ document.write(`
                 კონვერტაციის კალკულატორი
             </a>
             <a href="${getPreviewHref('/official')}" class="nav-link nav-link-with-note" data-page="official">
-                <img src="Logos/nbg_logo_new.jpg" alt="" class="nav-link-logo">
+                <img src="Logos/nbg_logo_cropped.png" alt="" class="nav-link-logo">
                 ოფიციალური კურსები <span>(ჩამოტვირთე xlsx.)</span>
             </a>
             <a href="${getPreviewHref('/contact')}" class="nav-link" data-page="contact">

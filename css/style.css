@@ -156,8 +156,8 @@
         .nav-link-logo {
             object-fit: contain;
             border-radius: 50%;
-            background: #ffffff;
-            padding: 2px;
+            background: transparent;
+            padding: 0;
             box-sizing: border-box;
         }
 
@@ -2016,6 +2016,7 @@
         .gas-page-shell {
             width: 100%;
             max-width: 1280px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
             gap: 18px;
@@ -2661,8 +2662,8 @@
         .home-title-logo {
             object-fit: contain;
             border-radius: 50%;
-            background: #ffffff;
-            padding: 2px;
+            background: transparent;
+            padding: 0;
             box-sizing: border-box;
         }
 
