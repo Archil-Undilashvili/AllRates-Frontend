@@ -14,6 +14,8 @@ function setDisplay(id, display) {
 
 const API_MFO_URL = 'https://sheets-api-production-c989.up.railway.app/api/data';
 const API_GAS_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/latest';
+const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v2';
+const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
 const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
@@ -396,10 +398,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 renderRates(intlRates, intlContainer, true);
                                 renderRates(popularAssetsRates, popularAssetsContainer, false);
                                 if (intlContainer && intlContainer.innerHTML.trim()) {
-                                    localStorage.setItem('cachedIntlRatesHtml', intlContainer.innerHTML);
+                                    localStorage.setItem(CACHE_INTL_RATES_HTML_KEY, intlContainer.innerHTML);
                                 }
                                 if (popularAssetsContainer && popularAssetsContainer.innerHTML.trim()) {
-                                    localStorage.setItem('cachedPopularAssetsHtml', popularAssetsContainer.innerHTML);
+                                    localStorage.setItem(CACHE_POPULAR_ASSETS_HTML_KEY, popularAssetsContainer.innerHTML);
                                 }
                                 
                             })
@@ -475,10 +477,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 renderFallback(intlRates, intlContainer, true);
                                 renderFallback(popularAssetsRates, popularAssetsContainer, false);
                                 if (intlContainer && intlContainer.innerHTML.trim()) {
-                                    localStorage.setItem('cachedIntlRatesHtml', intlContainer.innerHTML);
+                                    localStorage.setItem(CACHE_INTL_RATES_HTML_KEY, intlContainer.innerHTML);
                                 }
                                 if (popularAssetsContainer && popularAssetsContainer.innerHTML.trim()) {
-                                    localStorage.setItem('cachedPopularAssetsHtml', popularAssetsContainer.innerHTML);
+                                    localStorage.setItem(CACHE_POPULAR_ASSETS_HTML_KEY, popularAssetsContainer.innerHTML);
                                 }
                                 
                             });
@@ -1856,13 +1858,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         function loadCachedData() {
             try {
-                const cachedIntlRatesHtml = localStorage.getItem('cachedIntlRatesHtml');
+                const cachedIntlRatesHtml = localStorage.getItem(CACHE_INTL_RATES_HTML_KEY);
                 const intlContainer = document.querySelector('.intl-rates-list');
                 if (cachedIntlRatesHtml && intlContainer) {
                     intlContainer.innerHTML = cachedIntlRatesHtml;
                 }
 
-                const cachedPopularAssetsHtml = localStorage.getItem('cachedPopularAssetsHtml');
+                const cachedPopularAssetsHtml = localStorage.getItem(CACHE_POPULAR_ASSETS_HTML_KEY);
                 const popularAssetsContainer = document.getElementById('popular-assets-list');
                 if (cachedPopularAssetsHtml && popularAssetsContainer) {
                     popularAssetsContainer.innerHTML = cachedPopularAssetsHtml;
