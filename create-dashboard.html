@@ -6,6 +6,15 @@
     <title>შექმენი დეშბორდი - AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KFQ7LLZ9EF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-KFQ7LLZ9EF');
+    </script>
 </head>
 <body>
     <script src="js/header.js"></script>
@@ -13,25 +22,7 @@
     <main class="dashboard-builder-page">
         <p id="userSpaceStatus" class="user-space-muted" style="margin: 0;"></p>
 
-        <div class="dashboard-view-filter" aria-label="დეშბორდის ბოქსების ფილტრი">
-            <div class="dashboard-filter-options">
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="company" checked>
-                    <span>კომპანიები</span>
-                </label>
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="forex" checked>
-                    <span>Forex კურსები</span>
-                </label>
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="crypto" checked>
-                    <span>კრიპტოები</span>
-                </label>
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="asset" checked>
-                    <span>პოპულარული აქტივები</span>
-                </label>
-            </div>
+        <div class="dashboard-action-bar">
             <div class="dashboard-save-wrap">
                 <span id="dashboardSaveStatus" class="dashboard-save-status" aria-live="polite"></span>
                 <button type="button" id="saveDashboardBtn" class="dashboard-save-btn" disabled>
@@ -45,63 +36,75 @@
             </div>
         </div>
 
-        <div class="dashboard-builder-grid" id="dashboardBuilderGrid">
-            <div class="dashboard-slot" data-slot="company">
-                <div class="dashboard-slot-top">
-                    <span>დაამატე კომპანია</span>
-                    <button type="button" class="dashboard-add-btn" aria-label="კომპანიის დამატება">+</button>
-                </div>
-                <div class="dashboard-slot-items"></div>
-                <div class="dashboard-picker" hidden>
-                    <input type="search" class="dashboard-search" placeholder="მოძებნე კომპანია...">
-                    <div class="dashboard-picker-list" id="companyPickerList">იტვირთება...</div>
-                </div>
+        <div class="dashboard-view-filter" aria-label="დეშბორდის ბოქსების ფილტრი">
+            <div class="dashboard-filter-options">
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="company-usd" checked>
+                    <span>კომპანიები USD/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="company-eur">
+                    <span>კომპანიები EUR/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="company-gbp">
+                    <span>კომპანიები GBP/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="company-rub">
+                    <span>კომპანიები RUB/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="company-try">
+                    <span>კომპანიები TRY/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="market-usd">
+                    <span>საბაზრო USD/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="market-eur">
+                    <span>საბაზრო EUR/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="market-gbp">
+                    <span>საბაზრო GBP/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="market-rub">
+                    <span>საბაზრო RUB/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="market-try">
+                    <span>საბაზრო TRY/GEL</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="forex">
+                    <span>FOREX</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="crypto">
+                    <span>კრიპტოვალუტები</span>
+                </label>
+                <label class="dashboard-filter-option">
+                    <input type="checkbox" data-filter-slot="asset">
+                    <span>აქციები და სხვა</span>
+                </label>
             </div>
-
-            <div class="dashboard-slot" data-slot="forex">
-                <div class="dashboard-slot-top">
-                    <span>დაამატე Forex სავალუტო წყვილი</span>
-                    <button type="button" class="dashboard-add-btn" aria-label="Forex წყვილის დამატება">+</button>
-                </div>
-                <div class="dashboard-slot-items"></div>
-                <div class="dashboard-picker" hidden>
-                    <input type="search" class="dashboard-search" placeholder="მოძებნე Forex წყვილი...">
-                    <div class="dashboard-picker-list" id="forexPickerList">იტვირთება...</div>
-                </div>
-            </div>
-
-            <div class="dashboard-slot" data-slot="crypto">
-                <div class="dashboard-slot-top">
-                    <span>დაამატე კრიპტოვალუტა</span>
-                    <button type="button" class="dashboard-add-btn" aria-label="კრიპტოვალუტის დამატება">+</button>
-                </div>
-                <div class="dashboard-slot-items"></div>
-                <div class="dashboard-picker" hidden>
-                    <input type="search" class="dashboard-search" placeholder="მოძებნე კრიპტო...">
-                    <div class="dashboard-picker-list" id="cryptoPickerList">იტვირთება...</div>
-                </div>
-            </div>
-
-            <div class="dashboard-slot" data-slot="asset">
-                <div class="dashboard-slot-top">
-                    <span>დაამატე პოპულარული აქტივი</span>
-                    <button type="button" class="dashboard-add-btn" aria-label="აქტივის დამატება">+</button>
-                </div>
-                <div class="dashboard-slot-items"></div>
-                <div class="dashboard-picker" hidden>
-                    <input type="search" class="dashboard-search" placeholder="მოძებნე აქტივი...">
-                    <div class="dashboard-picker-list" id="assetPickerList">იტვირთება...</div>
-                </div>
-            </div>
+            <button type="button" id="dashboardFilterToggle" class="dashboard-filter-toggle" aria-expanded="true" aria-label="ფილტრის პანელის დაკეცვა">
+                <span>▲</span>
+            </button>
         </div>
+
+        <div class="dashboard-builder-grid" id="dashboardBuilderGrid"></div>
     </main>
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const status = document.getElementById("userSpaceStatus");
             const apiOrigin = window.ALLRATES_API_ORIGIN
-                || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api-production.up.railway.app");
+                || "https://allrates-backend-api-production.up.railway.app";
 
             if (!token) {
                 window.location.href = "/";
@@ -117,11 +120,16 @@
                 if (!res.ok) {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
+                    sessionStorage.removeItem("token");
+                    sessionStorage.removeItem("user");
                     window.location.href = "/";
                     return;
                 }
 
-                localStorage.setItem("user", JSON.stringify(data.user));
+                const userStorage = localStorage.getItem("token") ? localStorage : sessionStorage;
+                localStorage.removeItem("user");
+                sessionStorage.removeItem("user");
+                userStorage.setItem("user", JSON.stringify(data.user));
                 status.textContent = "";
                 await initDashboardBuilder(apiOrigin, token, data.user);
             } catch (error) {
@@ -196,7 +204,36 @@
             { name: "NVIDIA", aliases: ["nvda", "nvidia"], value: "—", logo: "Logos/NVDA.png" }
         ];
         const ASSETS_API_URL = "https://sheets-api-production-c989.up.railway.app/api/data";
-        const DASHBOARD_SLOT_KEYS = ["company", "forex", "crypto", "asset"];
+        const CURRENCY_CONFIG = {
+            usd: { code: "USD", pair: "USDGEL", title: "აშშ დოლარი", flag: "Logos/US.png", buy: ["usdBuy", "USDGEL (Buy)"], sell: ["usdSell", "USDGEL (Sell)"], spread: "usdSpread", digits: 3 },
+            eur: { code: "EUR", pair: "EURGEL", title: "ევრო", flag: "Logos/EU.png", buy: ["eurBuy", "EURGEL (Buy)"], sell: ["eurSell", "EURGEL (Sell)"], spread: "eurSpread", digits: 3 },
+            gbp: { code: "GBP", pair: "GBPGEL", title: "ფუნტი", flag: "Logos/GB.png", buy: ["gbpBuy", "GBPGEL (Buy)"], sell: ["gbpSell", "GBPGEL (Sell)"], spread: "gbpSpread", digits: 3 },
+            rub: { code: "RUB", pair: "RUBGEL", title: "რუბლი", flag: "Logos/RU.png", buy: ["rubBuy", "RUBGEL (Buy)"], sell: ["rubSell", "RUBGEL (Sell)"], spread: "rubSpread", digits: 4 },
+            try: { code: "TRY", pair: "TRYGEL", title: "ლირა", flag: "Logos/TR.png", buy: ["tryBuy", "TRYGEL (Buy)"], sell: ["trySell", "TRYGEL (Sell)"], spread: "trySpread", digits: 4 }
+        };
+        const DASHBOARD_SLOTS = [
+            ...Object.entries(CURRENCY_CONFIG).map(([currency, config]) => ({
+                key: `company-${currency}`,
+                kind: "company",
+                currency,
+                title: `კომპანიების კურსები (${config.code}/GEL)`,
+                addLabel: "კომპანიის დამატება",
+                searchPlaceholder: "მოძებნე კომპანია..."
+            })),
+            ...Object.entries(CURRENCY_CONFIG).map(([currency, config]) => ({
+                key: `market-${currency}`,
+                kind: "market",
+                currency,
+                title: `საბაზრო კურსები (${config.code}/GEL)`,
+                addLabel: "",
+                searchPlaceholder: ""
+            })),
+            { key: "forex", kind: "forex", title: "FOREX", addLabel: "Forex წყვილის დამატება", searchPlaceholder: "მოძებნე Forex წყვილი..." },
+            { key: "crypto", kind: "crypto", title: "კრიპტოვალუტები", addLabel: "კრიპტოვალუტის დამატება", searchPlaceholder: "მოძებნე კრიპტო..." },
+            { key: "asset", kind: "asset", title: "აქციები და სხვა", addLabel: "აქტივის დამატება", searchPlaceholder: "მოძებნე აქტივი..." }
+        ];
+        const DASHBOARD_SLOT_KEYS = DASHBOARD_SLOTS.map(slot => slot.key);
+        const DASHBOARD_MAX_VISIBLE = 5;
 
         function escapeHtml(value) {
             return String(value || "").replace(/[&<>"']/g, char => ({
@@ -236,32 +273,95 @@
 
         function rowHtml(item) {
             return `
-                <button type="button" class="dashboard-picker-row" data-id="${escapeHtml(item.id || "")}" data-kind="${escapeHtml(item.kind || "")}" data-search="${escapeHtml(item.search)}" data-rate="${escapeHtml(item.rate)}" data-buy="${escapeHtml(item.buy || "")}" data-sell="${escapeHtml(item.sell || "")}" data-selected-title="${escapeHtml(item.selectedTitle || item.title)}">
-                    <span class="dashboard-row-main">
-                        ${item.logoHtml}
-                        <span>
-                            <strong>${escapeHtml(item.title)}</strong>
-                            <small>${escapeHtml(item.subtitle || "")}</small>
-                        </span>
+                <button type="button" class="dashboard-picker-row" data-id="${escapeHtml(item.id || "")}" data-kind="${escapeHtml(item.kind || "")}" data-search="${escapeHtml(item.search)}" data-rate="${escapeHtml(item.rate)}" data-buy="${escapeHtml(item.buy || "")}" data-sell="${escapeHtml(item.sell || "")}" data-spread="${escapeHtml(item.spread || "")}" data-title="${escapeHtml(item.title || "")}" data-subtitle="${escapeHtml(item.subtitle || "")}" data-selected-title="${escapeHtml(item.selectedTitle || item.title)}">
+                        <span class="dashboard-row-main">
+                            <span>
+                                <strong>${escapeHtml(item.title)}</strong>
+                                <small>${escapeHtml(item.subtitle || "")}</small>
+                            </span>
                     </span>
                 </button>
             `;
         }
 
+        function renderDashboardShell() {
+            const grid = document.getElementById("dashboardBuilderGrid");
+            if (!grid) return;
+
+            grid.innerHTML = DASHBOARD_SLOTS.map(slot => {
+                const pickerId = `${slot.key}PickerList`;
+                const pickerMarkup = slot.kind === "market" ? "" : `
+                    <button type="button" class="dashboard-add-btn" aria-label="${escapeHtml(slot.addLabel)}">+</button>
+                    <div class="dashboard-picker" hidden>
+                        <input type="search" class="dashboard-search" placeholder="${escapeHtml(slot.searchPlaceholder)}">
+                        <div class="dashboard-picker-list" id="${escapeHtml(pickerId)}">იტვირთება...</div>
+                    </div>
+                `;
+
+                return `
+                    <div class="dashboard-slot" data-slot="${escapeHtml(slot.key)}" data-slot-kind="${escapeHtml(slot.kind)}" data-currency="${escapeHtml(slot.currency || "")}"${slot.key !== "company-usd" ? " hidden" : ""}>
+                        <div class="dashboard-slot-top">
+                            <span>${escapeHtml(slot.title)}</span>
+                            ${pickerMarkup}
+                        </div>
+                        <div class="dashboard-slot-items"></div>
+                    </div>
+                `;
+            }).join("");
+        }
+
         function selectedHtml(row) {
             const kind = row.dataset.kind || "";
-            const logo = row.querySelector(".dashboard-logo, .dashboard-flags")?.outerHTML || "";
             const selectedTitle = row.dataset.selectedTitle || "";
-            const main = kind === "company"
-                ? `${logo}<span><strong>${escapeHtml(selectedTitle)}</strong></span>`
-                : row.querySelector(".dashboard-row-main")?.innerHTML || "";
+            if (kind === "market") {
+                const title = row.dataset.title || selectedTitle;
+                const subtitle = row.dataset.subtitle || "";
+                const buy = row.dataset.buy || "-";
+                const sell = row.dataset.sell || "-";
+                const spread = row.dataset.spread || "-";
+                return `
+                    <div class="dashboard-selected-item dashboard-rate-card" data-id="${escapeHtml(row.dataset.id || "")}">
+                        <span class="dashboard-rate-card-head">
+                            <span>
+                                <strong>${escapeHtml(title)}</strong>
+                            </span>
+                        </span>
+                        <span class="dashboard-rate-card-values">
+                            <span><small>ყიდვა</small><b class="dashboard-rate-buy">${escapeHtml(buy)}</b></span>
+                            <span><small>გაყიდვა</small><b class="dashboard-rate-sell">${escapeHtml(sell)}</b></span>
+                            <span><small>სპრედი</small><b>${escapeHtml(spread)}</b></span>
+                        </span>
+                        ${kind === "company" ? itemMenuHtml() : ""}
+                    </div>
+                `;
+            }
+            if (kind === "company") {
+                const title = row.dataset.title || selectedTitle;
+                return `
+                    <div class="dashboard-selected-item dashboard-company-rate-row" data-id="${escapeHtml(row.dataset.id || "")}">
+                        <span class="dashboard-company-main">
+                            <strong>${escapeHtml(title)}</strong>
+                        </span>
+                        <span class="dashboard-company-values">
+                            <small>ყიდვა</small>
+                            <small>გაყიდვა</small>
+                            <small>სპრედი</small>
+                            <b class="dashboard-rate-buy">${escapeHtml(row.dataset.buy || "-")}</b>
+                            <b class="dashboard-rate-sell">${escapeHtml(row.dataset.sell || "-")}</b>
+                            <b class="dashboard-rate-spread">${escapeHtml(row.dataset.spread || "-")}</b>
+                        </span>
+                        ${itemMenuHtml()}
+                    </div>
+                `;
+            }
+            const displayTitle = kind === "asset"
+                ? (row.dataset.title || selectedTitle || row.dataset.id || "")
+                : (row.dataset.subtitle || row.dataset.title || selectedTitle || row.dataset.id || "");
             const rate = row.dataset.rate || "—";
-            const rateHtml = kind === "company"
-                ? `<span class="dashboard-rate-buy">${escapeHtml(row.dataset.buy || "-")}</span><span class="dashboard-rate-separator">/</span><span class="dashboard-rate-sell">${escapeHtml(row.dataset.sell || "-")}</span>`
-                : escapeHtml(rate);
+            const rateHtml = escapeHtml(rate);
             return `
                 <div class="dashboard-selected-item" data-id="${escapeHtml(row.dataset.id || "")}">
-                    <span class="dashboard-row-main">${main}</span>
+                    <span class="dashboard-row-main"><strong>${escapeHtml(displayTitle)}</strong></span>
                     <span class="dashboard-selected-side">
                         <span class="dashboard-row-rate">${rateHtml}</span>
                         <span class="dashboard-item-menu">
@@ -291,9 +391,38 @@
             `;
         }
 
+        function itemMenuHtml() {
+            return `
+                <span class="dashboard-item-menu">
+                    <button type="button" class="dashboard-item-menu-btn" aria-label="ფუნქციები">⋯</button>
+                    <span class="dashboard-item-dropdown">
+                        <button type="button" data-dashboard-action="delete">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 6h18"></path>
+                                <path d="M8 6V4h8v2"></path>
+                                <path d="M6 6l1 15h10l1-15"></path>
+                                <path d="M10 11v6"></path>
+                                <path d="M14 11v6"></path>
+                            </svg>
+                            <span>წაშლა</span>
+                        </button>
+                        <button type="button" data-dashboard-action="notify">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                                <path d="M10 21h4"></path>
+                            </svg>
+                            <span>შეტყობინება</span>
+                        </button>
+                    </span>
+                </span>
+            `;
+        }
+
         async function initDashboardBuilder(apiOrigin, token, user) {
+            renderDashboardShell();
             bindSlots();
             bindDashboardFilters();
+            bindFilterToggle();
             bindDashboardSave(apiOrigin, token, user);
             restoreDashboardCache(user);
             await Promise.allSettled([
@@ -312,6 +441,7 @@
                 const addButton = slot.querySelector(".dashboard-add-btn");
                 const picker = slot.querySelector(".dashboard-picker");
                 const search = slot.querySelector(".dashboard-search");
+                if (!addButton || !picker || !search) return;
 
                 addButton.addEventListener("click", event => {
                     event.stopPropagation();
@@ -372,6 +502,17 @@
             if (!grid || !filters.length) return;
 
             const updateVisibleSlots = changedFilter => {
+                if (changedFilter?.checked) {
+                    const checkedCount = filters.filter(filter => filter.checked).length;
+                    if (checkedCount > DASHBOARD_MAX_VISIBLE) {
+                        changedFilter.checked = false;
+                        setDashboardStatus("error", `მაქსიმუმ ${DASHBOARD_MAX_VISIBLE} ბოქსის არჩევაა შესაძლებელი`);
+                    }
+                }
+                filters.filter(filter => filter.checked).slice(DASHBOARD_MAX_VISIBLE).forEach(filter => {
+                    filter.checked = false;
+                });
+
                 const checkedFilters = filters.filter(filter => filter.checked);
                 if (!checkedFilters.length && changedFilter) changedFilter.checked = true;
 
@@ -383,8 +524,8 @@
                     if (filter.checked) visibleCount += 1;
                 });
 
-                const columns = Math.max(1, visibleCount);
-                grid.style.gridTemplateColumns = `repeat(${columns}, minmax(210px, 1fr))`;
+                const columns = Math.min(DASHBOARD_MAX_VISIBLE, Math.max(1, visibleCount));
+                grid.style.gridTemplateColumns = `repeat(${columns}, var(--dashboard-slot-width))`;
             };
 
             window.updateDashboardVisibleSlots = updateVisibleSlots;
@@ -394,6 +535,19 @@
             });
 
             updateVisibleSlots();
+        }
+
+        function bindFilterToggle() {
+            const panel = document.querySelector(".dashboard-view-filter");
+            const toggle = document.getElementById("dashboardFilterToggle");
+            if (!panel || !toggle) return;
+
+            toggle.addEventListener("click", () => {
+                const isCollapsed = panel.classList.toggle("is-collapsed");
+                toggle.setAttribute("aria-expanded", String(!isCollapsed));
+                toggle.setAttribute("aria-label", isCollapsed ? "ფილტრის პანელის გაშლა" : "ფილტრის პანელის დაკეცვა");
+                toggle.querySelector("span").textContent = isCollapsed ? "▼" : "▲";
+            });
         }
 
         function bindDashboardSave(apiOrigin, token, user) {
@@ -468,6 +622,8 @@
 
         function restoreDashboardItems(items) {
             DASHBOARD_SLOT_KEYS.forEach(slotKey => {
+                const slotConfig = DASHBOARD_SLOTS.find(slot => slot.key === slotKey);
+                if (slotConfig?.kind === "market") return;
                 const slot = document.querySelector(`[data-slot="${slotKey}"]`);
                 const selectedItems = slot?.querySelector(".dashboard-slot-items");
                 if (!slot || !selectedItems) return;
@@ -581,19 +737,49 @@
                     const slot = row.closest(".dashboard-slot");
                     const items = slot.querySelector(".dashboard-slot-items");
                     const picker = slot.querySelector(".dashboard-picker");
+                    const existing = items.querySelector(`.dashboard-selected-item[data-id="${cssEscape(row.dataset.id || "")}"]`);
+                    if (existing) {
+                        picker.hidden = true;
+                        return;
+                    }
                     items.insertAdjacentHTML("beforeend", selectedHtml(row));
                     picker.hidden = true;
                 });
             });
         }
 
+        function refreshSelectedItemsFromPicker(slotKey) {
+            const slot = document.querySelector(`[data-slot="${slotKey}"]`);
+            const items = slot?.querySelector(".dashboard-slot-items");
+            if (!slot || !items) return;
+
+            Array.from(items.querySelectorAll(".dashboard-selected-item")).forEach(item => {
+                const row = slot.querySelector(`.dashboard-picker-row[data-id="${cssEscape(item.dataset.id || "")}"]`);
+                if (row) item.outerHTML = selectedHtml(row);
+            });
+        }
+
+        async function fetchSheetRows() {
+            const res = await fetch(`${ASSETS_API_URL}?t=${Date.now()}`, { cache: "no-store" });
+            if (!res.ok) throw new Error("Sheets API unavailable");
+            const raw = await res.json();
+            if (raw.data && Array.isArray(raw.data)) {
+                const headers = raw.data[0] || [];
+                return raw.data.slice(1).map(row => {
+                    const obj = {};
+                    headers.forEach((header, index) => obj[header] = row[index]);
+                    return obj;
+                });
+            }
+            return Array.isArray(raw) ? raw : [];
+        }
+
         async function loadCompanyPicker(apiOrigin) {
-            const list = document.getElementById("companyPickerList");
             try {
                 let res = await fetch(`${apiOrigin}/api/rates/latest`);
                 if (!res.ok) res = await fetch("https://allrates-backend-api-production.up.railway.app/api/rates/latest");
                 const data = await res.json();
-                const rows = [];
+                const rowsByCurrency = Object.fromEntries(Object.keys(CURRENCY_CONFIG).map(currency => [currency, []]));
 
                 data.forEach(item => {
                     const key = companyKey(item);
@@ -601,58 +787,119 @@
                     const rawName = item.company || item.Company || key;
                     const logo = COMPANY_LOGOS[key] || "Logos/logo.jpg";
 
-                    COMPANY_PAIRS.forEach(pairConfig => {
+                    Object.entries(CURRENCY_CONFIG).forEach(([currency, pairConfig]) => {
                         const buy = readNumber(item, pairConfig.buy);
                         const sell = readNumber(item, pairConfig.sell);
                         if (!buy && !sell) return;
                         const buyText = buy ? buy.toFixed(pairConfig.digits) : "-";
                         const sellText = sell ? sell.toFixed(pairConfig.digits) : "-";
-                        rows.push({
+                        const spread = buy && sell ? sell - buy : null;
+                        rowsByCurrency[currency].push({
                             id: dashboardItemId("company", rawName, pairConfig.pair),
                             kind: "company",
-                            title: `${name} ${pairConfig.pair}`,
+                            title: name,
                             subtitle: pairConfig.pair,
-                            selectedTitle: pairConfig.pair,
+                            selectedTitle: name,
                             search: `${name} ${rawName} ${key} ${pairConfig.pair}`,
                             buy: buyText,
                             sell: sellText,
+                            spread: spread ? spread.toFixed(pairConfig.digits) : "-",
                             rate: `${buyText} / ${sellText}`,
                             logoHtml: `<span class="dashboard-logo"><img src="${logo}" alt="${escapeHtml(name)}" onerror="this.onerror=null;this.src='Logos/logo.jpg';"></span>`
                         });
                     });
                 });
 
-                list.innerHTML = rows.length ? rows.map(rowHtml).join("") : "კომპანიების კურსები ვერ მოიძებნა";
-                bindPickerRows(list);
+                Object.entries(rowsByCurrency).forEach(([currency, rows]) => {
+                    const list = document.getElementById(`company-${currency}PickerList`);
+                    if (!list) return;
+                    list.innerHTML = rows.length ? rows.map(rowHtml).join("") : "კომპანიების კურსები ვერ მოიძებნა";
+                    bindPickerRows(list);
+                });
+                renderMarketSlots(data);
             } catch (error) {
-                list.textContent = "კომპანიების სიის ჩატვირთვა ვერ მოხერხდა";
+                Object.keys(CURRENCY_CONFIG).forEach(currency => {
+                    const list = document.getElementById(`company-${currency}PickerList`);
+                    if (list) list.textContent = "კომპანიების სიის ჩატვირთვა ვერ მოხერხდა";
+                });
             }
+        }
+
+        function renderMarketSlots(data) {
+            Object.entries(CURRENCY_CONFIG).forEach(([currency, config]) => {
+                const slot = document.querySelector(`[data-slot="market-${currency}"]`);
+                const selectedItems = slot?.querySelector(".dashboard-slot-items");
+                if (!slot || !selectedItems) return;
+
+                const validItems = data.map(item => {
+                    const buy = readNumber(item, config.buy);
+                    const sell = readNumber(item, config.sell);
+                    const spread = buy && sell ? sell - buy : Number(item[config.spread]);
+                    return { buy, sell, spread };
+                }).filter(item => Number.isFinite(item.buy) && Number.isFinite(item.sell) && Number.isFinite(item.spread) && item.spread > 0);
+
+                validItems.sort((a, b) => a.spread - b.spread);
+                const topItems = validItems.slice(0, 10);
+                const count = topItems.length;
+                const avgBuy = count ? topItems.reduce((sum, item) => sum + item.buy, 0) / count : null;
+                const avgSell = count ? topItems.reduce((sum, item) => sum + item.sell, 0) / count : null;
+                const avgSpread = Number.isFinite(avgBuy) && Number.isFinite(avgSell) ? avgSell - avgBuy : null;
+
+                const fakeRow = document.createElement("button");
+                fakeRow.className = "dashboard-picker-row";
+                fakeRow.dataset.id = dashboardItemId("market", config.pair);
+                fakeRow.dataset.kind = "market";
+                fakeRow.dataset.title = `${config.code} / ${config.title}`;
+                fakeRow.dataset.subtitle = "საბაზრო საშუალო";
+                fakeRow.dataset.buy = Number.isFinite(avgBuy) ? avgBuy.toFixed(config.digits) : "-";
+                fakeRow.dataset.sell = Number.isFinite(avgSell) ? avgSell.toFixed(config.digits) : "-";
+                fakeRow.dataset.spread = Number.isFinite(avgSpread) ? avgSpread.toFixed(config.digits) : "-";
+                fakeRow.innerHTML = `<span class="dashboard-row-main"><span><strong>${config.code} / ${config.title}</strong><small>საბაზრო საშუალო</small></span></span>`;
+                selectedItems.innerHTML = selectedHtml(fakeRow);
+            });
         }
 
         async function loadForexPicker() {
             const list = document.getElementById("forexPickerList");
             try {
-                const res = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json");
-                const data = await res.json();
-                const rates = {};
-                Object.entries(data.eur || {}).forEach(([key, value]) => rates[key.toUpperCase()] = Number(value));
-                rates.EUR = 1;
+                const sheetRows = await fetchSheetRows();
+                const pairColumns = [
+                    ["Pair (Popular)", "Rate (Popular)"],
+                    ["Pair (vs USD)", "Rate (vs USD)"],
+                    ["Pair (vs EUR)", "Rate (vs EUR)"],
+                    ["Pair (vs GBP)", "Rate (vs GBP)"],
+                    ["Pair (vs CHF)", "Rate (vs CHF)"]
+                ];
+                const rateMap = new Map();
+                sheetRows.forEach(row => {
+                    pairColumns.forEach(([pairKey, rateKey]) => {
+                        const pair = String(row[pairKey] || "").trim().toUpperCase();
+                        const rate = Number(row[rateKey]);
+                        if (pair && Number.isFinite(rate)) rateMap.set(pair, rate);
+                    });
+                });
 
-                const rows = FOREX_PAIRS.map(pair => {
+                const orderedPairs = [
+                    ...FOREX_PAIRS,
+                    ...Array.from(rateMap.keys()).filter(pair => !FOREX_PAIRS.includes(pair))
+                ];
+                const rows = orderedPairs.map(pair => {
                     const base = pair.slice(0, 3);
                     const quote = pair.slice(3, 6);
-                    const value = rates[base] && rates[quote] ? rates[quote] / rates[base] : null;
+                    const value = rateMap.get(pair);
                     return {
                         id: dashboardItemId("forex", pair),
+                        kind: "forex",
                         title: pair,
                         subtitle: `${base}/${quote}`,
                         search: `${pair} ${base} ${quote}`,
-                        rate: value ? value.toFixed(4) : "—",
+                        rate: Number.isFinite(value) ? value.toFixed(4) : "—",
                         logoHtml: forexLogo(pair)
                     };
-                });
+                }).filter(row => row.rate !== "—");
                 list.innerHTML = rows.map(rowHtml).join("");
                 bindPickerRows(list);
+                refreshSelectedItemsFromPicker("forex");
             } catch (error) {
                 list.textContent = "Forex სიის ჩატვირთვა ვერ მოხერხდა";
             }
@@ -673,6 +920,7 @@
                         const price = Number(item.lastPrice);
                         return {
                             id: dashboardItemId("crypto", item.symbol),
+                            kind: "crypto",
                             title: `${name} (${symbol})`,
                             subtitle: item.symbol.replace("USDT", "/USDT"),
                             search: `${name} ${symbol} ${item.symbol}`,
@@ -694,6 +942,7 @@
                 const price = priceMap.get(item.name.toLowerCase()) || item.value;
                 return {
                     id: dashboardItemId("asset", item.name),
+                    kind: "asset",
                     title: item.name,
                     subtitle: "პოპულარული აქტივი",
                     search: `${item.name} ${(item.aliases || []).join(" ")}`,
@@ -708,17 +957,7 @@
         async function fetchAssetPrices() {
             const prices = new Map();
             try {
-                const res = await fetch(ASSETS_API_URL);
-                if (!res.ok) return prices;
-                const raw = await res.json();
-                const rows = raw.data && Array.isArray(raw.data)
-                    ? raw.data.slice(1).map(row => {
-                        const obj = {};
-                        raw.data[0].forEach((header, index) => obj[header] = row[index]);
-                        return obj;
-                    })
-                    : raw;
-
+                const rows = await fetchSheetRows();
                 rows.forEach(row => {
                     const name = String(row.MEA || "").trim();
                     const value = Number(row["Rate (MEA)"]);
@@ -730,6 +969,5 @@
             return prices;
         }
     </script>
-<script src="js/footer.js"></script>
 </body>
 </html>

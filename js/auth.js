@@ -1,39 +1,81 @@
 document.addEventListener("DOMContentLoaded", () => {
     const authBtn = document.getElementById("authBtn");
     const apiOrigin = window.ALLRATES_API_ORIGIN
-        || (["localhost", "127.0.0.1", ""].includes(window.location.hostname) ? "http://localhost:3000" : "https://allrates-backend-api-production.up.railway.app");
+        || "https://allrates-backend-api-production.up.railway.app";
     const API_URL = `${apiOrigin}/api/auth`;
+    const isLocalPreview = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
+
+    function getAuthHref(path) {
+        if (!isLocalPreview) return path;
+        if (path === "/") return "index.html";
+        const [pagePath, hash] = path.split("#");
+        const localPath = `${pagePath.replace(/^\//, "")}.html`;
+        return hash ? `${localPath}#${hash}` : localPath;
+    }
 
     const modalHTML = `
-    <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;">
-        <div style="background:var(--card-bg,#1e293b); padding:28px; border-radius:14px; width:100%; max-width:420px; box-shadow:0 18px 45px rgba(0,0,0,0.5); position:relative; border:1px solid var(--border,#334155); box-sizing:border-box;">
-            <button id="closeAuthModal" type="button" style="position:absolute; top:14px; right:14px; background:none; border:none; font-size:24px; color:var(--text-muted,#94a3b8); cursor:pointer;">&times;</button>
+    <div id="authModal" class="auth-modal" aria-hidden="true">
+        <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+            <button id="closeAuthModal" class="auth-close-btn" type="button" aria-label="დახურვა">&times;</button>
 
-            <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:1px solid var(--border,#334155); padding-bottom:10px;">
-                <button id="tabLogin" type="button" style="flex:1; padding:10px; background:none; border:none; color:var(--primary,#38bdf8); font-weight:700; border-bottom:2px solid var(--primary,#38bdf8); cursor:pointer; font-family:inherit;">ავტორიზაცია</button>
-                <button id="tabRegister" type="button" style="flex:1; padding:10px; background:none; border:none; color:var(--text-muted,#94a3b8); font-weight:700; border-bottom:2px solid transparent; cursor:pointer; font-family:inherit;">რეგისტრაცია</button>
+            <div class="auth-tabs" aria-label="ავტორიზაციის რეჟიმი">
+                <button id="tabLogin" class="auth-tab-btn active" type="button">შესვლა</button>
+                <button id="tabRegister" class="auth-tab-btn" type="button">რეგისტრაცია</button>
             </div>
 
-            <form id="loginForm" style="display:flex; flex-direction:column; gap:14px;">
-                <input type="email" id="loginEmail" placeholder="ელ-ფოსტა" required autocomplete="email" style="padding:12px; border-radius:8px; border:1px solid var(--border,#334155); background:var(--bg-color,#0f172a); color:var(--text-main,#f1f5f9); font-family:inherit;">
-                <input type="password" id="loginPassword" placeholder="პაროლი" required autocomplete="current-password" style="padding:12px; border-radius:8px; border:1px solid var(--border,#334155); background:var(--bg-color,#0f172a); color:var(--text-main,#f1f5f9); font-family:inherit;">
-                <button type="submit" style="padding:12px; border-radius:8px; background:var(--primary,#38bdf8); color:white; font-weight:700; border:none; cursor:pointer; margin-top:6px; font-family:inherit;">შესვლა</button>
+            <h2 id="authTitle" class="auth-title">შესვლა</h2>
+
+            <form id="loginForm" class="auth-form">
+                <label class="auth-field">
+                    <input type="email" id="loginEmail" placeholder="ელ-ფოსტა" required autocomplete="email">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.7-4.2 4.4-6.3 8-6.3s6.3 2.1 8 6.3"></path></svg>
+                </label>
+                <label class="auth-field">
+                    <input type="password" id="loginPassword" placeholder="პაროლი" required autocomplete="current-password">
+                    <button class="auth-password-toggle" type="button" data-target="loginPassword" aria-label="პაროლის ჩვენება">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.6-6 9.5-6 9.5 6 9.5 6-3.6 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="3"></circle><path d="M4 20 20 4"></path></svg>
+                    </button>
+                </label>
+                <div class="auth-options-row">
+                    <label class="auth-remember">
+                        <input type="checkbox" id="rememberMe" checked>
+                        <span>დამიმახსოვრე</span>
+                    </label>
+                    <button id="forgotPasswordBtn" class="auth-forgot-btn" type="button">დაგავიწყდა პაროლი?</button>
+                </div>
+                <button type="submit" class="auth-submit-btn">შესვლა</button>
+                <p class="auth-switch-copy">არ გაქვს ანგარიში? <button type="button" id="openRegisterFromLogin">რეგისტრაცია</button></p>
             </form>
 
-            <form id="registerForm" style="display:none; flex-direction:column; gap:14px;">
-                <input type="text" id="regName" placeholder="სახელი" required autocomplete="name" style="padding:12px; border-radius:8px; border:1px solid var(--border,#334155); background:var(--bg-color,#0f172a); color:var(--text-main,#f1f5f9); font-family:inherit;">
-                <input type="email" id="regEmail" placeholder="ელ-ფოსტა" required autocomplete="email" style="padding:12px; border-radius:8px; border:1px solid var(--border,#334155); background:var(--bg-color,#0f172a); color:var(--text-main,#f1f5f9); font-family:inherit;">
-                <input type="password" id="regPassword" placeholder="პაროლი (მინ. 6 სიმბოლო)" required autocomplete="new-password" minlength="6" style="padding:12px; border-radius:8px; border:1px solid var(--border,#334155); background:var(--bg-color,#0f172a); color:var(--text-main,#f1f5f9); font-family:inherit;">
-                <button type="submit" style="padding:12px; border-radius:8px; background:var(--primary,#38bdf8); color:white; font-weight:700; border:none; cursor:pointer; margin-top:6px; font-family:inherit;">რეგისტრაცია</button>
+            <form id="registerForm" class="auth-form" hidden>
+                <label class="auth-field">
+                    <input type="text" id="regName" placeholder="სახელი" required autocomplete="name">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.7-4.2 4.4-6.3 8-6.3s6.3 2.1 8 6.3"></path></svg>
+                </label>
+                <label class="auth-field">
+                    <input type="email" id="regEmail" placeholder="ელ-ფოსტა" required autocomplete="email">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"></path><path d="m4 7 8 6 8-6"></path></svg>
+                </label>
+                <label class="auth-field">
+                    <input type="password" id="regPassword" placeholder="პაროლი" required autocomplete="new-password" minlength="6">
+                    <button class="auth-password-toggle" type="button" data-target="regPassword" aria-label="პაროლის ჩვენება">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.6-6 9.5-6 9.5 6 9.5 6-3.6 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="3"></circle><path d="M4 20 20 4"></path></svg>
+                    </button>
+                </label>
+                <button type="submit" class="auth-submit-btn">რეგისტრაცია</button>
+                <p class="auth-switch-copy">უკვე გაქვს ანგარიში? <button type="button" id="openLoginFromRegister">შესვლა</button></p>
             </form>
 
-            <form id="verifyForm" style="display:none; flex-direction:column; gap:14px;">
-                <p style="color:var(--text-muted,#94a3b8); font-size:14px; text-align:center; margin:0;">კოდი გამოგზავნილია თქვენს ელ-ფოსტაზე</p>
-                <input type="text" id="verifyCode" placeholder="6-ნიშნა კოდი" required inputmode="numeric" style="padding:12px; border-radius:8px; border:1px solid var(--border,#334155); background:var(--bg-color,#0f172a); color:var(--text-main,#f1f5f9); text-align:center; font-size:18px; letter-spacing:5px; font-family:inherit;">
-                <button type="submit" style="padding:12px; border-radius:8px; background:#10b981; color:white; font-weight:700; border:none; cursor:pointer; margin-top:6px; font-family:inherit;">დადასტურება</button>
+            <form id="verifyForm" class="auth-form auth-verify-form" hidden>
+                <p class="auth-helper-text">კოდი გამოგზავნილია თქვენს ელ-ფოსტაზე</p>
+                <label class="auth-field">
+                    <input type="text" id="verifyCode" placeholder="6-ნიშნა კოდი" required inputmode="numeric">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+                </label>
+                <button type="submit" class="auth-submit-btn">დადასტურება</button>
             </form>
 
-            <div id="authMessage" style="margin-top:15px; font-size:14px; text-align:center; color:#ef4444; display:none;"></div>
+            <div id="authMessage" class="auth-message" aria-live="polite" hidden></div>
         </div>
     </div>`;
 
@@ -47,47 +89,76 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
     const verifyForm = document.getElementById("verifyForm");
     const authMessage = document.getElementById("authMessage");
+    const authTitle = document.getElementById("authTitle");
+    const openRegisterFromLogin = document.getElementById("openRegisterFromLogin");
+    const openLoginFromRegister = document.getElementById("openLoginFromRegister");
+    const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
     let registeredEmail = "";
 
-    function saveSession(data) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+    function getStoredUser() {
+        return JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
+    }
+
+    function getStoredToken() {
+        return localStorage.getItem("token") || sessionStorage.getItem("token");
+    }
+
+    function saveSession(data, remember = true) {
+        const targetStorage = remember ? localStorage : sessionStorage;
+        const fallbackStorage = remember ? sessionStorage : localStorage;
+
+        fallbackStorage.removeItem("token");
+        fallbackStorage.removeItem("user");
+        targetStorage.setItem("token", data.token);
+        targetStorage.setItem("user", JSON.stringify(data.user));
     }
 
     function goToUserPage() {
-        window.location.href = "/dashboard";
+        window.location.href = getAuthHref("/create-dashboard");
     }
 
     function clearSession() {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
     }
 
     function showMessage(msg, isSuccess = false) {
         if (!msg) {
-            authMessage.style.display = "none";
+            authMessage.hidden = true;
             return;
         }
-        authMessage.style.display = "block";
+        authMessage.hidden = false;
         authMessage.style.color = isSuccess ? "#10b981" : "#ef4444";
         authMessage.textContent = msg;
     }
 
     function setTab(tab) {
         const isLogin = tab === "login";
-        loginForm.style.display = isLogin ? "flex" : "none";
-        registerForm.style.display = isLogin ? "none" : "flex";
-        verifyForm.style.display = "none";
-        tabLogin.style.color = isLogin ? "var(--primary,#38bdf8)" : "var(--text-muted,#94a3b8)";
-        tabLogin.style.borderBottomColor = isLogin ? "var(--primary,#38bdf8)" : "transparent";
-        tabRegister.style.color = isLogin ? "var(--text-muted,#94a3b8)" : "var(--primary,#38bdf8)";
-        tabRegister.style.borderBottomColor = isLogin ? "transparent" : "var(--primary,#38bdf8)";
+        authTitle.textContent = isLogin ? "შესვლა" : "რეგისტრაცია";
+        loginForm.hidden = !isLogin;
+        registerForm.hidden = isLogin;
+        verifyForm.hidden = true;
+        tabLogin.classList.toggle("active", isLogin);
+        tabRegister.classList.toggle("active", !isLogin);
         showMessage("");
     }
 
+    function openAuthModal() {
+        authModal.style.display = "flex";
+        authModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+        authModal.style.display = "none";
+        authModal.setAttribute("aria-hidden", "true");
+    }
+
     function updateAuthNav() {
-        const user = JSON.parse(localStorage.getItem("user") || "null");
-        if (!user || !authBtn) return;
+        const user = getStoredUser();
+        const token = getStoredToken();
+        if (!user || !token || !authBtn) return;
 
         const personalMenu = document.createElement("div");
         personalMenu.className = "personal-space-menu";
@@ -115,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
                 <button type="button" class="profile-menu-item profile-email-item">${displayEmail}</button>
-                <a href="/create-dashboard" class="profile-menu-item">
+                <a href="${getAuthHref("/create-dashboard")}" class="profile-menu-item profile-dashboard-link">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"></rect>
                         <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
@@ -142,14 +213,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const menuTrigger = personalMenu.querySelector(".personal-space-trigger");
         const logoutItem = personalMenu.querySelector(".profile-logout");
+        const dashboardLink = personalMenu.querySelector(".profile-dashboard-link");
         menuTrigger.addEventListener("click", (event) => {
             event.stopPropagation();
             const isOpen = personalMenu.classList.toggle("open");
             menuTrigger.setAttribute("aria-expanded", String(isOpen));
         });
+        dashboardLink.addEventListener("click", (event) => {
+            event.preventDefault();
+            window.location.href = getAuthHref("/create-dashboard");
+        });
         logoutItem.addEventListener("click", () => {
             clearSession();
-            window.location.href = "/";
+            window.location.href = getAuthHref("/");
         });
 
         document.addEventListener("click", (event) => {
@@ -163,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (user.role === "admin") {
             const adminBtn = document.createElement("a");
-            adminBtn.href = "/admin";
+            adminBtn.href = getAuthHref("/admin");
             adminBtn.className = "nav-link auth-extra-link";
             adminBtn.textContent = "ადმინ პანელი";
             authBtn.parentNode.insertBefore(adminBtn, personalMenu);
@@ -172,27 +248,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (authBtn) {
         authBtn.addEventListener("click", () => {
-            const token = localStorage.getItem("token");
+            const token = getStoredToken();
             if (token) {
                 clearSession();
-                window.location.href = "/";
+                window.location.href = getAuthHref("/");
             } else {
                 setTab("login");
-                authModal.style.display = "flex";
+                openAuthModal();
             }
         });
     }
 
-    closeAuthModal.addEventListener("click", () => {
-        authModal.style.display = "none";
-    });
+    closeAuthModal.addEventListener("click", closeModal);
 
     authModal.addEventListener("click", (event) => {
-        if (event.target === authModal) authModal.style.display = "none";
+        if (event.target === authModal) closeModal();
     });
 
     tabLogin.addEventListener("click", () => setTab("login"));
     tabRegister.addEventListener("click", () => setTab("register"));
+    openRegisterFromLogin.addEventListener("click", () => setTab("register"));
+    openLoginFromRegister.addEventListener("click", () => setTab("login"));
+    forgotPasswordBtn.addEventListener("click", () => {
+        showMessage("პაროლის აღდგენა მალე დაემატება.", true);
+    });
+
+    document.querySelectorAll(".auth-password-toggle").forEach(button => {
+        button.addEventListener("click", () => {
+            const input = document.getElementById(button.dataset.target);
+            if (!input) return;
+            input.type = input.type === "password" ? "text" : "password";
+            button.classList.toggle("is-visible", input.type === "text");
+        });
+    });
 
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -208,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (res.ok) {
-                saveSession(data);
+                saveSession(data, document.getElementById("rememberMe").checked);
                 showMessage("წარმატებული ავტორიზაცია!", true);
                 setTimeout(goToUserPage, 500);
                 return;
@@ -218,9 +306,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if ((data.message || "").includes("დაადასტუროთ")) {
                 registeredEmail = email;
                 setTimeout(() => {
-                    loginForm.style.display = "none";
-                    registerForm.style.display = "none";
-                    verifyForm.style.display = "flex";
+                    authTitle.textContent = "დადასტურება";
+                    loginForm.hidden = true;
+                    registerForm.hidden = true;
+                    verifyForm.hidden = false;
                     showMessage("შეიყვანეთ იმეილზე გამოგზავნილი კოდი", true);
                 }, 800);
             }
@@ -257,8 +346,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             showMessage("კოდი გამოგზავნილია ელ-ფოსტაზე", true);
-            registerForm.style.display = "none";
-            verifyForm.style.display = "flex";
+            authTitle.textContent = "დადასტურება";
+            registerForm.hidden = true;
+            verifyForm.hidden = false;
         } catch (error) {
             showMessage("სერვერთან კავშირის შეცდომა");
         }

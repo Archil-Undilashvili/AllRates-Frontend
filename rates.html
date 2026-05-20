@@ -28,6 +28,15 @@
       "keywords": "კურსები, ეროვნული ბანკის კურსი, ოფიციალური კურსები, ბაზრის კურსები, ვალუტის კონვერტაცია, ვალუტა"
     }
     </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KFQ7LLZ9EF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-KFQ7LLZ9EF');
+    </script>
 </head>
 <body>
 <script src="js/header.js"></script>
@@ -43,10 +52,10 @@
         </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('all')">ყველა კომპანია</button>
-        <button class="tab-btn" onclick="switchTab('banks')">ბანკები</button>
-        <button class="tab-btn" onclick="switchTab('mfo')">მიკროსაფინანსოები</button>
-        <button class="tab-btn" onclick="switchTab('kiosks')">ჯიხურები</button>
+        <button class="tab-btn active" data-tab="all" onclick="switchTab('all')">ყველა კომპანია</button>
+        <button class="tab-btn" data-tab="banks" onclick="switchTab('banks')">ბანკები</button>
+        <button class="tab-btn" data-tab="mfo" onclick="switchTab('mfo')">მიკროსაფინანსოები</button>
+        <button class="tab-btn" data-tab="kiosks" onclick="switchTab('kiosks')">ჯიხურები</button>
     </div>
 
     <div id="loader" class="loader" style="display: block; font-size: 0.9em; padding: 6px;">⏳ მონაცემები იტვირთება...</div>

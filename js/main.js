@@ -25,6 +25,12 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
         const MFO_COMPANIES = ['rico', 'inex', 'giro', 'goa', 'leader'];
         const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
+        const TAB_LABELS = {
+            all: 'ყველა კომპანია',
+            banks: 'ბანკები',
+            mfo: 'მიკროსაფინანსოები',
+            kiosks: 'ჯიხურები'
+        };
 
         let currentTab = localStorage.getItem('allrates_current_tab') || 'all';
 
@@ -525,6 +531,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 } catch(e) { console.error("New API fetch failed:", e); }
 
                 originalData = newApiData.length > 0 ? newApiData : combinedData.filter(item => item.Company && ALL_COMPANIES.includes(item.Company.toLowerCase()));
+                updateTabCounts();
 
                 // --- POPULATE TICKER ---
                 function populateTicker(data) {
@@ -1515,7 +1522,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             
             // ღილაკების ვიზუალის განახლება
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+            const activeTabButton = document.querySelector(`.tab-btn[data-tab="${tab}"]`) || document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`);
+            if (activeTabButton) activeTabButton.classList.add('active');
 
             renderTable('usd');
             renderTable('eur');
@@ -1648,6 +1656,54 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
             renderTable(currency);
             updateHeadersUI(currency);
+        }
+
+        function getCompanyKey(item) {
+            if (!item) return '';
+            if (item.baseCompany) return String(item.baseCompany).toLowerCase();
+            const company = String(item.Company || item.company || '').toLowerCase();
+            if (!company) return '';
+            if (company.includes('bog')) return 'bog';
+            if (company.includes('credo')) return 'credo';
+            if (company.includes('liberty')) return 'liberty';
+            if (company.includes('basis')) return 'bb';
+            if (company.includes('cartu')) return 'cartu';
+            if (company.includes('hash')) return 'hash';
+            if (company.includes('inteliexpress') || company.includes('inex')) return 'inex';
+            if (company.includes('isbank')) return 'is';
+            if (company.includes('terabank')) return 'tera';
+            if (company.includes('leader')) return 'leader';
+            if (company.includes('procredit')) return 'procredit';
+            if (company.includes('kursige') || company.includes('kursi')) return 'kursige';
+            return company.split(/\s|\(/)[0];
+        }
+
+        function countUniqueCompaniesForTab(tab, data = originalData) {
+            const source = Array.isArray(data) && data.length ? data : ALL_COMPANIES.map(company => ({ baseCompany: company }));
+            const companies = new Set();
+            source.forEach(item => {
+                const key = getCompanyKey(item);
+                if (!key) return;
+                if (tab === 'banks' && !BANK_COMPANIES.includes(key)) return;
+                if (tab === 'mfo' && !MFO_COMPANIES.includes(key)) return;
+                if (tab === 'kiosks' && !KIOSK_COMPANIES.includes(key)) return;
+                companies.add(key);
+            });
+            return companies.size;
+        }
+
+        function updateTabCounts() {
+            const counts = {
+                all: countUniqueCompaniesForTab('all'),
+                banks: countUniqueCompaniesForTab('banks'),
+                mfo: countUniqueCompaniesForTab('mfo'),
+                kiosks: countUniqueCompaniesForTab('kiosks')
+            };
+
+            Object.entries(TAB_LABELS).forEach(([tab, label]) => {
+                const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+                if (btn) btn.textContent = `${label} (${counts[tab]})`;
+            });
         }
 
         function updateHeadersUI(currency) {
@@ -1874,6 +1930,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const cachedRates = localStorage.getItem('cachedRatesData');
                 if (cachedRates) {
                     originalData = JSON.parse(cachedRates);
+                    updateTabCounts();
                     usdData = [...originalData]; applySorting("usd");
                     eurData = [...originalData]; applySorting("eur");
                 gbpData = [...originalData]; applySorting("gbp");
@@ -2151,11 +2208,12 @@ window.openCompanyInfo = function(key, displayName) {
 // Also close it correctly
 document.addEventListener('DOMContentLoaded', () => {
     const savedTab = localStorage.getItem('allrates_current_tab');
+    updateTabCounts();
     if (savedTab) {
         const tabBtns = document.querySelectorAll('.tab-btn');
         if (tabBtns.length > 0) {
             tabBtns.forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.querySelector(`.tab-btn[onclick="switchTab('${savedTab}')"]`);
+            const activeBtn = document.querySelector(`.tab-btn[data-tab="${savedTab}"]`) || document.querySelector(`.tab-btn[onclick="switchTab('${savedTab}')"]`);
             if (activeBtn) activeBtn.classList.add('active');
         }
     }

@@ -26,7 +26,7 @@ document.write(`
                     <path d="M 50 12 A 38 38 0 0 1 87.6 30 L 98 30 L 78 55 L 58 30 L 70 30 A 24 24 0 0 0 30 30 L 16 14 A 38 38 0 0 1 50 12 Z" fill="url(#logoGrad)"/>
                     <path d="M 50 88 A 38 38 0 0 1 12.4 70 L 2 70 L 22 45 L 42 70 L 30 70 A 24 24 0 0 0 70 70 L 84 86 A 38 38 0 0 1 50 88 Z" fill="url(#logoGrad)"/>
                 </svg>
-                <span class="site-brand-text">AllRates<span>.ge</span></span>
+                <span class="site-brand-text">AllRates<span>.ge</span><span class="site-beta-label">(Beta)</span></span>
             </span>
             <span class="site-brand-tagline">ბიზნეს და საბანკო პლათფორმა</span>
         </a>
