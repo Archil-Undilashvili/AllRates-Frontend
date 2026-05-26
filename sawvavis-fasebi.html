@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>საწვავის ფასები საქართველოში | AllRates.ge</title>
     <meta name="description" content="შეადარე საწვავის ფასები საქართველოში: Gulf, Wissol, Socar, Rompetrol, Lukoil და Portal-ის ბენზინისა და დიზელის მიმდინარე ფასები.">
     <link rel="canonical" href="https://allrates.ge/sawvavis-fasebi">
@@ -61,7 +66,9 @@ const GAS_COMPANIES = [
     { key: 'Socar', name: 'Socar', logo: 'Logos/gas/socar.svg' },
     { key: 'Rompetrol', name: 'Rompetrol', logo: 'Logos/gas/rompetrol.png' },
     { key: 'Lukoil', name: 'Lukoil', logo: 'Logos/gas/lukoil.svg' },
-    { key: 'Portal', name: 'Portal', logo: 'Logos/gas/portal.ico', fallback: 'Portal' }
+    { key: 'Portal', name: 'Portal', logo: 'Logos/gas/portal.ico', fallback: 'Portal' },
+    { key: 'Connect', name: 'ქონექთი', logo: 'Logos/gas/connect.svg' },
+    { key: 'Neogas', name: 'ნეოგაზი', logo: 'Logos/gas/neogas.svg' }
 ];
 
 const GAS_BEST_CATEGORIES = [
@@ -88,7 +95,7 @@ const GAS_BEST_CATEGORIES = [
     {
         key: 'lpg',
         label: 'თხევადი გაზი',
-        match: text => (text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
+        match: text => (text.includes('lpg') || text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
     }
 ];
 
@@ -134,7 +141,7 @@ function getBestComparablePrice(price) {
 }
 
 function getProductText(price) {
-    return `${price.product || ''} ${price.productEng || ''} ${price.code || ''}`.toLowerCase();
+    return `${price.product || ''} ${price.productEng || ''} ${price.code || ''} ${price.type || ''}`.toLowerCase();
 }
 
 function findCategoryGasPrices(records) {
@@ -241,6 +248,7 @@ function renderGasCompany(company, apiRecord) {
                             <div class="gas-product-price">
                                 <strong>${formatGasPrice(getPrimaryPrice(price))} ₾</strong>
                                 ${secondary ? `<span>${secondary.label}: ${formatGasPrice(secondary.value)} ₾</span>` : ''}
+                                ${price.details && price.details.address ? `<span class="gas-product-address">${price.details.address}</span>` : ''}
                             </div>
                         </div>
                     `;

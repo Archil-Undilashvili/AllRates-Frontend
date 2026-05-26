@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>ოფიციალური კურსები და xlsx ჩამოტვირთვა | AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -110,16 +115,34 @@
         }
     
         @media (max-width: 600px) {
+            .page-section > div > div:first-child {
+                align-items: center !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+                text-align: center;
+            }
+            .page-section h1 {
+                width: 100%;
+                max-width: min(calc(100vw - 32px), 340px);
+                font-size: 17px !important;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
             .search-container {
                 flex-direction: column;
                 gap: 15px;
                 align-items: stretch;
             }
+            .search-container > div {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
             .official-table-wrapper {
-                overflow-x: auto;
+                overflow-x: hidden;
             }
             .official-table th, .official-table td {
-                white-space: nowrap;
+                white-space: normal;
+                overflow-wrap: anywhere;
             }
         }
     

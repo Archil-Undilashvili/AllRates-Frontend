@@ -1,4 +1,5 @@
 /index.html                 /                         301!
+/about.html                 /about                    301!
 /rates.html                 /rates                    301!
 /calculator.html            /calculator               301!
 /official.html              /official                 301!
@@ -29,6 +30,7 @@
 /sawvavis-fasebi.html              /sawvavis-fasebi             301!
 
 /rates                    /rates.html                 200
+/about                    /about.html                 200
 /calculator               /calculator.html            200
 /official                 /official.html              200
 /contact                  /contact.html               200

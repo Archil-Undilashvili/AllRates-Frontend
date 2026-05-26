@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 96">
+  <rect width="320" height="96" rx="10" fill="#26313d"/>
+  <g transform="translate(18 17)">
+    <path d="M30 0 60 58 30 43 0 58z" fill="#ffe600"/>
+    <path d="M30 13 49 49 30 39 11 49z" fill="#26313d"/>
+    <path d="M30 24 40 43 30 38 20 43z" fill="#ffe600"/>
+  </g>
+  <text x="88" y="60" fill="#ffe600" font-family="Arial, sans-serif" font-size="42" font-weight="800">ქონექთი</text>
+</svg>

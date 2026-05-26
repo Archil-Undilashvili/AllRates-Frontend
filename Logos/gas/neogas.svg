@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 130">
+  <rect width="360" height="130" rx="12" fill="#ffffff"/>
+  <g transform="translate(18 30)">
+    <text x="0" y="58" fill="#0074b8" font-family="Arial, sans-serif" font-size="48" font-weight="500" letter-spacing="4">NEOGAS</text>
+    <g transform="translate(245 0)">
+      <polygon points="0,0 42,0 72,36 42,72 0,72 30,36" fill="#9dccf0"/>
+      <polygon points="30,0 72,36 30,36" fill="#2d7fbf"/>
+      <polygon points="30,36 72,36 30,72" fill="#005ca8"/>
+      <polygon points="0,72 30,36 30,72" fill="#79bd46"/>
+    </g>
+  </g>
+</svg>

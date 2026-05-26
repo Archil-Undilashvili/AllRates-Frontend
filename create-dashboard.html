@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>შექმენი დეშბორდი - AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -59,24 +64,12 @@
                     <span>კომპანიები TRY/GEL</span>
                 </label>
                 <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="market-usd">
-                    <span>საბაზრო USD/GEL</span>
+                    <input type="checkbox" data-filter-slot="market">
+                    <span>საბაზრო</span>
                 </label>
                 <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="market-eur">
-                    <span>საბაზრო EUR/GEL</span>
-                </label>
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="market-gbp">
-                    <span>საბაზრო GBP/GEL</span>
-                </label>
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="market-rub">
-                    <span>საბაზრო RUB/GEL</span>
-                </label>
-                <label class="dashboard-filter-option">
-                    <input type="checkbox" data-filter-slot="market-try">
-                    <span>საბაზრო TRY/GEL</span>
+                    <input type="checkbox" data-filter-slot="official">
+                    <span>ოფიციალური</span>
                 </label>
                 <label class="dashboard-filter-option">
                     <input type="checkbox" data-filter-slot="forex">
@@ -103,7 +96,9 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const status = document.getElementById("userSpaceStatus");
+            const isLocalServer = ["localhost", "127.0.0.1"].includes(window.location.hostname);
             const apiOrigin = window.ALLRATES_API_ORIGIN
+                || (isLocalServer ? "http://localhost:3000" : null)
                 || "https://allrates-backend-api-production.up.railway.app";
 
             if (!token) {
@@ -144,7 +139,10 @@
             inex: "ინტელიექსპრესი", giro: "გირო კრედიტი", goa: "გოა კრედიტი",
             hash: "ჰაშ ბანკი", mbc: "ემბისი", tera: "ტერაბანკი", halyk: "ხალიკ ბანკი",
             is: "იშბანკი", silk: "სილქ ბანკი", procredit: "პროკრედიტ ბანკი",
-            leader: "ლიდერ კრედიტი", paysera: "Paysera"
+            leader: "ლიდერ კრედიტი", smarti: "სმარტი", central: "ცენტრალი",
+            georgiancredit: "ქართული კრედიტი", tbmc: "თბილმიკროკრედიტი",
+            bermeli: "ბერმელი", alphaexpress: "ალფა ექსპრესი", scapp: "სკაპი",
+            expresslombard: "ექსპრეს ლომბარდი", paysera: "Paysera"
         };
 
         const COMPANY_LOGOS = {
@@ -155,16 +153,34 @@
             goa: "Logos/goa_icon.png", hash: "Logos/hash_icon.ico", mbc: "Logos/mbc_icon.png",
             tera: "Logos/tera_icon.png", halyk: "Logos/halyk_icon.png", is: "Logos/is_icon.png",
             silk: "Logos/silk_icon.png", procredit: "Logos/procredit.jpg", leader: "Logos/leader.jpg",
+            smarti: "Logos/smarti_icon.png", central: "Logos/central_icon.svg",
+            georgiancredit: "Logos/georgiancredit_icon.png", tbmc: "Logos/tbmc_icon.png",
+            bermeli: "Logos/bermeli_icon.svg", alphaexpress: "Logos/alphaexpress_icon.png",
+            scapp: "Logos/scapp_icon.svg", expresslombard: "Logos/expresslombard_icon.svg",
             paysera: "Logos/paysera_icon.png"
         };
 
         const COMPANY_KEY_ALIASES = {
             basisbank: "bb",
             inteliexpress: "inex",
+            expresslombard: "expresslombard",
+            express: "expresslombard",
             hashbank: "hash",
             isbank: "is",
             terabank: "tera",
             leadercredit: "leader",
+            smartfin: "smarti",
+            smart: "smarti",
+            central: "central",
+            georgiancredit: "georgiancredit",
+            georgian: "georgiancredit",
+            tbmc: "tbmc",
+            tbilmicrocredit: "tbmc",
+            bermeli: "bermeli",
+            alphaexpress: "alphaexpress",
+            alpha: "alphaexpress",
+            scapp: "scapp",
+            expresslombard: "expresslombard",
             cartubank: "cartu",
             bankofgeorgia: "bog"
         };
@@ -204,6 +220,7 @@
             { name: "NVIDIA", aliases: ["nvda", "nvidia"], value: "—", logo: "Logos/NVDA.png" }
         ];
         const ASSETS_API_URL = "https://sheets-api-production-c989.up.railway.app/api/data";
+        const NBG_API_URL = "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json";
         const CURRENCY_CONFIG = {
             usd: { code: "USD", pair: "USDGEL", title: "აშშ დოლარი", flag: "Logos/US.png", buy: ["usdBuy", "USDGEL (Buy)"], sell: ["usdSell", "USDGEL (Sell)"], spread: "usdSpread", digits: 3 },
             eur: { code: "EUR", pair: "EURGEL", title: "ევრო", flag: "Logos/EU.png", buy: ["eurBuy", "EURGEL (Buy)"], sell: ["eurSell", "EURGEL (Sell)"], spread: "eurSpread", digits: 3 },
@@ -220,20 +237,16 @@
                 addLabel: "კომპანიის დამატება",
                 searchPlaceholder: "მოძებნე კომპანია..."
             })),
-            ...Object.entries(CURRENCY_CONFIG).map(([currency, config]) => ({
-                key: `market-${currency}`,
-                kind: "market",
-                currency,
-                title: `საბაზრო კურსები (${config.code}/GEL)`,
-                addLabel: "",
-                searchPlaceholder: ""
-            })),
+            { key: "market", kind: "market", title: "საბაზრო", addLabel: "საბაზრო კურსის დამატება", searchPlaceholder: "მოძებნე წყვილი..." },
+            { key: "official", kind: "official", title: "ოფიციალური", addLabel: "ოფიციალური კურსის დამატება", searchPlaceholder: "მოძებნე ვალუტა..." },
             { key: "forex", kind: "forex", title: "FOREX", addLabel: "Forex წყვილის დამატება", searchPlaceholder: "მოძებნე Forex წყვილი..." },
             { key: "crypto", kind: "crypto", title: "კრიპტოვალუტები", addLabel: "კრიპტოვალუტის დამატება", searchPlaceholder: "მოძებნე კრიპტო..." },
             { key: "asset", kind: "asset", title: "აქციები და სხვა", addLabel: "აქტივის დამატება", searchPlaceholder: "მოძებნე აქტივი..." }
         ];
         const DASHBOARD_SLOT_KEYS = DASHBOARD_SLOTS.map(slot => slot.key);
-        const DASHBOARD_MAX_VISIBLE = 5;
+        const DASHBOARD_MAX_VISIBLE = 10;
+        const DASHBOARD_GRID_COLUMNS = 5;
+        const DASHBOARD_CACHE_VERSION = "v3";
 
         function escapeHtml(value) {
             return String(value || "").replace(/[&<>"']/g, char => ({
@@ -247,6 +260,25 @@
                 if (!Number.isNaN(value) && value > 0) return value;
             }
             return null;
+        }
+
+        async function fetchJsonWithFallback(urls) {
+            let lastError = null;
+            for (const url of [...new Set(urls.filter(Boolean))]) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    if (!Array.isArray(data) || data.length < 10) {
+                        throw new Error(`Incomplete rates payload (${Array.isArray(data) ? data.length : "not-array"})`);
+                    }
+                    return data;
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Rates API fetch failed (${url}):`, error.message);
+                }
+            }
+            throw lastError || new Error("Rates API fetch failed");
         }
 
         function companyKey(item) {
@@ -290,7 +322,7 @@
 
             grid.innerHTML = DASHBOARD_SLOTS.map(slot => {
                 const pickerId = `${slot.key}PickerList`;
-                const pickerMarkup = slot.kind === "market" ? "" : `
+                const pickerMarkup = `
                     <button type="button" class="dashboard-add-btn" aria-label="${escapeHtml(slot.addLabel)}">+</button>
                     <div class="dashboard-picker" hidden>
                         <input type="search" class="dashboard-search" placeholder="${escapeHtml(slot.searchPlaceholder)}">
@@ -299,8 +331,9 @@
                 `;
 
                 return `
-                    <div class="dashboard-slot" data-slot="${escapeHtml(slot.key)}" data-slot-kind="${escapeHtml(slot.kind)}" data-currency="${escapeHtml(slot.currency || "")}"${slot.key !== "company-usd" ? " hidden" : ""}>
+                    <div class="dashboard-slot" data-slot="${escapeHtml(slot.key)}" data-slot-kind="${escapeHtml(slot.kind)}" data-currency="${escapeHtml(slot.currency || "")}" draggable="true"${slot.key !== "company-usd" ? " hidden" : ""}>
                         <div class="dashboard-slot-top">
+                            <span class="dashboard-drag-handle" aria-hidden="true">⋮⋮</span>
                             <span>${escapeHtml(slot.title)}</span>
                             ${pickerMarkup}
                         </div>
@@ -313,25 +346,22 @@
         function selectedHtml(row) {
             const kind = row.dataset.kind || "";
             const selectedTitle = row.dataset.selectedTitle || "";
-            if (kind === "market") {
+            if (kind === "market" || kind === "official") {
                 const title = row.dataset.title || selectedTitle;
-                const subtitle = row.dataset.subtitle || "";
-                const buy = row.dataset.buy || "-";
-                const sell = row.dataset.sell || "-";
-                const spread = row.dataset.spread || "-";
                 return `
-                    <div class="dashboard-selected-item dashboard-rate-card" data-id="${escapeHtml(row.dataset.id || "")}">
-                        <span class="dashboard-rate-card-head">
-                            <span>
-                                <strong>${escapeHtml(title)}</strong>
-                            </span>
+                    <div class="dashboard-selected-item dashboard-company-rate-row dashboard-market-rate-row" data-id="${escapeHtml(row.dataset.id || "")}">
+                        <span class="dashboard-company-main">
+                            <strong>${escapeHtml(title)}</strong>
                         </span>
-                        <span class="dashboard-rate-card-values">
-                            <span><small>ყიდვა</small><b class="dashboard-rate-buy">${escapeHtml(buy)}</b></span>
-                            <span><small>გაყიდვა</small><b class="dashboard-rate-sell">${escapeHtml(sell)}</b></span>
-                            <span><small>სპრედი</small><b>${escapeHtml(spread)}</b></span>
+                        <span class="dashboard-company-values">
+                            <small>ყიდვა</small>
+                            <small>გაყიდვა</small>
+                            <small>სპრედი</small>
+                            <b class="dashboard-rate-buy">${escapeHtml(row.dataset.buy || "-")}</b>
+                            <b class="dashboard-rate-sell">${escapeHtml(row.dataset.sell || "-")}</b>
+                            <b class="dashboard-rate-spread">${escapeHtml(row.dataset.spread || "-")}</b>
                         </span>
-                        ${kind === "company" ? itemMenuHtml() : ""}
+                        ${itemMenuHtml()}
                     </div>
                 `;
             }
@@ -421,12 +451,14 @@
         async function initDashboardBuilder(apiOrigin, token, user) {
             renderDashboardShell();
             bindSlots();
+            bindDashboardDrag();
             bindDashboardFilters();
             bindFilterToggle();
             bindDashboardSave(apiOrigin, token, user);
             restoreDashboardCache(user);
             await Promise.allSettled([
                 loadCompanyPicker(apiOrigin),
+                loadOfficialPicker(),
                 loadForexPicker(),
                 loadCryptoPicker(),
                 loadAssetPicker()
@@ -496,6 +528,36 @@
             });
         }
 
+        function bindDashboardDrag() {
+            const grid = document.getElementById("dashboardBuilderGrid");
+            if (!grid) return;
+            let draggedSlot = null;
+
+            grid.addEventListener("dragstart", event => {
+                const slot = event.target.closest(".dashboard-slot");
+                if (!slot) return;
+                draggedSlot = slot;
+                slot.classList.add("is-dragging");
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", slot.dataset.slot || "");
+            });
+
+            grid.addEventListener("dragend", () => {
+                draggedSlot?.classList.remove("is-dragging");
+                draggedSlot = null;
+            });
+
+            grid.addEventListener("dragover", event => {
+                if (!draggedSlot) return;
+                const target = event.target.closest(".dashboard-slot");
+                if (!target || target === draggedSlot) return;
+                event.preventDefault();
+                const rect = target.getBoundingClientRect();
+                const beforeTarget = event.clientX < rect.left + rect.width / 2;
+                grid.insertBefore(draggedSlot, beforeTarget ? target : target.nextSibling);
+            });
+        }
+
         function bindDashboardFilters() {
             const grid = document.getElementById("dashboardBuilderGrid");
             const filters = Array.from(document.querySelectorAll("[data-filter-slot]"));
@@ -524,7 +586,7 @@
                     if (filter.checked) visibleCount += 1;
                 });
 
-                const columns = Math.min(DASHBOARD_MAX_VISIBLE, Math.max(1, visibleCount));
+                const columns = Math.min(DASHBOARD_GRID_COLUMNS, Math.max(1, visibleCount));
                 grid.style.gridTemplateColumns = `repeat(${columns}, var(--dashboard-slot-width))`;
             };
 
@@ -592,7 +654,11 @@
                     .filter(Boolean);
             });
 
-            return { filters, items };
+            const order = Array.from(document.querySelectorAll("#dashboardBuilderGrid .dashboard-slot"))
+                .map(slot => slot.dataset.slot)
+                .filter(Boolean);
+
+            return { filters, items, order };
         }
 
         async function loadSavedDashboard(apiOrigin, token) {
@@ -604,11 +670,21 @@
                 if (!res.ok) return;
 
                 const dashboard = await res.json();
+                if (!hasKnownDashboardState(dashboard)) return;
                 restoreDashboardFilters(dashboard.filters || {});
                 restoreDashboardItems(dashboard.items || {});
+                restoreDashboardOrder(dashboard.order || []);
             } catch (error) {
                 if (status) setDashboardStatus("error", "შენახული დეშბორდი ვერ ჩაიტვირთა");
             }
+        }
+
+        function hasKnownDashboardState(dashboard) {
+            const filters = dashboard?.filters || {};
+            const items = dashboard?.items || {};
+            const order = dashboard?.order || [];
+            return DASHBOARD_SLOT_KEYS.some(key => typeof filters[key] === "boolean" || Array.isArray(items[key]))
+                || (Array.isArray(order) && order.some(key => DASHBOARD_SLOT_KEYS.includes(key)));
         }
 
         function restoreDashboardFilters(filters) {
@@ -622,8 +698,7 @@
 
         function restoreDashboardItems(items) {
             DASHBOARD_SLOT_KEYS.forEach(slotKey => {
-                const slotConfig = DASHBOARD_SLOTS.find(slot => slot.key === slotKey);
-                if (slotConfig?.kind === "market") return;
+                if (!Array.isArray(items[slotKey])) return;
                 const slot = document.querySelector(`[data-slot="${slotKey}"]`);
                 const selectedItems = slot?.querySelector(".dashboard-slot-items");
                 if (!slot || !selectedItems) return;
@@ -636,9 +711,22 @@
             });
         }
 
+        function restoreDashboardOrder(order) {
+            if (!Array.isArray(order) || !order.length) return;
+            const grid = document.getElementById("dashboardBuilderGrid");
+            if (!grid) return;
+
+            order
+                .filter(slotKey => DASHBOARD_SLOT_KEYS.includes(slotKey))
+                .forEach(slotKey => {
+                    const slot = grid.querySelector(`[data-slot="${cssEscape(slotKey)}"]`);
+                    if (slot) grid.appendChild(slot);
+                });
+        }
+
         function dashboardCacheKey(user) {
             const id = user?.id || user?._id || user?.email || "guest";
-            return `allrates-dashboard-cache:${id}`;
+            return `allrates-dashboard-cache:${DASHBOARD_CACHE_VERSION}:${id}`;
         }
 
         function cacheDashboardSnapshot(user) {
@@ -668,6 +756,7 @@
                     const selectedItems = document.querySelector(`[data-slot="${slotKey}"] .dashboard-slot-items`);
                     if (selectedItems && snapshot.html?.[slotKey]) selectedItems.innerHTML = snapshot.html[slotKey];
                 });
+                restoreDashboardOrder(snapshot.order || []);
             } catch (error) {
                 localStorage.removeItem(dashboardCacheKey(user));
             }
@@ -776,9 +865,10 @@
 
         async function loadCompanyPicker(apiOrigin) {
             try {
-                let res = await fetch(`${apiOrigin}/api/rates/latest`);
-                if (!res.ok) res = await fetch("https://allrates-backend-api-production.up.railway.app/api/rates/latest");
-                const data = await res.json();
+                const data = await fetchJsonWithFallback([
+                    `${apiOrigin}/api/rates/latest`,
+                    "https://allrates-backend-api-production.up.railway.app/api/rates/latest"
+                ]);
                 const rowsByCurrency = Object.fromEntries(Object.keys(CURRENCY_CONFIG).map(currency => [currency, []]));
 
                 data.forEach(item => {
@@ -816,7 +906,7 @@
                     list.innerHTML = rows.length ? rows.map(rowHtml).join("") : "კომპანიების კურსები ვერ მოიძებნა";
                     bindPickerRows(list);
                 });
-                renderMarketSlots(data);
+                loadMarketPicker(data);
             } catch (error) {
                 Object.keys(CURRENCY_CONFIG).forEach(currency => {
                     const list = document.getElementById(`company-${currency}PickerList`);
@@ -825,12 +915,11 @@
             }
         }
 
-        function renderMarketSlots(data) {
-            Object.entries(CURRENCY_CONFIG).forEach(([currency, config]) => {
-                const slot = document.querySelector(`[data-slot="market-${currency}"]`);
-                const selectedItems = slot?.querySelector(".dashboard-slot-items");
-                if (!slot || !selectedItems) return;
+        function loadMarketPicker(data) {
+            const list = document.getElementById("marketPickerList");
+            if (!list) return;
 
+            const rows = Object.entries(CURRENCY_CONFIG).map(([currency, config]) => {
                 const validItems = data.map(item => {
                     const buy = readNumber(item, config.buy);
                     const sell = readNumber(item, config.sell);
@@ -845,18 +934,60 @@
                 const avgSell = count ? topItems.reduce((sum, item) => sum + item.sell, 0) / count : null;
                 const avgSpread = Number.isFinite(avgBuy) && Number.isFinite(avgSell) ? avgSell - avgBuy : null;
 
-                const fakeRow = document.createElement("button");
-                fakeRow.className = "dashboard-picker-row";
-                fakeRow.dataset.id = dashboardItemId("market", config.pair);
-                fakeRow.dataset.kind = "market";
-                fakeRow.dataset.title = `${config.code} / ${config.title}`;
-                fakeRow.dataset.subtitle = "საბაზრო საშუალო";
-                fakeRow.dataset.buy = Number.isFinite(avgBuy) ? avgBuy.toFixed(config.digits) : "-";
-                fakeRow.dataset.sell = Number.isFinite(avgSell) ? avgSell.toFixed(config.digits) : "-";
-                fakeRow.dataset.spread = Number.isFinite(avgSpread) ? avgSpread.toFixed(config.digits) : "-";
-                fakeRow.innerHTML = `<span class="dashboard-row-main"><span><strong>${config.code} / ${config.title}</strong><small>საბაზრო საშუალო</small></span></span>`;
-                selectedItems.innerHTML = selectedHtml(fakeRow);
+                return {
+                    id: `market:${currency}`,
+                    kind: "market",
+                    title: `${config.code}/GEL`,
+                    subtitle: "საბაზრო საშუალო",
+                    selectedTitle: `${config.code}/GEL`,
+                    search: `${config.code} ${config.title} ${config.pair} საბაზრო`,
+                    buy: Number.isFinite(avgBuy) ? avgBuy.toFixed(config.digits) : "-",
+                    sell: Number.isFinite(avgSell) ? avgSell.toFixed(config.digits) : "-",
+                    spread: Number.isFinite(avgSpread) ? avgSpread.toFixed(config.digits) : "-",
+                    rate: ""
+                };
             });
+
+            list.innerHTML = rows.map(rowHtml).join("");
+            bindPickerRows(list);
+            refreshSelectedItemsFromPicker("market");
+        }
+
+        async function loadOfficialPicker() {
+            const list = document.getElementById("officialPickerList");
+            if (!list) return;
+
+            try {
+                const res = await fetch(`${NBG_API_URL}?t=${Date.now()}`, { cache: "no-store" });
+                if (!res.ok) throw new Error("NBG API unavailable");
+                const data = await res.json();
+                const currencies = data?.[0]?.currencies || [];
+                const rows = currencies
+                    .filter(item => item?.code && Number.isFinite(Number(item.rate)))
+                    .map(item => {
+                        const rate = Number(item.rate);
+                        const quantity = Number(item.quantity) || 1;
+                        const rateText = rate.toFixed((item.code === "USD" || item.code === "EUR" || item.code === "GBP") ? 3 : 4);
+                        return {
+                            id: dashboardItemId("official", item.code),
+                            kind: "official",
+                            title: `${item.code} / GEL`,
+                            subtitle: `${quantity} ერთეული · ${item.name || "ეროვნული ბანკი"}`,
+                            selectedTitle: `${item.code} / GEL`,
+                            search: `${item.code} ${item.name || ""} ეროვნული ბანკი ოფიციალური`,
+                            buy: rateText,
+                            sell: rateText,
+                            spread: "0.000",
+                            rate: ""
+                        };
+                    });
+
+                list.innerHTML = rows.length ? rows.map(rowHtml).join("") : "ოფიციალური კურსები ვერ მოიძებნა";
+                bindPickerRows(list);
+                refreshSelectedItemsFromPicker("official");
+            } catch (error) {
+                list.textContent = "ოფიციალური კურსების ჩატვირთვა ვერ მოხერხდა";
+            }
         }
 
         async function loadForexPicker() {

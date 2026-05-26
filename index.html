@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>ვალუტის კურსები დღეს საქართველოში | AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=5">
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="ვალუტის კურსი და ვალუტის კურსები დღეს საქართველოში: NBG ოფიციალური კურსები, საბაზრო ყიდვა-გაყიდვა, valutis kursebi, laris kursi, dolaris kursi, Forex, კრიპტო და აქტივები.">
@@ -26,6 +31,15 @@
       "url": "https://allrates.ge",
       "description": "ყველაზე ზუსტი ვალუტის კურსები, ბაზრის კურსები და ვალუტის კონვერტაცია. ეროვნული ბანკის (NBG), მიკროსაფინანსოების, ბანკების და ჯიხურების კურსები. კრიპტოვალუტები და აქციები.",
       "keywords": "კურსები, ეროვნული ბანკის კურსი, ოფიციალური კურსები, ბაზრის კურსები, ვალუტის კონვერტაცია, ვალუტა"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AllRates.ge",
+      "url": "https://allrates.ge",
+      "logo": "https://allrates.ge/favicon-192.png"
     }
     </script>
     <script type="application/ld+json">
@@ -486,6 +500,58 @@
             </div>
         </div>
 
+        <section class="home-converter-panel" aria-labelledby="home-converter-title">
+            <div class="home-converter-head">
+                <div>
+                    <div class="home-converter-kicker">სწრაფი კონვერტაცია</div>
+                    <h2 id="home-converter-title">კონვერტაციის კალკულატორი</h2>
+                </div>
+                <a href="/calculator" class="home-detail-link home-converter-detail">(ნახე დეტალურად)</a>
+            </div>
+
+            <div class="home-converter-controls" aria-label="კურსის ტიპის არჩევა">
+                <button type="button" class="home-converter-type active" data-home-converter-type="official">ოფიციალური</button>
+                <button type="button" class="home-converter-type" data-home-converter-type="commercial">კომერციული</button>
+            </div>
+
+            <div class="home-converter-grid">
+                <label class="home-converter-field">
+                    <span>წყვილი</span>
+                    <select id="home-converter-pair" aria-label="სავალუტო წყვილი">
+                        <option value="USDGEL" selected>USD/GEL</option>
+                        <option value="EURGEL">EUR/GEL</option>
+                        <option value="GBPGEL">GBP/GEL</option>
+                        <option value="RUBGEL">RUB/GEL</option>
+                        <option value="TRYGEL">TRY/GEL</option>
+                    </select>
+                </label>
+
+                <label class="home-converter-field">
+                    <span>მიმართულება</span>
+                    <select id="home-converter-direction" aria-label="კონვერტაციის მიმართულება">
+                        <option value="gel-to-foreign" selected>გავყიდი GEL ⇄ ვიყიდი USD</option>
+                        <option value="foreign-to-gel">გავყიდი USD ⇄ ვიყიდი GEL</option>
+                    </select>
+                </label>
+
+                <label class="home-converter-field home-converter-amount-field">
+                    <span id="home-converter-sell-label">გასაყიდი GEL</span>
+                    <input id="home-converter-sell-amount" type="number" min="0" step="0.01" inputmode="decimal" value="100" aria-label="გასაყიდი თანხა">
+                </label>
+
+                <label class="home-converter-field home-converter-amount-field">
+                    <span id="home-converter-buy-label">საყიდელი USD</span>
+                    <input id="home-converter-buy-amount" type="number" min="0" step="0.01" inputmode="decimal" aria-label="საყიდელი თანხა">
+                </label>
+
+                <div class="home-converter-result" aria-live="polite">
+                    <small id="home-converter-rate-note">კურსი იტვირთება...</small>
+                </div>
+            </div>
+
+            <div class="home-converter-source" id="home-converter-source">წყარო: --</div>
+        </section>
+
         <section class="home-faq-section" id="faq" aria-labelledby="home-faq-title">
             <div class="home-faq-heading">
                 <h2 id="home-faq-title">FAQ <span>(ხშირად დასმული კითხვები)</span></h2>
@@ -556,7 +622,7 @@
 
             <!-- Footer Section -->
 <script src="js/footer.js"></script>
-<script src="js/main.js?v=5"></script>
+<script src="js/main.js?v=6"></script>
 
 </body>
 </html>

@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>ვალუტის კალკულატორი - საუკეთესო კურსის პოვნა | AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -340,6 +345,123 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+
+        @media (max-width: 600px) {
+            html,
+            body {
+                overflow-x: hidden;
+            }
+
+            .page-section > div:first-child {
+                padding: 0 10px;
+                box-sizing: border-box;
+            }
+
+            .page-section h2 {
+                width: 100%;
+                max-width: calc(100vw - 28px);
+                font-size: 1.02rem !important;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .page-section p {
+                padding: 0 8px;
+                box-sizing: border-box;
+            }
+
+            .calc-page-layout {
+                width: min(100%, calc(100vw - 24px), 366px) !important;
+                max-width: 366px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                align-items: stretch !important;
+                overflow: hidden;
+            }
+
+            .calc-container,
+            .calc-sidebar {
+                width: 100% !important;
+                max-width: 366px !important;
+                padding: 14px !important;
+                overflow: hidden;
+                box-sizing: border-box;
+            }
+
+            .category-tabs {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+                overflow: visible !important;
+            }
+
+            .category-tabs .cat-tab,
+            .category-tabs .official-tab {
+                min-width: 0 !important;
+                flex: none !important;
+                flex-basis: auto !important;
+                padding: 9px 8px;
+                font-size: 0.78rem;
+            }
+
+            .category-tabs .official-tab {
+                grid-column: 1 / -1;
+            }
+
+            .ccy-tabs {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                width: 100%;
+                overflow: visible !important;
+                gap: 7px;
+            }
+
+            .ccy-tabs .ccy-tab {
+                min-width: 0 !important;
+                padding: 8px 5px !important;
+                font-size: 0.78rem !important;
+                white-space: nowrap;
+            }
+
+            .calc-box {
+                padding: 17px 14px;
+            }
+
+            .input-group {
+                gap: 10px;
+            }
+
+            .calc-input {
+                flex: 1 1 auto;
+                min-width: 0;
+                width: auto;
+                font-size: 1.8rem;
+            }
+
+            .ccy-display {
+                flex: 0 0 auto;
+                max-width: 42%;
+                padding: 8px 10px;
+                font-size: 0.88rem;
+                white-space: nowrap;
+            }
+
+            .rate-display-container {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .top10-item {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .top10-company {
+                min-width: 0;
+                gap: 10px;
+            }
+        }
     </style>
 
     <!-- SEO Meta Tags -->
@@ -488,6 +610,14 @@
         'silk': 'Logos/silk_icon.png',
         'procredit': 'Logos/procredit.jpg',
         'leader': 'Logos/leader.jpg',
+        'smarti': 'Logos/smarti_icon.png',
+        'central': 'Logos/central_icon.svg',
+        'georgiancredit': 'Logos/georgiancredit_icon.png',
+        'tbmc': 'Logos/tbmc_icon.png',
+        'bermeli': 'Logos/bermeli_icon.svg',
+        'alphaexpress': 'Logos/alphaexpress_icon.png',
+        'scapp': 'Logos/scapp_icon.svg',
+        'expresslombard': 'Logos/expresslombard_icon.svg',
         'paysera': 'Logos/paysera_icon.png'
     };
 
@@ -513,6 +643,14 @@
         'silk': 'სილქ ბანკი',
         'procredit': 'პროკრედიტ ბანკი',
         'leader': 'ლიდერ კრედიტი',
+        'smarti': 'სმარტი',
+        'central': 'ცენტრალი',
+        'georgiancredit': 'ქართული კრედიტი',
+        'tbmc': 'თბილმიკროკრედიტი',
+        'bermeli': 'ბერმელი',
+        'alphaexpress': 'ალფა ექსპრესი',
+        'scapp': 'სკაპი',
+        'expresslombard': 'ექსპრეს ლომბარდი',
         'paysera': 'Paysera'
     };
     const COMPANY_URLS = {
@@ -537,13 +675,27 @@
         'silk': 'https://silkbank.ge/',
         'procredit': 'https://procreditbank.ge/',
         'leader': 'https://leadercredit.ge/',
+        'smarti': 'http://smartfin.ge/index.php/ka/products-ka/currency-exchange-k',
+        'central': 'https://central.ge/',
+        'georgiancredit': 'https://www.georgiancredit.ge/',
+        'tbmc': 'https://www.tbmc.ge/en/cven-shesaxeb/saqmianoba',
+        'bermeli': 'https://bermeli.ge/ka/currency',
+        'alphaexpress': 'https://alphaexpress.ge/',
+        'scapp': 'https://scapp.ge/ka/currency',
+        'expresslombard': 'https://expresslombard.ge/',
         'paysera': 'https://www.paysera.ge/v2/ka-GE/index'
     };
 
-    const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'paysera'];
+    const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'expresslombard', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp', 'paysera'];
     const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
-    const MFO_COMPANIES = ['rico', 'inex', 'giro', 'goa', 'leader'];
+    const MFO_COMPANIES = ['rico', 'giro', 'goa', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp'];
     const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
+    const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
+    const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+    const API_RATES_URL = IS_LOCAL_FRONTEND
+        ? 'http://localhost:3000/api/rates/latest'
+        : 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
+    const API_RATES_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
 
     const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'RUB': 4, 'GEL': 5 };
     const flags = { 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'RUB': '🇷🇺', 'GEL': '🇬🇪' };
@@ -642,10 +794,76 @@
         if (base === 'isbank') base = 'is';
         if (base === 'terabank') base = 'tera';
         if (base === 'inteliexpress' || base === 'inteli' || companyName.toLowerCase().includes('inex')) base = 'inex';
+        if (base === 'expresslombard' || companyName.toLowerCase().includes('express lombard')) base = 'expresslombard';
         if (base === 'cartubank') base = 'cartu';
         if (base === 'hashbank') base = 'hash';
         if (base === 'basisbank') base = 'bb';
+        if (base === 'smarti' || base === 'smartfin' || base === 'smart') base = 'smarti';
+        if (base === 'central') base = 'central';
+        if (base === 'georgiancredit' || base === 'georgian') base = 'georgiancredit';
+        if (base === 'tbmc' || base === 'tbilmicrocredit') base = 'tbmc';
+        if (base === 'bermeli') base = 'bermeli';
+        if (base === 'alphaexpress' || base === 'alpha') base = 'alphaexpress';
+        if (base === 'scapp') base = 'scapp';
         return base;
+    }
+
+    async function fetchJsonWithFallback(urls) {
+        let lastError = null;
+        for (const url of [...new Set(urls.filter(Boolean))]) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                if (!Array.isArray(data) || data.length < 10) {
+                    throw new Error(`Incomplete rates payload (${Array.isArray(data) ? data.length : 'not-array'})`);
+                }
+                return data;
+            } catch (error) {
+                lastError = error;
+                console.warn(`Rates API fetch failed (${url}):`, error.message);
+            }
+        }
+        throw lastError || new Error('Rates API fetch failed');
+    }
+
+    function getKursigePublicPair(rows, secondaryCode) {
+        const row = Array.isArray(rows) ? rows.find(item =>
+            String(item?.baseCurrencyCode || '').toUpperCase() === 'GEL' &&
+            String(item?.secondaryCurrencyCode || '').toUpperCase() === secondaryCode
+        ) : null;
+        return {
+            buy: row && Number.isFinite(Number(row.buyRate)) ? Number(row.buyRate) : '',
+            sell: row && Number.isFinite(Number(row.sellRate)) ? Number(row.sellRate) : ''
+        };
+    }
+
+    async function fetchKursigePublicCalculatorRate() {
+        try {
+            const response = await fetch(KURSIGE_PUBLIC_API_URL, { headers: { accept: 'application/json' } });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const rows = await response.json();
+            const usd = getKursigePublicPair(rows, 'USD');
+            const eur = getKursigePublicPair(rows, 'EUR');
+            const rub = getKursigePublicPair(rows, 'RUB');
+            if (!usd.buy && !usd.sell && !eur.buy && !eur.sell && !rub.buy && !rub.sell) return null;
+            return {
+                company: 'Kursige',
+                usdBuy: usd.buy,
+                usdSell: usd.sell,
+                eurBuy: eur.buy,
+                eurSell: eur.sell,
+                gbpBuy: '',
+                gbpSell: '',
+                rubBuy: rub.buy,
+                rubSell: rub.sell,
+                tryBuy: '',
+                trySell: ''
+            };
+        } catch (error) {
+            console.warn('Kursi.ge public API fetch failed:', error.message);
+            return null;
+        }
     }
 
     async function loadData() {
@@ -663,9 +881,11 @@
                 }
             }
 
-            const comRes = await fetch('https://allrates-backend-api-production.up.railway.app/api/rates/latest');
-            if (comRes.ok) {
-                commercialRates = await comRes.json();
+            commercialRates = await fetchJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]);
+            const kursigeLiveRate = await fetchKursigePublicCalculatorRate();
+            if (kursigeLiveRate) {
+                commercialRates = commercialRates.filter(item => getBaseCompany(item.company) !== 'kursige');
+                commercialRates.push(kursigeLiveRate);
             }
             
             updateAll();

@@ -13,7 +13,13 @@ function setDisplay(id, display) {
 }
 
 const API_MFO_URL = 'https://sheets-api-production-c989.up.railway.app/api/data';
+const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+const API_RATES_URL = IS_LOCAL_FRONTEND
+    ? 'http://localhost:3000/api/rates/latest'
+    : 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
+const API_RATES_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
 const API_GAS_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/latest';
+const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
 const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v2';
 const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
 const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
@@ -21,9 +27,9 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
         // კატეგორიები
-        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'paysera'];
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'expresslombard', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp', 'paysera'];
         const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
-        const MFO_COMPANIES = ['rico', 'inex', 'giro', 'goa', 'leader'];
+        const MFO_COMPANIES = ['rico', 'giro', 'goa', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp'];
         const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
         const TAB_LABELS = {
             all: 'ყველა კომპანია',
@@ -33,6 +39,25 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         };
 
         let currentTab = localStorage.getItem('allrates_current_tab') || 'all';
+
+        async function fetchJsonWithFallback(urls) {
+            let lastError = null;
+            for (const url of [...new Set(urls.filter(Boolean))]) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    if (!Array.isArray(data) || data.length < 10) {
+                        throw new Error(`Incomplete rates payload (${Array.isArray(data) ? data.length : 'not-array'})`);
+                    }
+                    return data;
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Rates API fetch failed (${url}):`, error.message);
+                }
+            }
+            throw lastError || new Error('Rates API fetch failed');
+        }
 
         function switchPage(page) {
             ['home-page','rates-page','api-page','contact-page'].forEach(id => {
@@ -138,6 +163,7 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         'credo': 'კრედო ბანკი',
         'cartu': 'ბანკი ქართუ',
         'inex': 'ინტელიექსპრესი',
+        'expresslombard': 'ექსპრეს ლომბარდი',
         'giro': 'გირო კრედიტი',
         'goa': 'გოა კრედიტი',
         'hash': 'ჰაშ ბანკი',
@@ -148,6 +174,13 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         'silk': 'სილქ ბანკი',
         'procredit': 'პროკრედიტ ბანკი',
         'leader': 'ლიდერ კრედიტი',
+        'smarti': 'სმარტი',
+        'central': 'ცენტრალი',
+        'georgiancredit': 'ქართული კრედიტი',
+        'tbmc': 'თბილმიკროკრედიტი',
+        'bermeli': 'ბერმელი',
+        'alphaexpress': 'ალფა ექსპრესი',
+        'scapp': 'სკაპი',
         'paysera': 'Paysera'
     };
 
@@ -163,6 +196,7 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         'credo': 'https://credobank.ge/',
         'cartu': 'https://cartubank.ge/',
         'inex': 'http://ge.inteliexpress.net/',
+        'expresslombard': 'https://expresslombard.ge/',
         'giro': 'https://girocredit.ge/',
         'goa': 'https://goacredit.ge/',
         'hash': 'https://hashbank.ge/ka',
@@ -173,7 +207,14 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
         'silk': 'https://silkbank.ge/',
         'paysera': 'https://www.paysera.ge/v2/ka-GE/index',
         'procredit': 'https://procreditbank.ge/',
-        'leader': 'https://leadercredit.ge/'
+        'leader': 'https://leadercredit.ge/',
+        'smarti': 'http://smartfin.ge/index.php/ka/products-ka/currency-exchange-k',
+        'central': 'https://central.ge/',
+        'georgiancredit': 'https://www.georgiancredit.ge/',
+        'tbmc': 'https://www.tbmc.ge/en/cven-shesaxeb/saqmianoba',
+        'bermeli': 'https://bermeli.ge/ka/currency',
+        'alphaexpress': 'https://alphaexpress.ge/',
+        'scapp': 'https://scapp.ge/ka/currency'
     };
 
         const LOGOS = {
@@ -188,6 +229,7 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
             'credo': 'Logos/credo_icon.png',
             'cartu': 'Logos/cartu_icon.ico',
             'inex': 'Logos/Inex.png',
+            'expresslombard': 'Logos/expresslombard_icon.svg',
             'giro': 'Logos/giro_icon.png',
             'goa': 'Logos/goa_icon.png',
             'hash': 'Logos/hash_icon.ico',
@@ -198,6 +240,13 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
             'silk': 'Logos/silk_icon.png',
             'procredit': 'Logos/procredit.jpg',
             'leader': 'Logos/leader.jpg',
+            'smarti': 'Logos/smarti_icon.png',
+            'central': 'Logos/central_icon.svg',
+            'georgiancredit': 'Logos/georgiancredit_icon.png',
+            'tbmc': 'Logos/tbmc_icon.png',
+            'bermeli': 'Logos/bermeli_icon.svg',
+            'alphaexpress': 'Logos/alphaexpress_icon.png',
+            'scapp': 'Logos/scapp_icon.svg',
             'paysera': 'Logos/paysera_icon.png'
         };
 
@@ -497,19 +546,25 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 // --- NEW API CALL FOR GEORGIAN COMPANIES ---
                 let newApiData = [];
                 try {
-                    const newApiRes = await fetch('https://allrates-backend-api-production.up.railway.app/api/rates/latest');
-                    if (newApiRes.ok) {
-                        const rawNewData = await newApiRes.json();
+                        const rawNewData = await fetchJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]);
                         newApiData = rawNewData.map(item => {
                             let base = item.company.split(' ')[0].toLowerCase();
                             if (base === 'isbank') base = 'is';
                             if (base === 'terabank') base = 'tera';
                             if (base === 'inteliexpress' || base === 'inteli' || item.company.toLowerCase().includes('inex')) base = 'inex';
+                            if (base === 'expresslombard' || item.company.toLowerCase().includes('express lombard')) base = 'expresslombard';
                             if (base === 'cartubank') base = 'cartu';
                             if (base === 'hashbank') base = 'hash';
                             if (base === 'basisbank') base = 'bb';
                             if (base === 'procredit') base = 'procredit';
                             if (base === 'leader') base = 'leader';
+                            if (base === 'smarti' || base === 'smartfin' || base === 'smart') base = 'smarti';
+                            if (base === 'central') base = 'central';
+                            if (base === 'georgiancredit' || base === 'georgian') base = 'georgiancredit';
+                            if (base === 'tbmc' || base === 'tbilmicrocredit') base = 'tbmc';
+                            if (base === 'bermeli') base = 'bermeli';
+                            if (base === 'alphaexpress' || base === 'alpha') base = 'alphaexpress';
+                            if (base === 'scapp') base = 'scapp';
                             
                             return {
                                 Company: item.company,
@@ -527,10 +582,14 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 'Update Time': item.tbilisiDateString || item.createdAt
                             };
                         });
-                    }
                 } catch(e) { console.error("New API fetch failed:", e); }
 
                 originalData = newApiData.length > 0 ? newApiData : combinedData.filter(item => item.Company && ALL_COMPANIES.includes(item.Company.toLowerCase()));
+                const kursigeLiveRow = await fetchKursigePublicRateRow();
+                if (kursigeLiveRow) {
+                    originalData = originalData.filter(item => getCompanyKey(item) !== 'kursige');
+                    originalData.push(kursigeLiveRow);
+                }
                 updateTabCounts();
 
                 // --- POPULATE TICKER ---
@@ -607,6 +666,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
                 
                 renderHomePage();
+                updateHomeConverter();
                 
                 // Cache data for instant loading next time
                 localStorage.setItem('cachedRatesData', JSON.stringify(originalData));
@@ -683,6 +743,235 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const stats = calculateStats(currency);
                 updateDom(currency, stats);
             });
+        }
+
+        function getHomeConverterCurrency(pair) {
+            return String(pair || 'USDGEL').replace('GEL', '').toUpperCase();
+        }
+
+        function updateHomeConverterDirectionLabels() {
+            const pairEl = document.getElementById('home-converter-pair');
+            const directionEl = document.getElementById('home-converter-direction');
+            if (!pairEl || !directionEl) return;
+
+            const currency = getHomeConverterCurrency(pairEl.value);
+            const selected = directionEl.value || 'gel-to-foreign';
+            directionEl.innerHTML = `
+                <option value="gel-to-foreign">გავყიდი GEL ⇄ ვიყიდი ${currency}</option>
+                <option value="foreign-to-gel">გავყიდი ${currency} ⇄ ვიყიდი GEL</option>
+            `;
+            directionEl.value = selected;
+        }
+
+        function getHomeConverterCurrencies() {
+            const pairEl = document.getElementById('home-converter-pair');
+            const directionEl = document.getElementById('home-converter-direction');
+            const currency = getHomeConverterCurrency(pairEl?.value);
+            const direction = directionEl?.value || 'gel-to-foreign';
+            return {
+                sellCurrency: direction === 'foreign-to-gel' ? currency : 'GEL',
+                buyCurrency: direction === 'foreign-to-gel' ? 'GEL' : currency
+            };
+        }
+
+        function setHomeConverterInputValue(el, value, currency) {
+            if (!el) return;
+            if (!Number.isFinite(value)) {
+                el.value = '';
+                return;
+            }
+            const decimals = currency === 'GEL' ? 2 : getHomeConverterDecimals(currency);
+            el.value = value.toFixed(decimals);
+        }
+
+        function getHomeConverterDecimals(currency) {
+            return ['RUB', 'TRY'].includes(currency) ? 4 : 3;
+        }
+
+        function formatHomeConverterValue(value, currency) {
+            if (!Number.isFinite(value)) return '--';
+            const decimals = currency === 'GEL' ? 2 : getHomeConverterDecimals(currency);
+            return `${value.toLocaleString('ka-GE', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            })} ${currency}`;
+        }
+
+        function getHomeOfficialRate(currency) {
+            try {
+                const cachedNBG = JSON.parse(localStorage.getItem('cachedNBGData') || '{}');
+                const direct = Number(cachedNBG[String(currency).toLowerCase()]);
+                if (Number.isFinite(direct) && direct > 0) return direct;
+                const item = Array.isArray(cachedNBG.officialRates)
+                    ? cachedNBG.officialRates.find(rate => rate.code === currency)
+                    : null;
+                const fromList = Number(item?.rate);
+                return Number.isFinite(fromList) && fromList > 0 ? fromList : NaN;
+            } catch {
+                return NaN;
+            }
+        }
+
+        function getHomeCompanyName(item) {
+            if (!item) return '';
+            const key = item.baseCompany || getCompanyKey(item);
+            let name = item.Company || '';
+            if (key && typeof COMPANY_NAMES_KA !== 'undefined' && COMPANY_NAMES_KA[key]) {
+                const match = String(item.Company || '').match(/\((.*?)\)/);
+                name = match ? `${COMPANY_NAMES_KA[key]} (${match[1]})` : COMPANY_NAMES_KA[key];
+            }
+            return name;
+        }
+
+        function getKursigePublicPair(rows, secondaryCode) {
+            const row = Array.isArray(rows) ? rows.find(item =>
+                String(item?.baseCurrencyCode || '').toUpperCase() === 'GEL' &&
+                String(item?.secondaryCurrencyCode || '').toUpperCase() === secondaryCode
+            ) : null;
+            return {
+                buy: row && Number.isFinite(Number(row.buyRate)) ? Number(row.buyRate) : '',
+                sell: row && Number.isFinite(Number(row.sellRate)) ? Number(row.sellRate) : ''
+            };
+        }
+
+        async function fetchKursigePublicRateRow() {
+            try {
+                const response = await fetch(KURSIGE_PUBLIC_API_URL, { headers: { accept: 'application/json' } });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const rows = await response.json();
+                const usd = getKursigePublicPair(rows, 'USD');
+                const eur = getKursigePublicPair(rows, 'EUR');
+                const rub = getKursigePublicPair(rows, 'RUB');
+                if (!usd.buy && !usd.sell && !eur.buy && !eur.sell && !rub.buy && !rub.sell) return null;
+
+                return {
+                    Company: 'Kursige',
+                    baseCompany: 'kursige',
+                    'USDGEL (Buy)': usd.buy,
+                    'USDGEL (Sell)': usd.sell,
+                    'EURGEL (Buy)': eur.buy,
+                    'EURGEL (Sell)': eur.sell,
+                    'GBPGEL (Buy)': '',
+                    'GBPGEL (Sell)': '',
+                    'RUBGEL (Buy)': rub.buy,
+                    'RUBGEL (Sell)': rub.sell,
+                    'TRYGEL (Buy)': '',
+                    'TRYGEL (Sell)': '',
+                    'Update Time': new Date().toISOString()
+                };
+            } catch (error) {
+                console.warn('Kursi.ge public API fetch failed:', error.message);
+                return null;
+            }
+        }
+
+        function getHomeCommercialRate(pair, direction) {
+            const currency = getHomeConverterCurrency(pair).toLowerCase();
+            const buyKey = `${currency.toUpperCase()}GEL (Buy)`;
+            const sellKey = `${currency.toUpperCase()}GEL (Sell)`;
+            const candidates = originalData
+                .map(item => ({
+                    item,
+                    buy: Number(item[buyKey]),
+                    sell: Number(item[sellKey])
+                }))
+                .filter(row => Number.isFinite(row.buy) && row.buy > 0 && Number.isFinite(row.sell) && row.sell > 0);
+
+            if (!candidates.length) return null;
+            const best = candidates.sort((a, b) => {
+                return direction === 'foreign-to-gel' ? b.buy - a.buy : a.sell - b.sell;
+            })[0];
+
+            return {
+                rate: direction === 'foreign-to-gel' ? best.buy : best.sell,
+                company: getHomeCompanyName(best.item)
+            };
+        }
+
+        function updateHomeConverter() {
+            const sellAmountEl = document.getElementById('home-converter-sell-amount');
+            const buyAmountEl = document.getElementById('home-converter-buy-amount');
+            const sellLabelEl = document.getElementById('home-converter-sell-label');
+            const buyLabelEl = document.getElementById('home-converter-buy-label');
+            const pairEl = document.getElementById('home-converter-pair');
+            const directionEl = document.getElementById('home-converter-direction');
+            const noteEl = document.getElementById('home-converter-rate-note');
+            const sourceEl = document.getElementById('home-converter-source');
+            if (!sellAmountEl || !buyAmountEl || !pairEl || !directionEl || !noteEl || !sourceEl) return;
+
+            const typeBtn = document.querySelector('.home-converter-type.active');
+            const type = typeBtn?.dataset.homeConverterType || 'official';
+            const pair = pairEl.value || 'USDGEL';
+            const currency = getHomeConverterCurrency(pair);
+            const direction = directionEl.value || 'gel-to-foreign';
+            const { sellCurrency, buyCurrency } = getHomeConverterCurrencies();
+            if (sellLabelEl) sellLabelEl.textContent = `გასაყიდი ${sellCurrency}`;
+            if (buyLabelEl) buyLabelEl.textContent = `საყიდელი ${buyCurrency}`;
+
+            let rate = NaN;
+            let source = '';
+            if (type === 'commercial') {
+                const commercial = getHomeCommercialRate(pair, direction);
+                if (commercial) {
+                    rate = commercial.rate;
+                    source = `კომპანია: ${commercial.company || 'უცნობი'} (არჩეული წყვილისთვის საუკეთესო კურსი, ${direction === 'foreign-to-gel' ? 'ყიდვა' : 'გაყიდვა'})`;
+                }
+            } else {
+                rate = getHomeOfficialRate(currency);
+                source = 'წყარო: საქართველოს ეროვნული ბანკი';
+            }
+
+            if (!Number.isFinite(rate) || rate <= 0) {
+                buyAmountEl.value = '';
+                noteEl.textContent = 'არჩეულ წყვილზე კურსი ჯერ ვერ მოიძებნა';
+                sourceEl.textContent = source || 'წყარო: --';
+                return;
+            }
+
+            const activeSide = document.activeElement === buyAmountEl ? 'buy' : 'sell';
+            const sellAmount = Number(sellAmountEl.value);
+            const buyAmount = Number(buyAmountEl.value);
+
+            if (activeSide === 'buy') {
+                if (!Number.isFinite(buyAmount) || buyAmount < 0) {
+                    sellAmountEl.value = '';
+                } else {
+                    const converted = direction === 'foreign-to-gel' ? buyAmount / rate : buyAmount * rate;
+                    setHomeConverterInputValue(sellAmountEl, converted, sellCurrency);
+                }
+            } else if (!Number.isFinite(sellAmount) || sellAmount < 0) {
+                buyAmountEl.value = '';
+            } else {
+                const converted = direction === 'foreign-to-gel' ? sellAmount * rate : sellAmount / rate;
+                setHomeConverterInputValue(buyAmountEl, converted, buyCurrency);
+            }
+
+            noteEl.textContent = `1 ${currency} = ${rate.toFixed(getHomeConverterDecimals(currency))} GEL`;
+            sourceEl.textContent = source;
+        }
+
+        function initHomeConverter() {
+            const sellAmountEl = document.getElementById('home-converter-sell-amount');
+            const buyAmountEl = document.getElementById('home-converter-buy-amount');
+            const pairEl = document.getElementById('home-converter-pair');
+            const directionEl = document.getElementById('home-converter-direction');
+            if (!sellAmountEl || !buyAmountEl || !pairEl || !directionEl) return;
+
+            document.querySelectorAll('.home-converter-type').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.home-converter-type').forEach(item => item.classList.remove('active'));
+                    button.classList.add('active');
+                    updateHomeConverter();
+                });
+            });
+            [sellAmountEl, buyAmountEl].forEach(el => el.addEventListener('input', updateHomeConverter));
+            pairEl.addEventListener('change', () => {
+                updateHomeConverterDirectionLabels();
+                updateHomeConverter();
+            });
+            directionEl.addEventListener('change', updateHomeConverter);
+            updateHomeConverterDirectionLabels();
+            updateHomeConverter();
         }
 
         
@@ -872,7 +1161,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             },
             {
                 label: 'თხევადი გაზი',
-                match: text => (text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
+                match: text => (text.includes('lpg') || text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
             }
         ];
 
@@ -903,7 +1192,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 (records || []).forEach(record => {
                     const prices = Array.isArray(record.prices) ? record.prices : [];
                     const companyCategoryPrices = prices
-                        .filter(price => category.match(`${price.product || ''} ${price.productEng || ''} ${price.code || ''}`.toLowerCase()))
+                        .filter(price => category.match(`${price.product || ''} ${price.productEng || ''} ${price.code || ''} ${price.type || ''}`.toLowerCase()))
                         .map(getHomeGasComparablePrice)
                         .filter(value => Number.isFinite(value) && value > 0);
 
@@ -1102,6 +1391,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     // Cache NBG data
                     localStorage.setItem('cachedNBGData', JSON.stringify(cacheData));
+                    updateHomeConverter();
                 }
             } catch (err) {
                 console.error('ეროვნული ბანკის კურსების ჩატვირთვა ვერ მოხერხდა', err);
@@ -1670,12 +1960,43 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             if (company.includes('cartu')) return 'cartu';
             if (company.includes('hash')) return 'hash';
             if (company.includes('inteliexpress') || company.includes('inex')) return 'inex';
+            if (company.includes('expresslombard') || company.includes('express lombard')) return 'expresslombard';
             if (company.includes('isbank')) return 'is';
             if (company.includes('terabank')) return 'tera';
             if (company.includes('leader')) return 'leader';
+            if (company.includes('smarti') || company.includes('smartfin') || company.includes('smart')) return 'smarti';
+            if (company.includes('central')) return 'central';
+            if (company.includes('georgiancredit') || company.includes('georgian credit')) return 'georgiancredit';
+            if (company.includes('tbmc') || company.includes('tbilmicrocredit')) return 'tbmc';
+            if (company.includes('bermeli')) return 'bermeli';
+            if (company.includes('alphaexpress') || company.includes('alpha express')) return 'alphaexpress';
+            if (company.includes('scapp')) return 'scapp';
             if (company.includes('procredit')) return 'procredit';
             if (company.includes('kursige') || company.includes('kursi')) return 'kursige';
             return company.split(/\s|\(/)[0];
+        }
+
+        function getRateChannelName(item) {
+            const match = String(item?.Company || '').match(/\((.*?)\)/);
+            return match ? match[1].trim().toLowerCase() : '';
+        }
+
+        function isAllowedBankRateChannel(item) {
+            const channel = getRateChannelName(item);
+            if (!channel) return true;
+            if (channel.includes('კომერც')) return true;
+            if (channel.includes('mobile') || channel.includes('მობაილ')) return true;
+            if (channel.includes('ინტერნეტ ბანკი')) return true;
+            return false;
+        }
+
+        function buildCompanyRowCounts(data) {
+            return data.reduce((counts, item) => {
+                const key = getCompanyKey(item);
+                if (!key) return counts;
+                counts[key] = (counts[key] || 0) + 1;
+                return counts;
+            }, {});
         }
 
         function countUniqueCompaniesForTab(tab, data = originalData) {
@@ -1746,10 +2067,11 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             tbody.innerHTML = ''; 
 
             let dataArr = currency === 'usd' ? usdData : currency === 'eur' ? eurData : currency === 'gbp' ? gbpData : currency === 'rub' ? rubData : tryData;
+            const companyRowCounts = buildCompanyRowCounts(dataArr);
 
             // ვფილტრავთ არჩეული გვერდის (Tab) მიხედვით
             let dataToRender = dataArr.filter(item => {
-                const comp = item.baseCompany || item.Company.toLowerCase();
+                const comp = getCompanyKey(item);
                 let matchTab = false;
                 if (currentTab === 'all') matchTab = true;
                 else if (currentTab === 'banks') matchTab = BANK_COMPANIES.includes(comp);
@@ -1757,6 +2079,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 else if (currentTab === 'kiosks') matchTab = KIOSK_COMPANIES.includes(comp);
                 
                 if (!matchTab) return false;
+                if (BANK_COMPANIES.includes(comp) && companyRowCounts[comp] > 1 && !isAllowedBankRateChannel(item)) return false;
 
                 if (currency === 'gbp' || currency === 'rub' || currency === 'try') {
                     let buy = currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Buy)']) : parseFloat(item['TRYGEL (Buy)']);
@@ -1939,6 +2262,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     
                     renderHomePage();
+                    updateHomeConverter();
                     setDisplay('tables-wrapper', 'flex');
                 }
                 
@@ -1968,6 +2292,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     setDisplay('nbg-rates-box', 'flex');
                     if (Array.isArray(nbg.officialRates)) renderHomeOfficialRates(nbg.officialRates);
+                    updateHomeConverter();
                 }
             } catch (err) {
                 console.error("ქეშის ჩატვირთვის შეცდომა:", err);
@@ -2205,6 +2530,20 @@ window.openCompanyInfo = function(key, displayName) {
     modal.style.display = 'flex';
 };
 
+window.openRatesInfoModal = function() {
+    const modal = document.getElementById('rates-info-modal');
+    if (!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+};
+
+window.closeRatesInfoModal = function() {
+    const modal = document.getElementById('rates-info-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+};
+
 // Also close it correctly
 document.addEventListener('DOMContentLoaded', () => {
     const savedTab = localStorage.getItem('allrates_current_tab');
@@ -2225,9 +2564,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    const ratesInfoModal = document.getElementById('rates-info-modal');
+    if (ratesInfoModal) {
+        ratesInfoModal.addEventListener('click', (e) => {
+            if (e.target === ratesInfoModal) closeRatesInfoModal();
+        });
+    }
 
     bindMarketSearch();
     bindHomeMarketScrollControls();
+    initHomeConverter();
 
     initNbgCharts();
 });

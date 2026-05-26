@@ -1,9 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
     const authBtn = document.getElementById("authBtn");
+    const isFilePreview = window.location.protocol === "file:";
+    const isLocalServer = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+    const isLocalPreview = isLocalServer || isFilePreview;
     const apiOrigin = window.ALLRATES_API_ORIGIN
+        || (isLocalServer ? "http://localhost:3000" : null)
         || "https://allrates-backend-api-production.up.railway.app";
     const API_URL = `${apiOrigin}/api/auth`;
-    const isLocalPreview = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
 
     function getAuthHref(path) {
         if (!isLocalPreview) return path;
@@ -101,6 +104,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getStoredToken() {
         return localStorage.getItem("token") || sessionStorage.getItem("token");
+    }
+
+    function isHomePage() {
+        const path = window.location.pathname.split("/").filter(Boolean).pop() || "index";
+        return path === "index" || path === "index.html";
+    }
+
+    function redirectToDashboardOnFirstLoggedInLoad() {
+        const token = getStoredToken();
+        const redirectKey = "allrates_logged_in_initial_page_done";
+        if (!token || !isHomePage() || sessionStorage.getItem(redirectKey)) return;
+
+        sessionStorage.setItem(redirectKey, "1");
+        window.location.href = getAuthHref("/create-dashboard");
     }
 
     function saveSession(data, remember = true) {
@@ -380,5 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    redirectToDashboardOnFirstLoggedInLoad();
     updateAuthNav();
 });

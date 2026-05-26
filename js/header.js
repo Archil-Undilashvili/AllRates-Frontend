@@ -28,7 +28,7 @@ document.write(`
                 </svg>
                 <span class="site-brand-text">AllRates<span>.ge</span><span class="site-beta-label">(Beta)</span></span>
             </span>
-            <span class="site-brand-tagline">ბიზნეს და საბანკო პლათფორმა</span>
+            <span class="site-brand-tagline">ბიზნეს და საბანკო პლატფორმა</span>
         </a>
 
         <button class="mobile-menu-toggle" type="button" aria-label="მენიუს გახსნა" aria-expanded="false" aria-controls="site-nav-links">
@@ -42,9 +42,13 @@ document.write(`
                 <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5 10.5V20h5v-5h4v5h5v-9.5"></path></svg>
                 მთავარი
             </a>
+            <a href="${getPreviewHref('/about')}" class="nav-link" data-page="about">
+                <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v6c0 4 3.4 7.2 8 8 4.6-.8 8-4 8-8V7l-8-4Z"></path><path d="M9 12l2 2 4-5"></path></svg>
+                ჩვენს შესახებ
+            </a>
             <a href="${getPreviewHref('/rates')}" class="nav-link nav-link-with-note" data-page="rates">
                 <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11"></path><path d="M7 17h11"></path><path d="M4 7h.01"></path><path d="M4 17h.01"></path><path d="m15 4 3 3-3 3"></path><path d="m10 14-3 3 3 3"></path></svg>
-                შეადარე კურსები <span>(მოძებნე საუკეთესო კურსი)</span>
+                შეადარე კურსები <span>მოძებნე საუკეთესო კურსი</span>
             </a>
             <a href="${getPreviewHref('/sawvavis-fasebi')}" class="nav-link nav-link-gas" data-page="sawvavis-fasebi" aria-label="საწვავის ფასები">
                 <svg class="nav-gas-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -61,7 +65,7 @@ document.write(`
             </a>
             <a href="${getPreviewHref('/official')}" class="nav-link nav-link-with-note" data-page="official">
                 <img src="Logos/nbg_logo_cropped.png" alt="" class="nav-link-logo">
-                ოფიციალური კურსები <span>(ჩამოტვირთე xlsx.)</span>
+                ოფიციალური კურსები <span class="nav-download-note">ჩამოტვირთე <i aria-hidden="true">XLS</i></span>
             </a>
             <a href="${getPreviewHref('/contact')}" class="nav-link" data-page="contact">
                 <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"></path><path d="m4 7 8 6 8-6"></path></svg>
