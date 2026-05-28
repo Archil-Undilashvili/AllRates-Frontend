@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&display=swap');
+
 :root {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
@@ -17,7 +19,7 @@
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Noto Sans Georgian', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
@@ -60,6 +62,7 @@
             gap: 3px;
             min-width: 0;
             flex-shrink: 0;
+            margin-right: clamp(18px, 2.2vw, 42px);
         }
 
         .site-brand-main {
@@ -115,7 +118,8 @@
             display: flex;
             align-items: center;
             margin-left: auto;
-            gap: 26px;
+            gap: clamp(18px, 1.55vw, 28px);
+            min-width: 0;
         }
 
         .nav-link {
@@ -2395,30 +2399,7 @@
 
         .home-market-scroll-frame::before,
         .home-market-scroll-frame::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            bottom: 12px;
-            width: 86px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.18s ease;
-            z-index: 7;
-        }
-
-        .home-market-scroll-frame::before {
-            left: 0;
-            background: linear-gradient(to right, var(--bg-color), rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0));
-        }
-
-        .home-market-scroll-frame::after {
-            right: 0;
-            background: linear-gradient(to left, var(--bg-color), rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0));
-        }
-
-        .home-market-scroll-frame.has-left-scroll::before,
-        .home-market-scroll-frame.has-right-scroll::after {
-            opacity: 1;
+            display: none;
         }
 
         .home-market-scroll {
@@ -2541,6 +2522,33 @@
             padding-right: 2px;
             flex: 1 1 auto;
             min-height: 0;
+        }
+
+        #crypto-rates-section .market-card-title {
+            padding-left: 30px;
+            padding-right: 34px;
+        }
+
+        #crypto-rates-section .market-card-title > span {
+            overflow: visible;
+            text-overflow: clip;
+            gap: 5px;
+            line-height: 1.1;
+        }
+
+        .home-title-text-fit {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: clip;
+            white-space: nowrap;
+            font-size: clamp(0.66rem, 0.78vw, 0.78rem);
+            line-height: 1.1;
+        }
+
+        #crypto-rates-section .live-badge,
+        .home-gas-title .live-badge {
+            margin-left: 2px;
+            gap: 4px;
         }
 
         .market-card-title {
@@ -2701,11 +2709,47 @@
             color: var(--text-main);
             font-weight: 850;
             text-align: left;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .home-gas-category-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            object-fit: cover;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .home-gas-value {
             color: var(--buy-color);
             white-space: nowrap;
+        }
+
+        .home-gas-change {
+            font-size: 0.65em;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0;
+            margin-left: 6px;
+            white-space: nowrap;
+        }
+
+        .home-gas-change-positive {
+            color: var(--buy-color);
+        }
+
+        .home-gas-change-negative {
+            color: var(--sell-color);
+        }
+
+        .home-gas-change-neutral {
+            color: var(--text-muted);
         }
 
         .home-rates-grid .home-card-collapsible .intl-rates-list::after,
@@ -2719,6 +2763,10 @@
             height: 38px;
             pointer-events: none;
             background: linear-gradient(to bottom, rgba(30, 41, 59, 0), var(--card-bg));
+        }
+
+        .home-gas-card .intl-rates-list::after {
+            display: none;
         }
 
         .home-official-list {
@@ -3983,6 +4031,26 @@
             font-weight: 600;
         }
 
+        .home-market-title-change {
+            font-size: 0.72em;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0;
+            white-space: nowrap;
+        }
+
+        .home-market-title-change .market-change-positive {
+            color: var(--buy-color);
+        }
+
+        .home-market-title-change .market-change-negative {
+            color: var(--sell-color);
+        }
+
+        .home-market-title-change .market-change-neutral {
+            color: var(--text-muted);
+        }
+
         .intl-rates-list {
             flex-direction: column;
             gap: 8px;
@@ -4360,6 +4428,10 @@ th.sortable.active-sort .sort-icon {
     .site-logo {
         width: 34px;
         height: 34px;
+    }
+
+    .site-brand {
+        margin-right: 0;
     }
 
     .site-brand-text {

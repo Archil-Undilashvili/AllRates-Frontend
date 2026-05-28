@@ -19,10 +19,14 @@ const API_RATES_URL = IS_LOCAL_FRONTEND
     : 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
 const API_RATES_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
 const API_GAS_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/latest';
+const API_GAS_SUMMARY_URL = IS_LOCAL_FRONTEND
+    ? 'http://localhost:3000/api/gas/market-summary'
+    : 'https://allrates-backend-api-production.up.railway.app/api/gas/market-summary';
+const API_GAS_SUMMARY_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/market-summary';
 const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
 const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v2';
 const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
-const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v1';
+const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
@@ -682,6 +686,60 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         function renderHomePage() {
             if (originalData.length === 0) return;
 
+            function getOfficialMarketRate(currency) {
+                try {
+                    const code = String(currency || '').toUpperCase();
+                    const cachedNBG = JSON.parse(localStorage.getItem('cachedNBGData') || '{}');
+                    const adjustedRate = Number(cachedNBG.marketOfficialRates?.[code]);
+                    if (Number.isFinite(adjustedRate) && adjustedRate > 0) return adjustedRate;
+
+                    let rawRate = Number(cachedNBG[code.toLowerCase()]);
+                    if (!Number.isFinite(rawRate) || rawRate <= 0) return NaN;
+
+                    // Older cache entries kept NBG's displayed rate without quantity normalization.
+                    if ((code === 'RUB' || code === 'TRY') && rawRate > 1) rawRate /= 100;
+                    return rawRate;
+                } catch (_) {
+                    return NaN;
+                }
+            }
+
+            function formatMarketChange(stats, currency) {
+                if (!Number.isFinite(stats.avgBuy) || !Number.isFinite(stats.avgSell)) return '';
+
+                const officialRate = getOfficialMarketRate(currency);
+                if (!Number.isFinite(officialRate) || officialRate <= 0) return '';
+
+                const marketMid = (stats.avgBuy + stats.avgSell) / 2;
+                const change = ((officialRate - marketMid) / officialRate) * 100;
+                if (!Number.isFinite(change)) return '';
+
+                const className = change > 0
+                    ? 'market-change-positive'
+                    : change < 0
+                        ? 'market-change-negative'
+                        : 'market-change-neutral';
+                const sign = change > 0 ? '+' : '';
+                return {
+                    className,
+                    text: `${sign}${change.toFixed(2)}%`
+                };
+            }
+
+            function isValidMarketRate(currency, buy, sell) {
+                if (!Number.isFinite(buy) || !Number.isFinite(sell) || buy <= 0 || sell <= 0 || sell < buy) return false;
+
+                const sanityRanges = {
+                    usd: [1, 5],
+                    eur: [1, 6],
+                    gbp: [1, 7],
+                    rub: [0.01, 0.1],
+                    try: [0.02, 0.15]
+                };
+                const [min, max] = sanityRanges[currency] || [0, Infinity];
+                return buy >= min && sell <= max;
+            }
+
             function calculateStats(currency) {
                 // Get valid items and sort by spread to find top 10
                 let validItems = originalData.map(item => {
@@ -708,7 +766,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         spread = item.trySpread;
                     }
                     return { buy, sell, spread };
-                }).filter(item => !isNaN(item.buy) && !isNaN(item.sell) && !isNaN(item.spread) && item.spread !== Infinity);
+                }).filter(item => isValidMarketRate(currency, item.buy, item.sell) && Number.isFinite(item.spread) && item.spread !== Infinity);
 
                 // Sort by spread (ascending)
                 validItems.sort((a, b) => a.spread - b.spread);
@@ -731,9 +789,18 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             }
 
             function updateDom(currency, stats) {
-                setInnerText(`home-${currency}-market-buy`, isNaN(stats.avgBuy) ? '--.---' : stats.avgBuy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
-                setInnerText(`home-${currency}-market-sell`, isNaN(stats.avgSell) ? '--.---' : stats.avgSell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                const digits = (currency === 'rub' || currency === 'try') ? 4 : 3;
+                const change = formatMarketChange(stats, currency);
+                const buyText = isNaN(stats.avgBuy) ? '--.---' : stats.avgBuy.toFixed(digits);
+                const sellText = isNaN(stats.avgSell) ? '--.---' : stats.avgSell.toFixed(digits);
+
+                setInnerText(`home-${currency}-market-buy`, buyText);
+                setInnerText(`home-${currency}-market-sell`, sellText);
                 setInnerText(`home-${currency}-market-spread`, isNaN(stats.avgSpread) ? '--.---' : stats.avgSpread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                setInnerHTML(
+                    `home-${currency}-market-change`,
+                    change ? `<span class="${change.className}">${change.text}</span>` : ''
+                );
 
                 // Removed best bank/mfo from home
 
@@ -1145,22 +1212,27 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         const HOME_GAS_CATEGORIES = [
             {
                 label: 'სუპერი',
+                icon: 'Logos/gas/categories/super.svg',
                 match: text => (text.includes('სუპერ') || text.includes('super')) && !text.includes('premium') && !text.includes('პრემიუმ')
             },
             {
                 label: 'პრემიუმი',
+                icon: 'Logos/gas/categories/premium.svg',
                 match: text => text.includes('პრემიუმ') || text.includes('premium') || text.includes('avangard')
             },
             {
                 label: 'რეგულარი',
+                icon: 'Logos/gas/categories/regular.svg',
                 match: text => text.includes('რეგულარ') || text.includes('regular')
             },
             {
                 label: 'დიზელი',
+                icon: 'Logos/gas/categories/diesel.svg',
                 match: text => text.includes('დიზელ') || text.includes('diesel')
             },
             {
                 label: 'თხევადი გაზი',
+                icon: 'Logos/gas/categories/lpg.svg',
                 match: text => (text.includes('lpg') || text.includes('თხევად') || text.includes('გაზი') || text.includes('აირი')) && !text.includes('ბუნებრივ')
             }
         ];
@@ -1205,15 +1277,78 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     ? companyBestPrices.reduce((sum, value) => sum + value, 0) / companyBestPrices.length
                     : null;
 
-                return { label: category.label, average };
+                return { label: category.label, icon: category.icon, average };
             });
 
             container.innerHTML = rows.map(row => `
                 <div class="intl-rate-item home-gas-rate-item" data-market-search="${row.label.toLowerCase()}">
-                    <span class="intl-pair home-gas-pair">${row.label}</span>
+                    <span class="intl-pair home-gas-pair">
+                        <img src="${row.icon}" alt="" class="home-gas-category-icon" loading="lazy">
+                        <span>${row.label}</span>
+                    </span>
                     <span class="intl-value home-gas-value">${row.average ? `${row.average.toFixed(2)} ₾` : '- - -'}</span>
                 </div>
             `).join('');
+        }
+
+        function formatHomeGasChange(changePercent) {
+            const value = Number(changePercent);
+            if (!Number.isFinite(value)) return '';
+
+            const className = value < 0
+                ? 'home-gas-change-positive'
+                : value > 0
+                    ? 'home-gas-change-negative'
+                    : 'home-gas-change-neutral';
+            const sign = value > 0 ? '+' : '';
+            return `<span class="home-gas-change ${className}">${sign}${value.toFixed(2)}%</span>`;
+        }
+
+        function renderHomeGasMarketSummary(summary) {
+            const container = document.getElementById('home-gas-rates-list');
+            if (!container) return false;
+
+            const categories = Array.isArray(summary?.categories) ? summary.categories : [];
+            if (!categories.length) return false;
+
+            container.innerHTML = categories.map(row => {
+                const average = Number(row.average);
+                const valueText = Number.isFinite(average) && average > 0 ? `${average.toFixed(2)} ₾` : '- - -';
+                return `
+                    <div class="intl-rate-item home-gas-rate-item" data-market-search="${String(row.label || '').toLowerCase()}">
+                        <span class="intl-pair home-gas-pair">
+                            <img src="${row.icon || `Logos/gas/categories/${row.key}.svg`}" alt="" class="home-gas-category-icon" loading="lazy">
+                            <span>${row.label}</span>
+                        </span>
+                        <span class="intl-value home-gas-value">${valueText} ${formatHomeGasChange(row.changePercent)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            return true;
+        }
+
+        async function fetchGasSummaryWithFallback() {
+            const urls = IS_LOCAL_FRONTEND
+                ? [API_GAS_SUMMARY_URL, API_GAS_SUMMARY_FALLBACK_URL]
+                : [API_GAS_SUMMARY_URL];
+
+            let lastError = null;
+            for (const url of [...new Set(urls)]) {
+                try {
+                    const response = await fetch(url, { headers: { accept: 'application/json' } });
+                    if (!response.ok) throw new Error(`Gas summary API error: ${response.status}`);
+                    const summary = await response.json();
+                    if (!Array.isArray(summary?.categories) || !summary.categories.length) {
+                        throw new Error('Incomplete gas summary payload');
+                    }
+                    return summary;
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Gas summary fetch failed (${url}):`, error.message);
+                }
+            }
+            throw lastError || new Error('Gas summary fetch failed');
         }
 
         async function fetchHomeGasMarketPrices() {
@@ -1223,7 +1358,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
             try {
                 const cached = JSON.parse(localStorage.getItem(HOME_GAS_CACHE_KEY) || 'null');
-                if (Array.isArray(cached?.records) && cached.records.length) {
+                if (cached?.summary && renderHomeGasMarketSummary(cached.summary)) {
+                    hasCachedGas = true;
+                } else if (Array.isArray(cached?.records) && cached.records.length) {
                     renderHomeGasMarketPrices(cached.records);
                     hasCachedGas = true;
                 }
@@ -1232,21 +1369,27 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             }
 
             try {
-                const response = await fetch(API_GAS_URL, { headers: { accept: 'application/json' } });
-                if (!response.ok) throw new Error(`Gas API error: ${response.status}`);
-
-                const records = await response.json();
-                renderHomeGasMarketPrices(records);
-                localStorage.setItem(HOME_GAS_CACHE_KEY, JSON.stringify({ records, updatedAt: Date.now() }));
+                const summary = await fetchGasSummaryWithFallback();
+                renderHomeGasMarketSummary(summary);
+                localStorage.setItem(HOME_GAS_CACHE_KEY, JSON.stringify({ summary, updatedAt: Date.now() }));
             } catch (error) {
                 console.error('საწვავის საბაზრო ფასების ჩატვირთვის შეცდომა:', error);
                 if (!hasCachedGas) {
-                    container.innerHTML = `
-                        <div class="intl-rate-item home-gas-rate-item">
-                            <span class="intl-pair">საწვავის ფასები</span>
-                            <span class="intl-value">- - -</span>
-                        </div>
-                    `;
+                    try {
+                        const response = await fetch(API_GAS_URL, { headers: { accept: 'application/json' } });
+                        if (!response.ok) throw new Error(`Gas API error: ${response.status}`);
+                        const records = await response.json();
+                        renderHomeGasMarketPrices(records);
+                        localStorage.setItem(HOME_GAS_CACHE_KEY, JSON.stringify({ records, updatedAt: Date.now() }));
+                    } catch (fallbackError) {
+                        console.error('საწვავის fallback ფასების ჩატვირთვის შეცდომა:', fallbackError);
+                        container.innerHTML = `
+                            <div class="intl-rate-item home-gas-rate-item">
+                                <span class="intl-pair">საწვავის ფასები</span>
+                                <span class="intl-value">- - -</span>
+                            </div>
+                        `;
+                    }
                 }
             }
         }
@@ -1362,13 +1505,15 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 if (data && data.length > 0 && data[0].currencies) {
                     const currencies = data[0].currencies;
                     const dateStr = `${dd}/${mm}/${yyyy}`;
-                    let cacheData = { date: dateStr };
+                    let cacheData = { date: dateStr, marketOfficialRates: {} };
                     
                     ['USD', 'EUR', 'GBP', 'CHF', 'RUB', 'TRY', 'AMD', 'AZN', 'ILS'].forEach(code => {
                         const obj = currencies.find(c => c.code === code);
                         if (obj) {
                             const val = obj.rate.toFixed(4);
                             cacheData[code.toLowerCase()] = val;
+                            const unitRate = Number(obj.rate) / Number(obj.quantity || 1);
+                            if (Number.isFinite(unitRate) && unitRate > 0) cacheData.marketOfficialRates[code] = unitRate;
                             const el = document.getElementById(`nbg-${code.toLowerCase()}`);
                             if(el) el.innerText = val;
                         }
@@ -1391,6 +1536,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     // Cache NBG data
                     localStorage.setItem('cachedNBGData', JSON.stringify(cacheData));
+                    renderHomePage();
                     updateHomeConverter();
                 }
             } catch (err) {
@@ -1439,7 +1585,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         logo: getHomeOfficialLogo(currency.code),
                         rate: rate.toFixed(4),
                         change: change === null ? '--' : `${change > 0 ? '+' : ''}${change.toFixed(2)}%`,
-                        changeClass: change === null ? 'home-official-change-neutral' : change > 0 ? 'home-official-change-positive' : change < 0 ? 'home-official-change-negative' : 'home-official-change-neutral'
+                        changeClass: change === null ? 'home-official-change-neutral' : change > 0 ? 'home-official-change-negative' : change < 0 ? 'home-official-change-positive' : 'home-official-change-neutral'
                     };
                 });
         }
@@ -2292,6 +2438,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     setDisplay('nbg-rates-box', 'flex');
                     if (Array.isArray(nbg.officialRates)) renderHomeOfficialRates(nbg.officialRates);
+                    renderHomePage();
                     updateHomeConverter();
                 }
             } catch (err) {
