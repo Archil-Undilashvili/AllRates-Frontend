@@ -138,6 +138,25 @@
     <div id="error-msg" class="error" style="display: none; text-align: center; color: red;">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>
 
 
+    <section class="home-action-cta" aria-label="პერსონალური ფინანსური ხელსაწყოები">
+        <button type="button" class="home-action-cta-link" data-auth-cta="dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                <path d="M8 14h2.5"></path>
+                <path d="M8 10h8"></path>
+                <path d="M14 14h2"></path>
+            </svg>
+            <span class="home-action-text" data-mobile-label="შექმენი დეშბორდი">შექმენი ფასების დეშბორდი</span>
+        </button>
+        <button type="button" class="home-action-cta-link" data-auth-cta="alert">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
+                <path d="M10 21h4"></path>
+            </svg>
+            <span class="home-action-text" data-mobile-label="შექმენი ალერტი">შექმენი Alert შეტყობინება ფასის ცვლილებებზე</span>
+        </button>
+    </section>
+
     <!-- Ticker Marquee -->
     <div class="ticker-wrap" id="main-ticker-wrap" style="display: none;">
         <div class="ticker-move" id="ticker-content">
@@ -412,6 +431,7 @@
                     <div class="home-nbg-chart-heading">
                         <div class="home-nbg-chart-title">ქართული ლარი vs უცხოური ვალუტები</div>
                         <div class="home-nbg-chart-subtitle" id="home-gel-chart-subtitle">USD/GEL</div>
+                        <a href="/valutis-kursebi-dges#official-analytics-chart" class="home-analytics-link">ანალიტიკური გრაფიკი</a>
                     </div>
                     <div class="home-nbg-chart-controls">
                         <select class="home-chart-pair-select" id="home-gel-pair-select" aria-label="ლარის წყვილის არჩევა">
@@ -461,6 +481,7 @@
                     <div class="home-nbg-chart-heading">
                         <div class="home-nbg-chart-title home-eurusd-chart-title">Forex კურსები</div>
                         <div class="home-nbg-chart-subtitle" id="home-cross-chart-subtitle">EUR/USD</div>
+                        <a href="/valutis-kursebi-dges#official-analytics-chart" class="home-analytics-link">ანალიტიკური გრაფიკი</a>
                     </div>
                     <div class="home-nbg-chart-controls">
                         <select class="home-chart-pair-select home-cross-pair-select" id="home-cross-pair-select" aria-label="Forex წყვილის არჩევა">

@@ -90,13 +90,40 @@
         </div>
 
         <div class="dashboard-builder-grid" id="dashboardBuilderGrid"></div>
+
+        <section class="dashboard-alerts-section" aria-label="კურსის alert-ები">
+            <div class="dashboard-alerts-head">
+                <span>Alert-ის შექმნა ფასის ცვლილებაზე</span>
+                <small>Email შეტყობინება გაიგზავნება ერთხელ, როცა პირობა შესრულდება.</small>
+            </div>
+            <div class="dashboard-alert-filter" aria-label="Alert ტიპების ფილტრი">
+                <button type="button" class="dashboard-alert-filter-option" data-alert-add-type="company">
+                    <span class="dashboard-alert-filter-check">+</span>
+                    <span>კომპანიის კურსები</span>
+                </button>
+                <button type="button" class="dashboard-alert-filter-option" data-alert-add-type="forex">
+                    <span class="dashboard-alert-filter-check">+</span>
+                    <span>FOREX კურსები</span>
+                </button>
+                <button type="button" class="dashboard-alert-filter-option" data-alert-add-type="crypto">
+                    <span class="dashboard-alert-filter-check">+</span>
+                    <span>კრიპტოვალუტები</span>
+                </button>
+                <button type="button" class="dashboard-alert-filter-option" data-alert-add-type="asset">
+                    <span class="dashboard-alert-filter-check">+</span>
+                    <span>აქციები და სხვა</span>
+                </button>
+                <small id="dashboardAlertLimitText">მაქსიმუმ 10 alert</small>
+            </div>
+            <div class="dashboard-alerts-list" id="dashboardAlertsList"></div>
+        </section>
     </main>
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const status = document.getElementById("userSpaceStatus");
-            const isLocalServer = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+            const isLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
             const apiOrigin = window.ALLRATES_API_ORIGIN
                 || (isLocalServer ? "http://localhost:3000" : null)
                 || "https://allrates-backend-api-production.up.railway.app";
@@ -128,7 +155,9 @@
                 status.textContent = "";
                 await initDashboardBuilder(apiOrigin, token, data.user);
             } catch (error) {
-                status.textContent = "სერვერთან კავშირის შეცდომა";
+                status.textContent = isLocalServer
+                    ? "Local backend არ მუშაობს. გაუშვი AllRates-Backend ფოლდერში: npm start"
+                    : "სერვერთან კავშირის შეცდომა";
             }
         });
 
@@ -247,6 +276,17 @@
         const DASHBOARD_MAX_VISIBLE = 10;
         const DASHBOARD_GRID_COLUMNS = 5;
         const DASHBOARD_CACHE_VERSION = "v3";
+        let dashboardOfficialUnitRates = {};
+        let dashboardOfficialRatesPromise = null;
+        let dashboardAlertCatalog = [];
+        let dashboardAlertForexCatalog = [];
+        let dashboardAlertCryptoCatalog = [];
+        let dashboardAlertAssetCatalog = [];
+        let dashboardAlerts = [];
+        let dashboardAlertApiOrigin = "";
+        let dashboardAlertToken = "";
+        let dashboardAlertSaveTimers = new Map();
+        const DASHBOARD_ALERT_MAX = 10;
 
         function escapeHtml(value) {
             return String(value || "").replace(/[&<>"']/g, char => ({
@@ -260,6 +300,76 @@
                 if (!Number.isNaN(value) && value > 0) return value;
             }
             return null;
+        }
+
+        function parseDisplayNumber(value) {
+            const normalized = String(value ?? "").replace(/,/g, "").trim();
+            if (!normalized) return NaN;
+            const parsed = Number(normalized);
+            return Number.isFinite(parsed) ? parsed : NaN;
+        }
+
+        function getDashboardOfficialUnitRate(currency) {
+            try {
+                const config = CURRENCY_CONFIG[currency];
+                const code = config?.code || String(currency || "").toUpperCase();
+                const liveRate = Number(dashboardOfficialUnitRates[code]);
+                if (Number.isFinite(liveRate) && liveRate > 0) return liveRate;
+
+                const cachedNBG = JSON.parse(localStorage.getItem("cachedNBGData") || "{}");
+                const normalized = Number(cachedNBG.marketOfficialRates?.[code]);
+                if (Number.isFinite(normalized) && normalized > 0) return normalized;
+
+                let raw = Number(cachedNBG[code.toLowerCase()]);
+                if (!Number.isFinite(raw) || raw <= 0) return NaN;
+                if ((code === "RUB" || code === "TRY") && raw > 1) raw /= 100;
+                return raw;
+            } catch (_) {
+                return NaN;
+            }
+        }
+
+        function getDashboardRateRelevanceThreshold(currency) {
+            return ["usd", "eur"].includes(String(currency || "").toLowerCase()) ? 0.10 : 0.50;
+        }
+
+        function isDashboardRateOutlier(item, currency) {
+            const config = CURRENCY_CONFIG[currency];
+            const official = getDashboardOfficialUnitRate(currency);
+            if (!config || !Number.isFinite(official) || official <= 0) return false;
+
+            const buy = readNumber(item, config.buy);
+            const sell = readNumber(item, config.sell);
+            if (!Number.isFinite(buy) || !Number.isFinite(sell) || buy <= 0 || sell <= 0) return false;
+            if (buy === sell) return true;
+
+            const threshold = getDashboardRateRelevanceThreshold(currency);
+            return Math.abs(buy - official) / official > threshold || Math.abs(sell - official) / official > threshold;
+        }
+
+        async function ensureDashboardOfficialRates() {
+            if (Object.keys(dashboardOfficialUnitRates).length) return dashboardOfficialUnitRates;
+            if (!dashboardOfficialRatesPromise) {
+                dashboardOfficialRatesPromise = fetch(`${NBG_API_URL}?t=${Date.now()}`, { cache: "no-store" })
+                    .then(res => {
+                        if (!res.ok) throw new Error("NBG API unavailable");
+                        return res.json();
+                    })
+                    .then(data => {
+                        const currencies = data?.[0]?.currencies || [];
+                        dashboardOfficialUnitRates = currencies.reduce((rates, item) => {
+                            const unitRate = Number(item?.rate) / Number(item?.quantity || 1);
+                            if (item?.code && Number.isFinite(unitRate) && unitRate > 0) rates[item.code] = unitRate;
+                            return rates;
+                        }, {});
+                        return dashboardOfficialUnitRates;
+                    })
+                    .catch(error => {
+                        console.warn("NBG official rates for dashboard outlier check failed:", error.message);
+                        return {};
+                    });
+            }
+            return dashboardOfficialRatesPromise;
         }
 
         async function fetchJsonWithFallback(urls) {
@@ -305,7 +415,7 @@
 
         function rowHtml(item) {
             return `
-                <button type="button" class="dashboard-picker-row" data-id="${escapeHtml(item.id || "")}" data-kind="${escapeHtml(item.kind || "")}" data-search="${escapeHtml(item.search)}" data-rate="${escapeHtml(item.rate)}" data-buy="${escapeHtml(item.buy || "")}" data-sell="${escapeHtml(item.sell || "")}" data-spread="${escapeHtml(item.spread || "")}" data-title="${escapeHtml(item.title || "")}" data-subtitle="${escapeHtml(item.subtitle || "")}" data-selected-title="${escapeHtml(item.selectedTitle || item.title)}">
+                <button type="button" class="dashboard-picker-row" data-id="${escapeHtml(item.id || "")}" data-kind="${escapeHtml(item.kind || "")}" data-search="${escapeHtml(item.search)}" data-rate="${escapeHtml(item.rate)}" data-buy="${escapeHtml(item.buy || "")}" data-sell="${escapeHtml(item.sell || "")}" data-spread="${escapeHtml(item.spread || "")}" data-title="${escapeHtml(item.title || "")}" data-subtitle="${escapeHtml(item.subtitle || "")}" data-selected-title="${escapeHtml(item.selectedTitle || item.title)}" data-outlier="${item.isOutlier ? "true" : "false"}">
                         <span class="dashboard-row-main">
                             <span>
                                 <strong>${escapeHtml(item.title)}</strong>
@@ -341,6 +451,7 @@
                     </div>
                 `;
             }).join("");
+            updateAlertFilterState();
         }
 
         function selectedHtml(row) {
@@ -367,8 +478,9 @@
             }
             if (kind === "company") {
                 const title = row.dataset.title || selectedTitle;
+                const isOutlier = row.dataset.outlier === "true";
                 return `
-                    <div class="dashboard-selected-item dashboard-company-rate-row" data-id="${escapeHtml(row.dataset.id || "")}">
+                    <div class="dashboard-selected-item dashboard-company-rate-row${isOutlier ? " dashboard-rate-outlier-row" : ""}" data-id="${escapeHtml(row.dataset.id || "")}">
                         <span class="dashboard-company-main">
                             <strong>${escapeHtml(title)}</strong>
                         </span>
@@ -376,8 +488,8 @@
                             <small>ყიდვა</small>
                             <small>გაყიდვა</small>
                             <small>სპრედი</small>
-                            <b class="dashboard-rate-buy">${escapeHtml(row.dataset.buy || "-")}</b>
-                            <b class="dashboard-rate-sell">${escapeHtml(row.dataset.sell || "-")}</b>
+                            <b class="dashboard-rate-buy${isOutlier ? " dashboard-rate-outlier-value" : ""}">${escapeHtml(row.dataset.buy || "-")}</b>
+                            <b class="dashboard-rate-sell${isOutlier ? " dashboard-rate-outlier-value" : ""}">${escapeHtml(row.dataset.sell || "-")}</b>
                             <b class="dashboard-rate-spread">${escapeHtml(row.dataset.spread || "-")}</b>
                         </span>
                         ${itemMenuHtml()}
@@ -464,6 +576,7 @@
                 loadAssetPicker()
             ]);
             await loadSavedDashboard(apiOrigin, token);
+            await initDashboardAlerts(apiOrigin, token);
             cacheDashboardSnapshot(user);
             document.getElementById("saveDashboardBtn").disabled = false;
         }
@@ -612,6 +725,575 @@
             });
         }
 
+        function buildDashboardAlertCatalog(data) {
+            const map = new Map();
+            data.forEach(item => {
+                const key = companyKey(item);
+                if (!key) return;
+                const name = COMPANY_NAMES_KA[key] || item.company || item.Company || key;
+                const entry = map.get(key) || { key, name, pairs: [] };
+
+                COMPANY_PAIRS.forEach(pairConfig => {
+                    const buy = readNumber(item, pairConfig.buy);
+                    const sell = readNumber(item, pairConfig.sell);
+                    if (!buy && !sell) return;
+                    entry.pairs.push({
+                        pair: pairConfig.pair,
+                        buy,
+                        sell,
+                        digits: pairConfig.digits
+                    });
+                });
+
+                if (entry.pairs.length) map.set(key, entry);
+            });
+
+            return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "ka"));
+        }
+
+        function buildDashboardAlertForexCatalog(sheetRows) {
+            const pairColumns = [
+                ["Pair (Popular)", "Rate (Popular)"],
+                ["Pair (vs USD)", "Rate (vs USD)"],
+                ["Pair (vs EUR)", "Rate (vs EUR)"],
+                ["Pair (vs GBP)", "Rate (vs GBP)"],
+                ["Pair (vs CHF)", "Rate (vs CHF)"]
+            ];
+            const rateMap = new Map();
+
+            sheetRows.forEach(row => {
+                pairColumns.forEach(([pairKey, rateKey]) => {
+                    const pair = String(row[pairKey] || "").trim().toUpperCase();
+                    const rate = Number(row[rateKey]);
+                    if (pair && Number.isFinite(rate)) rateMap.set(pair, rate);
+                });
+            });
+
+            return [
+                ...FOREX_PAIRS,
+                ...Array.from(rateMap.keys()).filter(pair => !FOREX_PAIRS.includes(pair))
+            ].filter(pair => rateMap.has(pair)).map(pair => ({
+                pair,
+                label: `${pair.slice(0, 3)}/${pair.slice(3, 6)}`,
+                rate: rateMap.get(pair),
+                digits: 4
+            }));
+        }
+
+        function buildDashboardAlertCryptoCatalog(data) {
+            return (Array.isArray(data) ? data : [])
+                .filter(item => item.symbol?.endsWith("USDT") && !item.symbol.includes("UPUSDT") && !item.symbol.includes("DOWNUSDT") && !item.symbol.includes("BULLUSDT") && !item.symbol.includes("BEARUSDT"))
+                .sort(sortCryptoTickers)
+                .slice(0, 100)
+                .map(item => {
+                    const pair = String(item.symbol || "").toUpperCase();
+                    const symbol = pair.replace("USDT", "");
+                    const name = CRYPTO_NAMES[symbol] || symbol;
+                    return {
+                        pair,
+                        label: `${symbol}/USDT`,
+                        title: `${name} (${symbol})`,
+                        rate: Number(item.lastPrice),
+                        digits: Number(item.lastPrice) > 1 ? 2 : 6
+                    };
+                })
+                .filter(item => Number.isFinite(item.rate));
+        }
+
+        function buildDashboardAlertAssetCatalog(priceMap = new Map()) {
+            return ASSET_ITEMS.map(item => {
+                const rate = parseDisplayNumber(priceMap.get(item.name.toLowerCase()));
+                return {
+                    pair: item.name,
+                    label: item.name,
+                    title: item.name,
+                    rate,
+                    digits: rate > 100 ? 2 : 4
+                };
+            }).filter(item => Number.isFinite(item.rate));
+        }
+
+        function createEmptyAlert(alertType = "company") {
+            return {
+                clientId: `alert-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                alertType,
+                companyKey: "",
+                companyName: "",
+                pair: alertType === "forex" ? (dashboardAlertForexCatalog[0]?.pair || "") : (alertType === "crypto" ? (dashboardAlertCryptoCatalog[0]?.pair || "") : (alertType === "asset" ? (dashboardAlertAssetCatalog[0]?.pair || "") : "")),
+                side: ["forex", "crypto", "asset"].includes(alertType) ? "rate" : "sell",
+                targetRate: "",
+                operator: "",
+                status: "active"
+            };
+        }
+
+        function normalizeLoadedAlert(alert) {
+            const loadedType = alert.alertType || (alert.side === "rate" || (!alert.companyKey && !alert.companyName && !COMPANY_PAIRS.some(pair => pair.pair === alert.pair)) ? "forex" : "company");
+            return {
+                clientId: alert._id || alert.id || `alert-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                id: alert._id || alert.id,
+                alertType: loadedType,
+                companyKey: alert.companyKey || "",
+                companyName: alert.companyName || "",
+                pair: alert.pair || "",
+                side: ["forex", "crypto", "asset"].includes(loadedType) ? "rate" : (alert.side || "sell"),
+                targetRate: Number.isFinite(Number(alert.targetRate)) ? String(alert.targetRate) : "",
+                operator: alert.operator || "",
+                status: alert.status || "active",
+                triggeredRate: alert.triggeredRate,
+                triggeredAt: alert.triggeredAt
+            };
+        }
+
+        function getAlertCatalogCompany(companyKey) {
+            return dashboardAlertCatalog.find(company => company.key === companyKey);
+        }
+
+        function getAlertPairInfo(alert) {
+            if (alert.alertType === "forex") {
+                return dashboardAlertForexCatalog.find(pair => pair.pair === alert.pair) || null;
+            }
+            if (alert.alertType === "crypto") {
+                return dashboardAlertCryptoCatalog.find(pair => pair.pair === alert.pair) || null;
+            }
+            if (alert.alertType === "asset") {
+                return dashboardAlertAssetCatalog.find(pair => pair.pair === alert.pair) || null;
+            }
+            const company = getAlertCatalogCompany(alert.companyKey);
+            return company?.pairs.find(pair => pair.pair === alert.pair) || null;
+        }
+
+        function getAlertCurrentRate(alert) {
+            if (["forex", "crypto", "asset"].includes(alert.alertType)) {
+                const pair = getAlertPairInfo(alert);
+                const value = Number(pair?.rate);
+                return Number.isFinite(value) ? value : null;
+            }
+            const pair = getAlertPairInfo(alert);
+            if (!pair) return null;
+            const value = alert.side === "buy" ? pair.buy : pair.sell;
+            return Number.isFinite(Number(value)) ? Number(value) : null;
+        }
+
+        function alertCompanyOptions(selectedKey) {
+            const options = ['<option value="">აირჩიე კომპანია</option>'];
+            dashboardAlertCatalog.forEach(company => {
+                options.push(`<option value="${escapeHtml(company.key)}"${company.key === selectedKey ? " selected" : ""}>${escapeHtml(company.name)}</option>`);
+            });
+            return options.join("");
+        }
+
+        function alertPairOptions(alert) {
+            if (alert.alertType === "forex") {
+                const options = ['<option value="">აირჩიე წყვილი</option>'];
+                dashboardAlertForexCatalog.forEach(pair => {
+                    options.push(`<option value="${escapeHtml(pair.pair)}"${pair.pair === alert.pair ? " selected" : ""}>${escapeHtml(pair.label)}</option>`);
+                });
+                return options.join("");
+            }
+            if (alert.alertType === "crypto") {
+                const options = ['<option value="">აირჩიე კრიპტო</option>'];
+                dashboardAlertCryptoCatalog.forEach(pair => {
+                    options.push(`<option value="${escapeHtml(pair.pair)}"${pair.pair === alert.pair ? " selected" : ""}>${escapeHtml(pair.label)}</option>`);
+                });
+                return options.join("");
+            }
+            if (alert.alertType === "asset") {
+                const options = ['<option value="">აირჩიე აქტივი</option>'];
+                dashboardAlertAssetCatalog.forEach(pair => {
+                    options.push(`<option value="${escapeHtml(pair.pair)}"${pair.pair === alert.pair ? " selected" : ""}>${escapeHtml(pair.label)}</option>`);
+                });
+                return options.join("");
+            }
+            const company = getAlertCatalogCompany(alert.companyKey);
+            if (!company) return '<option value="">აირჩიე წყვილი</option>';
+            const options = company.pairs.map(pair => (
+                `<option value="${escapeHtml(pair.pair)}"${pair.pair === alert.pair ? " selected" : ""}>${escapeHtml(pair.pair.replace("GEL", "/GEL"))}</option>`
+            ));
+            return options.join("");
+        }
+
+        function alertMenuHtml(canDelete) {
+            return `
+                <span class="dashboard-alert-menu">
+                    <button type="button" class="dashboard-alert-menu-btn" data-alert-action="menu" aria-label="Alert მენიუ">⋯</button>
+                    <span class="dashboard-alert-dropdown">
+                        <button type="button" data-alert-action="duplicate">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"></path></svg>
+                            <span>დუბლირება</span>
+                        </button>
+                        <button type="button" data-alert-action="delete"${canDelete ? "" : " disabled"}>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path></svg>
+                            <span>წაშლა</span>
+                        </button>
+                    </span>
+                </span>
+            `;
+        }
+
+        function renderDashboardAlerts() {
+            const list = document.getElementById("dashboardAlertsList");
+            if (!list) return;
+            if (!dashboardAlerts.length) dashboardAlerts = [createEmptyAlert()];
+
+            list.innerHTML = dashboardAlerts.map((alert, index) => {
+                const locked = alert.status === "triggered";
+                const currentRate = getAlertCurrentRate(alert);
+                const currentText = Number.isFinite(currentRate)
+                    ? currentRate.toFixed(getAlertPairInfo(alert)?.digits || 4)
+                    : "—";
+                const message = locked
+                    ? `Alert შესრულდა${Number.isFinite(Number(alert.triggeredRate)) ? ` · ${Number(alert.triggeredRate).toFixed(getAlertPairInfo(alert)?.digits || 4)}` : ""}`
+                    : "";
+
+                if (["forex", "crypto", "asset"].includes(alert.alertType)) {
+                    const isCryptoAlert = alert.alertType === "crypto";
+                    const isAssetAlert = alert.alertType === "asset";
+                    return `
+                        <div class="dashboard-alert-row dashboard-alert-row-forex${locked ? " is-triggered" : ""}" data-alert-index="${index}" data-alert-client-id="${escapeHtml(alert.clientId)}">
+                            <label>
+                                <span>${isCryptoAlert ? "კრიპტო წყვილი" : (isAssetAlert ? "აქტივი" : "სავალუტო წყვილი")}</span>
+                                <select data-alert-field="pair"${locked ? " disabled" : ""}>${alertPairOptions(alert)}</select>
+                                <small>მიმდინარე: ${escapeHtml(currentText)}</small>
+                            </label>
+                            <label>
+                                <span>სამიზნე კურსი</span>
+                                <input type="number" step="0.0001" data-alert-field="targetRate" value="${escapeHtml(alert.targetRate)}" placeholder="0.0000"${locked ? " disabled" : ""}>
+                                <small>${escapeHtml(message)}</small>
+                            </label>
+                            <div class="dashboard-alert-trigger-field">
+                                <span>პირობა</span>
+                                <div class="dashboard-alert-trigger-group" role="group" aria-label="Alert trigger">
+                                    <button type="button" data-alert-operator="lt" class="${alert.operator === "lt" ? "active" : ""}"${locked ? " disabled" : ""}>ნაკლებია</button>
+                                    <button type="button" data-alert-operator="gt" class="${alert.operator === "gt" ? "active" : ""}"${locked ? " disabled" : ""}>მეტია</button>
+                                </div>
+                                <small>${isCryptoAlert ? "კრიპტო ფასი" : (isAssetAlert ? "აქტივის ფასი" : "FOREX კურსი")}</small>
+                            </div>
+                            <span class="dashboard-alert-done" aria-label="Alert შესრულებულია">${locked ? "✓" : ""}</span>
+                            ${alertMenuHtml(locked || dashboardAlerts.length > 1)}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="dashboard-alert-row${locked ? " is-triggered" : ""}" data-alert-index="${index}" data-alert-client-id="${escapeHtml(alert.clientId)}">
+                        <label>
+                            <span>კომპანია</span>
+                            <select data-alert-field="companyKey"${locked ? " disabled" : ""}>${alertCompanyOptions(alert.companyKey)}</select>
+                            <small></small>
+                        </label>
+                        <label>
+                            <span>სავალუტო წყვილი</span>
+                            <select data-alert-field="pair"${locked || !alert.companyKey ? " disabled" : ""}>${alertPairOptions(alert)}</select>
+                            <small></small>
+                        </label>
+                        <label>
+                            <span>ყიდვა/გაყიდვა</span>
+                            <select data-alert-field="side"${locked ? " disabled" : ""}>
+                                <option value="buy"${alert.side === "buy" ? " selected" : ""}>ყიდვა</option>
+                                <option value="sell"${alert.side === "sell" ? " selected" : ""}>გაყიდვა</option>
+                            </select>
+                            <small>მიმდინარე: ${escapeHtml(currentText)}</small>
+                        </label>
+                        <label>
+                            <span>სამიზნე კურსი</span>
+                            <input type="number" step="0.0001" data-alert-field="targetRate" value="${escapeHtml(alert.targetRate)}" placeholder="0.0000"${locked ? " disabled" : ""}>
+                            <small>${escapeHtml(message)}</small>
+                        </label>
+                        <div class="dashboard-alert-trigger-field">
+                            <span>პირობა</span>
+                            <div class="dashboard-alert-trigger-group" role="group" aria-label="Alert trigger">
+                                <button type="button" data-alert-operator="lt" class="${alert.operator === "lt" ? "active" : ""}"${locked ? " disabled" : ""}>ნაკლებია</button>
+                                <button type="button" data-alert-operator="gt" class="${alert.operator === "gt" ? "active" : ""}"${locked ? " disabled" : ""}>მეტია</button>
+                            </div>
+                            <small></small>
+                        </div>
+                        <span class="dashboard-alert-done" aria-label="Alert შესრულებულია">${locked ? "✓" : ""}</span>
+                        ${alertMenuHtml(locked || dashboardAlerts.length > 1)}
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function closeAlertMenus() {
+            document.querySelectorAll(".dashboard-alert-menu.open").forEach(menu => menu.classList.remove("open"));
+        }
+
+        function collectAlertPayload(alert) {
+            const alertType = alert.alertType || (alert.side === "rate" ? "forex" : "company");
+            if (alertType === "forex" || alertType === "crypto" || alertType === "asset") {
+                return {
+                    alertType,
+                    companyKey: "",
+                    companyName: ({ crypto: "CRYPTO", asset: "ASSET" }[alertType] || "FOREX"),
+                    pair: alert.pair,
+                    side: "rate",
+                    operator: alert.operator,
+                    targetRate: Number(alert.targetRate)
+                };
+            }
+
+            const company = getAlertCatalogCompany(alert.companyKey);
+            return {
+                alertType: "company",
+                companyKey: alert.companyKey,
+                companyName: company?.name || alert.companyName || COMPANY_NAMES_KA[alert.companyKey] || alert.companyKey,
+                pair: alert.pair,
+                side: alert.side,
+                operator: alert.operator,
+                targetRate: Number(alert.targetRate)
+            };
+        }
+
+        function isAlertReady(alert) {
+            const payload = collectAlertPayload(alert);
+            if (payload.alertType === "forex" || payload.alertType === "crypto" || payload.alertType === "asset") {
+                return Boolean(
+                    payload.pair &&
+                    payload.operator &&
+                    Number.isFinite(payload.targetRate) &&
+                    payload.targetRate > 0
+                );
+            }
+
+            return Boolean(
+                payload.companyKey &&
+                payload.companyName &&
+                payload.pair &&
+                payload.side &&
+                payload.operator &&
+                Number.isFinite(payload.targetRate) &&
+                payload.targetRate > 0
+            );
+        }
+
+        function scheduleAlertSave(index) {
+            const alert = dashboardAlerts[index];
+            if (!alert || alert.status === "triggered" || !isAlertReady(alert)) return;
+            clearTimeout(dashboardAlertSaveTimers.get(alert.clientId));
+        }
+
+        function updateAlertFilterState() {
+            const limitText = document.getElementById("dashboardAlertLimitText");
+            const isFull = dashboardAlerts.length >= DASHBOARD_ALERT_MAX;
+            document.querySelectorAll("[data-alert-add-type]").forEach(button => {
+                button.disabled = isFull;
+            });
+            if (limitText) {
+                limitText.textContent = `${dashboardAlerts.length}/${DASHBOARD_ALERT_MAX} alert`;
+            }
+        }
+
+        function addDashboardAlert(alertType = "company", insertAfter = dashboardAlerts.length - 1, source = null) {
+            if (dashboardAlerts.length >= DASHBOARD_ALERT_MAX) {
+                setDashboardStatus("error", `მაქსიმუმ ${DASHBOARD_ALERT_MAX} alert-ის არჩევაა შესაძლებელი`);
+                return false;
+            }
+
+            const alert = source
+                ? {
+                    ...source,
+                    id: undefined,
+                    clientId: `alert-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                    status: "active",
+                    triggeredRate: undefined,
+                    triggeredAt: undefined
+                }
+                : createEmptyAlert(alertType);
+
+            dashboardAlerts.splice(insertAfter + 1, 0, alert);
+            renderDashboardAlerts();
+            updateAlertFilterState();
+            return true;
+        }
+
+        async function saveDashboardAlert(index) {
+            const alert = dashboardAlerts[index];
+            if (!alert || !isAlertReady(alert)) return null;
+            const method = alert.id ? "PUT" : "POST";
+            const url = alert.id
+                ? `${dashboardAlertApiOrigin}/api/alerts/${encodeURIComponent(alert.id)}`
+                : `${dashboardAlertApiOrigin}/api/alerts`;
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${dashboardAlertToken}`
+                    },
+                    body: JSON.stringify(collectAlertPayload(alert))
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.message || "Alert ვერ შეინახა");
+                dashboardAlerts[index] = normalizeLoadedAlert(data.alert);
+                renderDashboardAlerts();
+                return dashboardAlerts[index];
+            } catch (error) {
+                console.warn("Alert save failed:", error.message);
+                throw new Error(error.message === "Failed to fetch"
+                    ? "Alert API-სთან კავშირი ვერ მოხერხდა. გადაამოწმე local backend მუშაობს თუ არა."
+                    : error.message || "Alert ვერ შეინახა");
+            }
+        }
+
+        async function saveDashboardAlerts() {
+            const tasks = dashboardAlerts.map((alert, index) => {
+                if (!alert || alert.status === "triggered" || !isAlertReady(alert)) return Promise.resolve(null);
+                return saveDashboardAlert(index);
+            });
+            await Promise.all(tasks);
+        }
+
+        async function deleteDashboardAlert(index) {
+            const alert = dashboardAlerts[index];
+            if (!alert || (dashboardAlerts.length <= 1 && alert.status !== "triggered")) return;
+            if (alert?.id) {
+                await fetch(`${dashboardAlertApiOrigin}/api/alerts/${encodeURIComponent(alert.id)}`, {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${dashboardAlertToken}` }
+                }).catch(() => null);
+            }
+            dashboardAlerts.splice(index, 1);
+            if (!dashboardAlerts.length) dashboardAlerts = [createEmptyAlert()];
+            renderDashboardAlerts();
+        }
+
+        function bindDashboardAlerts() {
+            const list = document.getElementById("dashboardAlertsList");
+            if (!list) return;
+
+            list.addEventListener("change", event => {
+                const field = event.target.closest("[data-alert-field]");
+                if (!field) return;
+                const row = field.closest(".dashboard-alert-row");
+                const index = Number(row?.dataset.alertIndex);
+                const alert = dashboardAlerts[index];
+                if (!alert || alert.status === "triggered") return;
+
+                const name = field.dataset.alertField;
+                alert[name] = field.value;
+                if (name === "companyKey" && alert.alertType !== "forex") {
+                    const company = getAlertCatalogCompany(alert.companyKey);
+                    alert.companyName = company?.name || "";
+                    alert.pair = company?.pairs?.[0]?.pair || "";
+                }
+                if (name === "pair") alert.targetRate = alert.targetRate || "";
+                renderDashboardAlerts();
+                scheduleAlertSave(index);
+            });
+
+            list.addEventListener("input", event => {
+                const input = event.target.closest('[data-alert-field="targetRate"]');
+                if (!input) return;
+                const row = input.closest(".dashboard-alert-row");
+                const index = Number(row?.dataset.alertIndex);
+                if (!dashboardAlerts[index] || dashboardAlerts[index].status === "triggered") return;
+                dashboardAlerts[index].targetRate = input.value;
+                const message = input.parentElement.querySelector("small");
+                if (message) {
+                    message.textContent = "";
+                    message.classList.remove("dashboard-alert-warning");
+                }
+                scheduleAlertSave(index);
+            });
+
+            list.addEventListener("click", async event => {
+                const menuButton = event.target.closest('[data-alert-action="menu"]');
+                const duplicateButton = event.target.closest('[data-alert-action="duplicate"]');
+                const deleteButton = event.target.closest('[data-alert-action="delete"]');
+                const operatorButton = event.target.closest("[data-alert-operator]");
+                const row = event.target.closest(".dashboard-alert-row");
+                const index = Number(row?.dataset.alertIndex);
+
+                if (menuButton) {
+                    event.stopPropagation();
+                    const menu = menuButton.closest(".dashboard-alert-menu");
+                    const shouldOpen = !menu.classList.contains("open");
+                    closeAlertMenus();
+                    if (shouldOpen) menu.classList.add("open");
+                    return;
+                }
+
+                if (duplicateButton && dashboardAlerts[index]) {
+                    event.stopPropagation();
+                    const source = dashboardAlerts[index];
+                    closeAlertMenus();
+                    if (addDashboardAlert(source.alertType || "company", index, source)) scheduleAlertSave(index + 1);
+                    return;
+                }
+
+                if (deleteButton) {
+                    event.stopPropagation();
+                    closeAlertMenus();
+                    if (!deleteButton.disabled) await deleteDashboardAlert(index);
+                    updateAlertFilterState();
+                    return;
+                }
+
+                if (operatorButton && dashboardAlerts[index]?.status !== "triggered") {
+                    dashboardAlerts[index].operator = operatorButton.dataset.alertOperator;
+                    renderDashboardAlerts();
+                    scheduleAlertSave(index);
+                }
+            });
+
+            document.addEventListener("click", event => {
+                if (!event.target.closest(".dashboard-alert-menu")) closeAlertMenus();
+            });
+        }
+
+        function bindDashboardAlertFilters() {
+            document.querySelectorAll("[data-alert-add-type]").forEach(button => {
+                button.addEventListener("click", () => {
+                    addDashboardAlert(button.dataset.alertAddType || "company");
+                });
+            });
+        }
+
+        async function initDashboardAlerts(apiOrigin, token) {
+            dashboardAlertApiOrigin = apiOrigin;
+            dashboardAlertToken = token;
+            bindDashboardAlerts();
+            bindDashboardAlertFilters();
+
+            try {
+                const res = await fetch(`${apiOrigin}/api/alerts`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json().catch(() => ({}));
+                dashboardAlerts = Array.isArray(data.alerts) && data.alerts.length
+                    ? data.alerts.map(normalizeLoadedAlert)
+                    : [createEmptyAlert()];
+            } catch (_) {
+                dashboardAlerts = [createEmptyAlert()];
+            }
+            if (!dashboardAlertForexCatalog.length) {
+                try {
+                    dashboardAlertForexCatalog = buildDashboardAlertForexCatalog(await fetchSheetRows());
+                } catch (_) {
+                    dashboardAlertForexCatalog = [];
+                }
+            }
+            if (!dashboardAlertCryptoCatalog.length) {
+                try {
+                    const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
+                    dashboardAlertCryptoCatalog = buildDashboardAlertCryptoCatalog(await res.json());
+                } catch (_) {
+                    dashboardAlertCryptoCatalog = [];
+                }
+            }
+            if (!dashboardAlertAssetCatalog.length) {
+                try {
+                    dashboardAlertAssetCatalog = buildDashboardAlertAssetCatalog(await fetchAssetPrices());
+                } catch (_) {
+                    dashboardAlertAssetCatalog = [];
+                }
+            }
+            renderDashboardAlerts();
+            updateAlertFilterState();
+        }
+
         function bindDashboardSave(apiOrigin, token, user) {
             const saveButton = document.getElementById("saveDashboardBtn");
             if (!saveButton) return;
@@ -633,8 +1315,9 @@
                     const data = await res.json().catch(() => ({}));
                     if (!res.ok) throw new Error(data.message || "დეშბორდი ვერ შეინახა");
 
+                    await saveDashboardAlerts();
                     cacheDashboardSnapshot(user);
-                    setDashboardStatus("success", "დეშბორდი შენახულია");
+                    setDashboardStatus("success", "დეშბორდი და alert-ები შენახულია");
                 } catch (error) {
                     setDashboardStatus("error", error.message || "დეშბორდი ვერ შეინახა");
                 } finally {
@@ -865,11 +1548,13 @@
 
         async function loadCompanyPicker(apiOrigin) {
             try {
+                await ensureDashboardOfficialRates();
                 const data = await fetchJsonWithFallback([
                     `${apiOrigin}/api/rates/latest`,
                     "https://allrates-backend-api-production.up.railway.app/api/rates/latest"
                 ]);
                 const rowsByCurrency = Object.fromEntries(Object.keys(CURRENCY_CONFIG).map(currency => [currency, []]));
+                dashboardAlertCatalog = buildDashboardAlertCatalog(data);
 
                 data.forEach(item => {
                     const key = companyKey(item);
@@ -884,6 +1569,7 @@
                         const buyText = buy ? buy.toFixed(pairConfig.digits) : "-";
                         const sellText = sell ? sell.toFixed(pairConfig.digits) : "-";
                         const spread = buy && sell ? sell - buy : null;
+                        const isOutlier = isDashboardRateOutlier(item, currency);
                         rowsByCurrency[currency].push({
                             id: dashboardItemId("company", rawName, pairConfig.pair),
                             kind: "company",
@@ -895,6 +1581,8 @@
                             sell: sellText,
                             spread: spread ? spread.toFixed(pairConfig.digits) : "-",
                             rate: `${buyText} / ${sellText}`,
+                            isOutlier,
+                            sortSpread: Number.isFinite(spread) ? spread : Infinity,
                             logoHtml: `<span class="dashboard-logo"><img src="${logo}" alt="${escapeHtml(name)}" onerror="this.onerror=null;this.src='Logos/logo.jpg';"></span>`
                         });
                     });
@@ -903,6 +1591,10 @@
                 Object.entries(rowsByCurrency).forEach(([currency, rows]) => {
                     const list = document.getElementById(`company-${currency}PickerList`);
                     if (!list) return;
+                    rows.sort((a, b) => {
+                        if (a.isOutlier !== b.isOutlier) return a.isOutlier ? 1 : -1;
+                        return a.sortSpread - b.sortSpread;
+                    });
                     list.innerHTML = rows.length ? rows.map(rowHtml).join("") : "კომპანიების კურსები ვერ მოიძებნა";
                     bindPickerRows(list);
                 });
@@ -924,11 +1616,12 @@
                     const buy = readNumber(item, config.buy);
                     const sell = readNumber(item, config.sell);
                     const spread = buy && sell ? sell - buy : Number(item[config.spread]);
-                    return { buy, sell, spread };
+                    return { buy, sell, spread, isOutlier: isDashboardRateOutlier(item, currency) };
                 }).filter(item => Number.isFinite(item.buy) && Number.isFinite(item.sell) && Number.isFinite(item.spread) && item.spread > 0);
+                const relevantItems = validItems.filter(item => !item.isOutlier);
 
-                validItems.sort((a, b) => a.spread - b.spread);
-                const topItems = validItems.slice(0, 10);
+                relevantItems.sort((a, b) => a.spread - b.spread);
+                const topItems = relevantItems.slice(0, 10);
                 const count = topItems.length;
                 const avgBuy = count ? topItems.reduce((sum, item) => sum + item.buy, 0) / count : null;
                 const avgSell = count ? topItems.reduce((sum, item) => sum + item.sell, 0) / count : null;
@@ -994,6 +1687,7 @@
             const list = document.getElementById("forexPickerList");
             try {
                 const sheetRows = await fetchSheetRows();
+                dashboardAlertForexCatalog = buildDashboardAlertForexCatalog(sheetRows);
                 const pairColumns = [
                     ["Pair (Popular)", "Rate (Popular)"],
                     ["Pair (vs USD)", "Rate (vs USD)"],
@@ -1041,6 +1735,7 @@
             try {
                 const res = await fetch("https://api.binance.com/api/v3/ticker/24hr");
                 const data = await res.json();
+                dashboardAlertCryptoCatalog = buildDashboardAlertCryptoCatalog(data);
                 const rows = data
                     .filter(item => item.symbol.endsWith("USDT") && !item.symbol.includes("UPUSDT") && !item.symbol.includes("DOWNUSDT") && !item.symbol.includes("BULLUSDT") && !item.symbol.includes("BEARUSDT"))
                     .sort(sortCryptoTickers)
@@ -1069,6 +1764,7 @@
         async function loadAssetPicker() {
             const list = document.getElementById("assetPickerList");
             const priceMap = await fetchAssetPrices();
+            dashboardAlertAssetCatalog = buildDashboardAlertAssetCatalog(priceMap);
             const rows = ASSET_ITEMS.map(item => {
                 const price = priceMap.get(item.name.toLowerCase()) || item.value;
                 return {
@@ -1091,7 +1787,7 @@
                 const rows = await fetchSheetRows();
                 rows.forEach(row => {
                     const name = String(row.MEA || "").trim();
-                    const value = Number(row["Rate (MEA)"]);
+                    const value = parseDisplayNumber(row["Rate (MEA)"]);
                     if (name && !Number.isNaN(value)) prices.set(name.toLowerCase(), value.toLocaleString("en-US", { maximumFractionDigits: 3 }));
                 });
             } catch (error) {

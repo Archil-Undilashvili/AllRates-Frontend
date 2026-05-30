@@ -6,9 +6,9 @@
 /contact.html               /contact                  301!
 /api.html                   /api                      301!
 /admin.html                 /admin                    301!
-/dashboard.html             /dashboard                301!
+/dashboard.html             /create-dashboard         301!
 /create-dashboard.html      /create-dashboard         301!
-/create-alert.html          /create-alert             301!
+/create-alert.html          /create-dashboard         301!
 /valutis-kursebi-dges.html  /valutis-kursebi-dges     301!
 /dolaris-kursi.html             /dolaris-kursi            301!
 /evros-kursi.html               /evros-kursi              301!
@@ -36,9 +36,9 @@
 /contact                  /contact.html               200
 /api                      /api.html                   200
 /admin                    /admin.html                 200
-/dashboard                /dashboard.html             200
+/dashboard                /create-dashboard           301!
 /create-dashboard         /create-dashboard.html      200
-/create-alert             /create-alert.html          200
+/create-alert             /create-dashboard           301!
 /valutis-kursebi-dges     /valutis-kursebi-dges.html  200
 /dolaris-kursi            /dolaris-kursi.html       200
 /evros-kursi              /evros-kursi.html         200

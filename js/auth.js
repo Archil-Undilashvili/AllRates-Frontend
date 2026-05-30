@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const authBtn = document.getElementById("authBtn");
     const isFilePreview = window.location.protocol === "file:";
-    const isLocalServer = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+    const isLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || isFilePreview;
     const isLocalPreview = isLocalServer || isFilePreview;
     const apiOrigin = window.ALLRATES_API_ORIGIN
         || (isLocalServer ? "http://localhost:3000" : null)
@@ -252,6 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        authBtn.hidden = true;
+        authBtn.setAttribute("aria-hidden", "true");
         authBtn.style.display = "none";
 
         if (user.role === "admin") {
@@ -275,6 +277,17 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    document.querySelectorAll("[data-auth-cta]").forEach(button => {
+        button.addEventListener("click", () => {
+            if (getStoredToken()) {
+                goToUserPage();
+                return;
+            }
+            setTab("register");
+            openAuthModal();
+        });
+    });
 
     closeAuthModal.addEventListener("click", closeModal);
 

@@ -43,6 +43,72 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         };
 
         let currentTab = localStorage.getItem('allrates_current_tab') || 'all';
+        const DEFAULT_RATE_RELEVANCE_THRESHOLD = 0.50;
+        const RATE_KEY_BY_CURRENCY = {
+            usd: { code: 'USD', buy: 'USDGEL (Buy)', sell: 'USDGEL (Sell)', spread: 'usdSpread' },
+            eur: { code: 'EUR', buy: 'EURGEL (Buy)', sell: 'EURGEL (Sell)', spread: 'eurSpread' },
+            gbp: { code: 'GBP', buy: 'GBPGEL (Buy)', sell: 'GBPGEL (Sell)', spread: 'gbpSpread' },
+            rub: { code: 'RUB', buy: 'RUBGEL (Buy)', sell: 'RUBGEL (Sell)', spread: 'rubSpread' },
+            try: { code: 'TRY', buy: 'TRYGEL (Buy)', sell: 'TRYGEL (Sell)', spread: 'trySpread' }
+        };
+
+        function getRateRelevanceThreshold(currency) {
+            return ['usd', 'eur'].includes(String(currency || '').toLowerCase())
+                ? 0.10
+                : DEFAULT_RATE_RELEVANCE_THRESHOLD;
+        }
+
+        function getOfficialMarketRate(currency) {
+            try {
+                const config = RATE_KEY_BY_CURRENCY[String(currency || '').toLowerCase()];
+                const code = config ? config.code : String(currency || '').toUpperCase();
+                const cachedNBG = JSON.parse(localStorage.getItem('cachedNBGData') || '{}');
+                const adjustedRate = Number(cachedNBG.marketOfficialRates?.[code]);
+                if (Number.isFinite(adjustedRate) && adjustedRate > 0) return adjustedRate;
+
+                let rawRate = Number(cachedNBG[code.toLowerCase()]);
+                if (!Number.isFinite(rawRate) || rawRate <= 0) return NaN;
+
+                // Older cache entries kept NBG's displayed rate without quantity normalization.
+                if ((code === 'RUB' || code === 'TRY') && rawRate > 1) rawRate /= 100;
+                return rawRate;
+            } catch (_) {
+                return NaN;
+            }
+        }
+
+        function getRateValues(item, currency) {
+            const config = RATE_KEY_BY_CURRENCY[String(currency || '').toLowerCase()];
+            if (!config || !item) return { buy: NaN, sell: NaN, spread: NaN };
+            return {
+                buy: parseFloat(item[config.buy]),
+                sell: parseFloat(item[config.sell]),
+                spread: parseFloat(item[config.spread])
+            };
+        }
+
+        function isCompanyRateOutlier(item, currency) {
+            const officialRate = getOfficialMarketRate(currency);
+            if (!Number.isFinite(officialRate) || officialRate <= 0) return false;
+
+            const { buy, sell } = getRateValues(item, currency);
+            if (!Number.isFinite(buy) || !Number.isFinite(sell) || buy <= 0 || sell <= 0) return false;
+            if (buy === sell) return true;
+
+            const buyDeviation = Math.abs(buy - officialRate) / officialRate;
+            const sellDeviation = Math.abs(sell - officialRate) / officialRate;
+            const threshold = getRateRelevanceThreshold(currency);
+            return buyDeviation > threshold || sellDeviation > threshold;
+        }
+
+        function refreshRateRelevanceViews() {
+            if (!Array.isArray(originalData) || originalData.length === 0) return;
+            ['usd', 'eur', 'gbp', 'rub', 'try'].forEach(currency => {
+                const dataArr = currency === 'usd' ? usdData : currency === 'eur' ? eurData : currency === 'gbp' ? gbpData : currency === 'rub' ? rubData : tryData;
+                if (Array.isArray(dataArr) && dataArr.length) applySorting(currency);
+            });
+            renderHomePage();
+        }
 
         async function fetchJsonWithFallback(urls) {
             let lastError = null;
@@ -608,7 +674,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     const sortedData = [...data].filter(item => {
                         const buy = parseFloat(item['USDGEL (Buy)']);
                         const sell = parseFloat(item['USDGEL (Sell)']);
-                        return !isNaN(buy) && !isNaN(sell);
+                        return !isNaN(buy) && !isNaN(sell) && !isCompanyRateOutlier(item, 'usd');
                     }).sort((a, b) => {
                         const spreadA = parseFloat(a['USDGEL (Sell)']) - parseFloat(a['USDGEL (Buy)']);
                         const spreadB = parseFloat(b['USDGEL (Sell)']) - parseFloat(b['USDGEL (Buy)']);
@@ -686,24 +752,6 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         function renderHomePage() {
             if (originalData.length === 0) return;
 
-            function getOfficialMarketRate(currency) {
-                try {
-                    const code = String(currency || '').toUpperCase();
-                    const cachedNBG = JSON.parse(localStorage.getItem('cachedNBGData') || '{}');
-                    const adjustedRate = Number(cachedNBG.marketOfficialRates?.[code]);
-                    if (Number.isFinite(adjustedRate) && adjustedRate > 0) return adjustedRate;
-
-                    let rawRate = Number(cachedNBG[code.toLowerCase()]);
-                    if (!Number.isFinite(rawRate) || rawRate <= 0) return NaN;
-
-                    // Older cache entries kept NBG's displayed rate without quantity normalization.
-                    if ((code === 'RUB' || code === 'TRY') && rawRate > 1) rawRate /= 100;
-                    return rawRate;
-                } catch (_) {
-                    return NaN;
-                }
-            }
-
             function formatMarketChange(stats, currency) {
                 if (!Number.isFinite(stats.avgBuy) || !Number.isFinite(stats.avgSell)) return '';
 
@@ -765,8 +813,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         sell = parseFloat(item['TRYGEL (Sell)']);
                         spread = item.trySpread;
                     }
-                    return { buy, sell, spread };
-                }).filter(item => isValidMarketRate(currency, item.buy, item.sell) && Number.isFinite(item.spread) && item.spread !== Infinity);
+                    return { source: item, buy, sell, spread };
+                }).filter(item => !isCompanyRateOutlier(item.source, currency) && isValidMarketRate(currency, item.buy, item.sell) && Number.isFinite(item.spread) && item.spread !== Infinity);
 
                 // Sort by spread (ascending)
                 validItems.sort((a, b) => a.spread - b.spread);
@@ -942,7 +990,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     buy: Number(item[buyKey]),
                     sell: Number(item[sellKey])
                 }))
-                .filter(row => Number.isFinite(row.buy) && row.buy > 0 && Number.isFinite(row.sell) && row.sell > 0);
+                .filter(row => Number.isFinite(row.buy) && row.buy > 0 && Number.isFinite(row.sell) && row.sell > 0 && !isCompanyRateOutlier(row.item, currency));
 
             if (!candidates.length) return null;
             const best = candidates.sort((a, b) => {
@@ -1536,7 +1584,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     // Cache NBG data
                     localStorage.setItem('cachedNBGData', JSON.stringify(cacheData));
-                    renderHomePage();
+                    refreshRateRelevanceViews();
                     updateHomeConverter();
                 }
             } catch (err) {
@@ -1908,7 +1956,12 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
             Object.keys(nbgChartMeta).forEach(type => {
                 const panel = document.getElementById(nbgChartMeta[type].inlinePanelId);
-                if (panel) panel.addEventListener('click', () => openNbgChartModal(type));
+                if (panel) {
+                    panel.addEventListener('click', event => {
+                        if (event.target.closest('a, button, select, input, textarea')) return;
+                        openNbgChartModal(type);
+                    });
+                }
 
                 const select = document.getElementById(nbgChartMeta[type].selectId);
                 if (select) {
@@ -2053,6 +2106,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             const isAsc = config.order === 'asc' ? 1 : -1;
 
             dataArr.sort((a, b) => {
+                const aOutlier = isCompanyRateOutlier(a, currency);
+                const bOutlier = isCompanyRateOutlier(b, currency);
+                if (aOutlier !== bOutlier) return aOutlier ? 1 : -1;
+
                 if (config.column === 'company') {
                     const getKey = (item) => {
                         const ck = item.baseCompany || item.Company.toLowerCase();
@@ -2072,17 +2129,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     if (cA > cB) return 1 * isAsc;
                     return 0;
                 } else if (config.column === 'buy') {
-                    const k = currency === 'usd' ? 'USDGEL (Buy)' : currency === 'eur' ? 'EURGEL (Buy)' : currency === 'gbp' ? 'GBPGEL (Buy)' : currency === 'rub' ? 'RUBGEL (Buy)' : 'TRYGEL (Buy)';
+                    const k = RATE_KEY_BY_CURRENCY[currency].buy;
                     const vA = parseFloat(a[k]) || 0;
                     const vB = parseFloat(b[k]) || 0;
                     return (vA - vB) * isAsc;
                 } else if (config.column === 'sell') {
-                    const k = currency === 'usd' ? 'USDGEL (Sell)' : currency === 'eur' ? 'EURGEL (Sell)' : currency === 'gbp' ? 'GBPGEL (Sell)' : currency === 'rub' ? 'RUBGEL (Sell)' : 'TRYGEL (Sell)';
+                    const k = RATE_KEY_BY_CURRENCY[currency].sell;
                     const vA = parseFloat(a[k]) || Infinity;
                     const vB = parseFloat(b[k]) || Infinity;
                     return (vA - vB) * isAsc;
                 } else if (config.column === 'spread') {
-                    const k = currency === 'usd' ? 'usdSpread' : currency === 'eur' ? 'eurSpread' : currency === 'gbp' ? 'gbpSpread' : currency === 'rub' ? 'rubSpread' : 'trySpread';
+                    const k = RATE_KEY_BY_CURRENCY[currency].spread;
                     const vA = parseFloat(a[k]) || Infinity;
                     const vB = parseFloat(b[k]) || Infinity;
                     return (vA - vB) * isAsc;
@@ -2246,8 +2303,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             // საუკეთესო კურსების პოვნა მიმდინარე ტაბისთვის
             let bestBuy = -Infinity;
             let bestSell = Infinity;
+            const relevantDataToRank = dataToRender.filter(item => !isCompanyRateOutlier(item, currency));
 
-            dataToRender.forEach(item => {
+            relevantDataToRank.forEach(item => {
                 let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : currency === 'eur' ? parseFloat(item['EURGEL (Buy)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Buy)']) : parseFloat(item['TRYGEL (Buy)']);
                 let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : currency === 'eur' ? parseFloat(item['EURGEL (Sell)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Sell)']) : parseFloat(item['TRYGEL (Sell)']);
                 if (!isNaN(buy) && buy > bestBuy) bestBuy = buy;
@@ -2255,7 +2313,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             });
 
             // Calculate averages for this tab (Top 10)
-            let validForAvg = dataToRender.map(item => {
+            let validForAvg = relevantDataToRank.map(item => {
                 let buy = currency === 'usd' ? parseFloat(item['USDGEL (Buy)']) : currency === 'eur' ? parseFloat(item['EURGEL (Buy)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Buy)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Buy)']) : parseFloat(item['TRYGEL (Buy)']);
                 let sell = currency === 'usd' ? parseFloat(item['USDGEL (Sell)']) : currency === 'eur' ? parseFloat(item['EURGEL (Sell)']) : currency === 'gbp' ? parseFloat(item['GBPGEL (Sell)']) : currency === 'rub' ? parseFloat(item['RUBGEL (Sell)']) : parseFloat(item['TRYGEL (Sell)']);
                 let spread = currency === 'usd' ? item.usdSpread : currency === 'eur' ? item.eurSpread : currency === 'gbp' ? item.gbpSpread : currency === 'rub' ? item.rubSpread : item.trySpread;
@@ -2275,6 +2333,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             const visibleData = (expandedStates[currency] || dataToRender.length <= 10) ? dataToRender : dataToRender.slice(0, 10);
             visibleData.forEach(item => {
                 const tr = document.createElement('tr');
+                const isOutlier = isCompanyRateOutlier(item, currency);
+                if (isOutlier) tr.classList.add('rate-outlier-row');
                 
                 let buy, sell, spread;
                 if (currency === 'usd') {
@@ -2319,8 +2379,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 }
                 const compUrl = COMPANY_URLS[companyKey] || '#';
 
-                let buyDisplay = isNaN(buy) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (buy === bestBuy ? `${buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
-                let sellDisplay = isNaN(sell) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (sell === bestSell ? `${sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                let buyDisplay = isNaN(buy) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (!isOutlier && buy === bestBuy ? `${buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                let sellDisplay = isNaN(sell) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (!isOutlier && sell === bestSell ? `${sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
                 let spreadDisplay = (isNaN(spread) || spread === Infinity) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : spread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3);
 
                 let mainName = compNameKa;
@@ -2347,8 +2407,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                             </div>
                         </a>
                     </td>
-                    <td class="buy">${buyDisplay}</td>
-                    <td class="sell">${sellDisplay}</td>
+                    <td class="buy${isOutlier ? ' rate-outlier-value' : ''}">${buyDisplay}</td>
+                    <td class="sell${isOutlier ? ' rate-outlier-value' : ''}">${sellDisplay}</td>
                     <td class="spread">${spreadDisplay}</td>
                     <td class="info-cell"><button class="btn-info-icon" onclick="event.preventDefault(); openCompanyInfo('${companyKey}', '${compNameKa}')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></td>
                 `;
@@ -2438,7 +2498,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     setDisplay('nbg-rates-box', 'flex');
                     if (Array.isArray(nbg.officialRates)) renderHomeOfficialRates(nbg.officialRates);
-                    renderHomePage();
+                    refreshRateRelevanceViews();
                     updateHomeConverter();
                 }
             } catch (err) {
