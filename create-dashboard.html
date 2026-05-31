@@ -857,7 +857,8 @@
                 return dashboardAlertCryptoCatalog.find(pair => pair.pair === alert.pair) || null;
             }
             if (alert.alertType === "asset") {
-                return dashboardAlertAssetCatalog.find(pair => pair.pair === alert.pair) || null;
+                const selectedPair = String(alert.pair || "").toLowerCase();
+                return dashboardAlertAssetCatalog.find(pair => String(pair.pair || "").toLowerCase() === selectedPair) || null;
             }
             const company = getAlertCatalogCompany(alert.companyKey);
             return company?.pairs.find(pair => pair.pair === alert.pair) || null;
@@ -900,8 +901,10 @@
             }
             if (alert.alertType === "asset") {
                 const options = ['<option value="">აირჩიე აქტივი</option>'];
+                const selectedPair = String(alert.pair || "").toLowerCase();
                 dashboardAlertAssetCatalog.forEach(pair => {
-                    options.push(`<option value="${escapeHtml(pair.pair)}"${pair.pair === alert.pair ? " selected" : ""}>${escapeHtml(pair.label)}</option>`);
+                    const selected = String(pair.pair || "").toLowerCase() === selectedPair;
+                    options.push(`<option value="${escapeHtml(pair.pair)}"${selected ? " selected" : ""}>${escapeHtml(pair.label)}</option>`);
                 });
                 return options.join("");
             }
@@ -1173,7 +1176,7 @@
 
                 const name = field.dataset.alertField;
                 alert[name] = field.value;
-                if (name === "companyKey" && alert.alertType !== "forex") {
+                if (name === "companyKey" && alert.alertType === "company") {
                     const company = getAlertCatalogCompany(alert.companyKey);
                     alert.companyName = company?.name || "";
                     alert.pair = company?.pairs?.[0]?.pair || "";
