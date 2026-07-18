@@ -120,13 +120,34 @@
     </main>
 
     <script>
+        const DASHBOARD_PROD_API_ORIGIN = "https://allrates-backend-api.onrender.com";
+        const dashboardIsLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
+        const dashboardApiOrigins = window.ALLRATES_API_ORIGIN
+            ? [window.ALLRATES_API_ORIGIN]
+            : (dashboardIsLocalServer ? ["http://localhost:3000", DASHBOARD_PROD_API_ORIGIN] : [DASHBOARD_PROD_API_ORIGIN]);
+        let apiOrigin = dashboardApiOrigins[0];
+
+        async function fetchDashboardJsonFromOrigins(path, options = {}) {
+            let lastError = null;
+            for (const origin of dashboardApiOrigins) {
+                try {
+                    const res = await fetch(`${origin}${path}`, options);
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) {
+                        apiOrigin = origin;
+                        return { res, data, origin };
+                    }
+                    lastError = { res, data, origin };
+                } catch (error) {
+                    lastError = { error, origin };
+                }
+            }
+            return lastError || {};
+        }
+
         document.addEventListener("DOMContentLoaded", async () => {
             const token = localStorage.getItem("token") || sessionStorage.getItem("token");
             const status = document.getElementById("userSpaceStatus");
-            const isLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
-            const apiOrigin = window.ALLRATES_API_ORIGIN
-                || (isLocalServer ? "http://localhost:3000" : null)
-                || "https://allrates-backend-api.onrender.com";
 
             if (!token) {
                 window.location.href = "/";
@@ -134,12 +155,11 @@
             }
 
             try {
-                const res = await fetch(`${apiOrigin}/api/auth/me`, {
+                const { res, data } = await fetchDashboardJsonFromOrigins("/api/auth/me", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                const data = await res.json();
 
-                if (!res.ok) {
+                if (!res || !res.ok) {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
                     sessionStorage.removeItem("token");
@@ -155,9 +175,7 @@
                 status.textContent = "";
                 await initDashboardBuilder(apiOrigin, token, data.user);
             } catch (error) {
-                status.textContent = isLocalServer
-                    ? "Local backend არ მუშაობს. გაუშვი AllRates-Backend ფოლდერში: npm start"
-                    : "სერვერთან კავშირის შეცდომა";
+                status.textContent = "სერვერთან კავშირის შეცდომა";
             }
         });
 
@@ -248,7 +266,7 @@
             { name: "Tesla", aliases: ["tsla", "tesla"], value: "—", logo: "Logos/TSLA.png" },
             { name: "NVIDIA", aliases: ["nvda", "nvidia"], value: "—", logo: "Logos/NVDA.png" }
         ];
-        const ASSETS_API_URL = `${apiOrigin}/api/data`;
+        const assetsApiUrl = () => `${apiOrigin}/api/data`;
         const NBG_API_URL = "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json";
         const CURRENCY_CONFIG = {
             usd: { code: "USD", pair: "USDGEL", title: "აშშ დოლარი", flag: "Logos/US.png", buy: ["usdBuy", "USDGEL (Buy)"], sell: ["usdSell", "USDGEL (Sell)"], spread: "usdSpread", digits: 3 },
@@ -1535,7 +1553,7 @@
         }
 
         async function fetchSheetRows() {
-            const res = await fetch(`${ASSETS_API_URL}?t=${Date.now()}`, { cache: "no-store" });
+            const res = await fetch(`${assetsApiUrl()}?t=${Date.now()}`, { cache: "no-store" });
             if (!res.ok) throw new Error("Sheets API unavailable");
             const raw = await res.json();
             if (raw.data && Array.isArray(raw.data)) {

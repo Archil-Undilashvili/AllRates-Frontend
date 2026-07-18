@@ -3,10 +3,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const isFilePreview = window.location.protocol === "file:";
     const isLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || isFilePreview;
     const isLocalPreview = isLocalServer || isFilePreview;
-    const apiOrigin = window.ALLRATES_API_ORIGIN
-        || (isLocalServer ? "http://localhost:3000" : null)
-        || "https://allrates-backend-api.onrender.com";
-    const API_URL = `${apiOrigin}/api/auth`;
+    const PROD_API_ORIGIN = "https://allrates-backend-api.onrender.com";
+    const apiOrigins = window.ALLRATES_API_ORIGIN
+        ? [window.ALLRATES_API_ORIGIN]
+        : (isLocalServer ? ["http://localhost:3000", PROD_API_ORIGIN] : [PROD_API_ORIGIN]);
+
+    async function fetchAuthJson(path, options = {}) {
+        let lastError = null;
+        for (const origin of apiOrigins) {
+            try {
+                const res = await fetch(`${origin}/api/auth${path}`, options);
+                const data = await res.json().catch(() => ({}));
+                if (res.ok || !isLocalServer) return { res, data };
+                lastError = { res, data };
+            } catch (error) {
+                lastError = { error };
+            }
+        }
+        if (lastError?.res) return lastError;
+        throw lastError?.error || new Error("Auth API unavailable");
+    }
 
     function getAuthHref(path) {
         if (!isLocalPreview) return path;
@@ -318,12 +334,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = document.getElementById("loginPassword").value;
 
         try {
-            const res = await fetch(`${API_URL}/login`, {
+            const { res, data } = await fetchAuthJson("/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
-            const data = await res.json();
 
             if (res.ok) {
                 saveSession(data, document.getElementById("rememberMe").checked);
@@ -355,12 +370,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = document.getElementById("regPassword").value;
 
         try {
-            const res = await fetch(`${API_URL}/register`, {
+            const { res, data } = await fetchAuthJson("/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password })
             });
-            const data = await res.json();
 
             if (!res.ok) {
                 showMessage(data.message || "რეგისტრაცია ვერ მოხერხდა");
@@ -389,12 +403,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const code = document.getElementById("verifyCode").value.trim();
 
         try {
-            const res = await fetch(`${API_URL}/verify`, {
+            const { res, data } = await fetchAuthJson("/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: registeredEmail, code })
             });
-            const data = await res.json();
 
             if (res.ok) {
                 showMessage("ვერიფიკაცია წარმატებულია. ახლა შედით სისტემაში.", true);

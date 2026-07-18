@@ -75,7 +75,7 @@ document.write(`
         </div>
     </nav>
 </div>
-<script src="js/auth.js"></script>
+<script src="js/auth.js?v=2"></script>
 `);
 
 document.addEventListener('DOMContentLoaded', () => {
