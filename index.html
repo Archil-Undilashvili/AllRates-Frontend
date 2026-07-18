@@ -11,7 +11,7 @@
     <title>ვალუტის კურსები დღეს საქართველოში | AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=10">
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="ვალუტის კურსი და ვალუტის კურსები დღეს საქართველოში: NBG ოფიციალური კურსები, საბაზრო ყიდვა-გაყიდვა, valutis kursebi, laris kursi, dolaris kursi, Forex, კრიპტო და აქტივები.">
@@ -425,6 +425,44 @@
                 </div>
             </div>
 
+        <section class="home-market-dynamics-panel" aria-labelledby="home-market-dynamics-title">
+            <div class="home-market-dynamics-header">
+                <div class="home-market-dynamics-heading">
+                    <div class="home-nbg-chart-title home-market-dynamics-title">
+                        <svg class="home-market-dynamics-title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 19V5"></path>
+                            <path d="M4 19h16"></path>
+                            <path d="m7 15 3.3-3.4 3.1 2.2L19 8"></path>
+                            <path d="M16 8h3v3"></path>
+                        </svg>
+                        <span id="home-market-dynamics-title">საბაზრო კურსის დინამიკა დროში (USDGEL)</span>
+                    </div>
+                    <div class="home-nbg-chart-subtitle" id="home-market-dynamics-subtitle">ბოლო 12 საათი</div>
+                </div>
+                <div class="home-market-dynamics-controls" aria-label="საბაზრო კურსის გრაფიკის კონტროლები">
+                    <div class="home-market-dynamics-range" role="group" aria-label="დროის დიაპაზონი">
+                        <button type="button" class="home-market-dynamics-period active" data-market-dynamics-period="1d">1 დღე</button>
+                        <button type="button" class="home-market-dynamics-period" data-market-dynamics-period="3d">3 დღე</button>
+                        <button type="button" class="home-market-dynamics-period" data-market-dynamics-period="1w">1 კვირა</button>
+                    </div>
+                    <div class="home-market-dynamics-toggle" role="group" aria-label="წყვილის არჩევა">
+                        <button type="button" class="home-market-dynamics-mode active" data-market-dynamics-mode="usd">USD/GEL</button>
+                        <button type="button" class="home-market-dynamics-mode" data-market-dynamics-mode="eur">EUR/GEL</button>
+                        <button type="button" class="home-market-dynamics-mode" data-market-dynamics-mode="both">USD&EUR</button>
+                    </div>
+                    <label class="home-market-dynamics-date">
+                        <span>თარიღი</span>
+                        <input type="date" id="home-market-dynamics-date" aria-label="საბაზრო კურსების თარიღი">
+                    </label>
+                </div>
+            </div>
+            <div class="home-market-dynamics-body">
+                <canvas id="home-market-dynamics-chart"></canvas>
+                <div class="home-nbg-chart-loading" id="home-market-dynamics-loading">იტვირთება...</div>
+            </div>
+            <div class="home-market-dynamics-empty" id="home-market-dynamics-empty" hidden>ამ თარიღზე მონაცემები ჯერ არ არის.</div>
+        </section>
+
         <div class="home-charts-row">
             <div class="home-nbg-chart-panel" id="home-nbg-chart-panel" data-chart-type="usdgel">
                 <div class="home-nbg-chart-header">
@@ -642,8 +680,8 @@
         </div>
 
             <!-- Footer Section -->
-<script src="js/footer.js"></script>
-<script src="js/main.js?v=6"></script>
+<script src="js/footer.js?v=2"></script>
+<script src="js/main.js?v=20"></script>
 
 </body>
 </html>

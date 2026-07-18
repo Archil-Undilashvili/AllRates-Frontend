@@ -592,7 +592,7 @@
         </div>
     </section>
 </main>
-<script src="js/footer.js"></script>
+<script src="js/footer.js?v=2"></script>
 <script>
     const NBG_API_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json/';
     const DEFAULT_CODES = ['USD', 'EUR', 'GBP', 'CHF', 'RUB'];
@@ -639,6 +639,30 @@
 
     function normalizePair(pair) {
         return String(pair || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 6);
+    }
+
+    function applyInitialChartParams() {
+        const params = new URLSearchParams(window.location.search);
+        const requestedPair = normalizePair(params.get('pair'));
+        const requestedPeriod = params.get('period');
+        const primaryInput = document.getElementById('official-primary-pair');
+
+        if (requestedPair.length === 6 && primaryInput) {
+            primaryInput.value = requestedPair;
+        }
+
+        if (PERIODS[requestedPeriod]) {
+            chartState.period = requestedPeriod;
+        }
+    }
+
+    function scrollToInitialChartAnchor() {
+        if (window.location.hash !== '#official-analytics-chart') return;
+        const chartSection = document.getElementById('official-analytics-chart');
+        if (!chartSection) return;
+        setTimeout(() => {
+            chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 350);
     }
 
     function formatPairLabel(pair) {
@@ -993,6 +1017,7 @@
 
     async function initOfficialDetailPage() {
         try {
+            applyInitialChartParams();
             initTabs();
             initPairControls();
             initCurrencyDropdown();
@@ -1001,6 +1026,7 @@
             if (pageState.days[0]?.currencies?.length) renderCurrencyCheckboxes(pageState.days[0].currencies);
             renderHistoryCards(pageState.days);
             await renderChart();
+            scrollToInitialChartAnchor();
         } catch (error) {
             console.error('Official detail page load failed', error);
             document.getElementById('official-history-grid').innerHTML = '<div class="official-history-card">მონაცემების ჩატვირთვა ვერ მოხერხდა.</div>';

@@ -126,7 +126,7 @@
             const isLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
             const apiOrigin = window.ALLRATES_API_ORIGIN
                 || (isLocalServer ? "http://localhost:3000" : null)
-                || "https://allrates-backend-api-production.up.railway.app";
+                || "https://allrates-backend-api.onrender.com";
 
             if (!token) {
                 window.location.href = "/";
@@ -248,7 +248,7 @@
             { name: "Tesla", aliases: ["tsla", "tesla"], value: "—", logo: "Logos/TSLA.png" },
             { name: "NVIDIA", aliases: ["nvda", "nvidia"], value: "—", logo: "Logos/NVDA.png" }
         ];
-        const ASSETS_API_URL = "https://sheets-api-production-c989.up.railway.app/api/data";
+        const ASSETS_API_URL = `${apiOrigin}/api/data`;
         const NBG_API_URL = "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json";
         const CURRENCY_CONFIG = {
             usd: { code: "USD", pair: "USDGEL", title: "აშშ დოლარი", flag: "Logos/US.png", buy: ["usdBuy", "USDGEL (Buy)"], sell: ["usdSell", "USDGEL (Sell)"], spread: "usdSpread", digits: 3 },
@@ -1554,7 +1554,7 @@
                 await ensureDashboardOfficialRates();
                 const data = await fetchJsonWithFallback([
                     `${apiOrigin}/api/rates/latest`,
-                    "https://allrates-backend-api-production.up.railway.app/api/rates/latest"
+                    "https://allrates-backend-api.onrender.com/api/rates/latest"
                 ]);
                 const rowsByCurrency = Object.fromEntries(Object.keys(CURRENCY_CONFIG).map(currency => [currency, []]));
                 dashboardAlertCatalog = buildDashboardAlertCatalog(data);

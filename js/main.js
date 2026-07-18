@@ -12,20 +12,31 @@ function setDisplay(id, display) {
     if (el) el.style.display = display;
 }
 
-const API_MFO_URL = 'https://sheets-api-production-c989.up.railway.app/api/data';
 const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+const API_SHEETS_DATA_URL = IS_LOCAL_FRONTEND
+    ? 'http://localhost:3000/api/data'
+    : 'https://allrates-backend-api.onrender.com/api/data';
 const API_RATES_URL = IS_LOCAL_FRONTEND
     ? 'http://localhost:3000/api/rates/latest'
-    : 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
-const API_RATES_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
-const API_GAS_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/latest';
+    : 'https://allrates-backend-api.onrender.com/api/rates/latest';
+const API_RATES_FALLBACK_URL = 'https://allrates-backend-api.onrender.com/api/rates/latest';
+const API_GAS_URL = 'https://allrates-backend-api.onrender.com/api/gas/latest';
 const API_GAS_SUMMARY_URL = IS_LOCAL_FRONTEND
     ? 'http://localhost:3000/api/gas/market-summary'
-    : 'https://allrates-backend-api-production.up.railway.app/api/gas/market-summary';
-const API_GAS_SUMMARY_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/gas/market-summary';
+    : 'https://allrates-backend-api.onrender.com/api/gas/market-summary';
+const API_GAS_SUMMARY_FALLBACK_URL = 'https://allrates-backend-api.onrender.com/api/gas/market-summary';
+const API_MARKET_HISTORY_URL = IS_LOCAL_FRONTEND
+    ? 'http://localhost:3000/api/market-history'
+    : 'https://allrates-backend-api.onrender.com/api/market-history';
+const HOME_MARKET_HISTORY_CACHE_KEY = 'allrates_home_market_history_latest_v1';
+const MARKET_DYNAMICS_CACHE_PREFIX = 'cachedMarketDynamics_v2';
+const NBG_CHART_CACHE_VERSION = 'v2';
+const NBG_CHART_CACHE_VERSION_KEY = 'cachedNbgChartVersion';
+const NBG_CHART_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
 const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v2';
 const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
+const CACHE_COMPANY_RATES_DATA_KEY = 'cachedRatesData_scraper_v1';
 const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
@@ -331,6 +342,56 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         let sortStates = { usd: 0, eur: 0 };
         const sortIcons = ["&#9650;", "&#9660;"];
 
+        function normalizeForexPairCode(pair) {
+            return String(pair || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 6);
+        }
+
+        function getForexAnalyticsUrl(pair) {
+            const pairCode = normalizeForexPairCode(pair) || 'EURUSD';
+            const pagePath = IS_LOCAL_FRONTEND ? 'valutis-kursebi-dges.html' : '/valutis-kursebi-dges';
+            return `${pagePath}?pair=${encodeURIComponent(pairCode)}&period=1w#official-analytics-chart`;
+        }
+
+        function hydrateForexRateLinks(container = document.getElementById('intl-rates-container')) {
+            if (!container) return;
+            container.querySelectorAll('.intl-rate-item').forEach(item => {
+                const pairText = item.querySelector('.intl-pair')?.textContent || '';
+                const pairCode = normalizeForexPairCode(item.dataset.forexPair || pairText);
+                if (pairCode.length !== 6) return;
+                item.classList.add('forex-rate-link');
+                item.dataset.forexPair = pairCode;
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.setAttribute('title', `NBG სტატისტიკაში ${pairCode.slice(0, 3)}/${pairCode.slice(3)} გრაფიკის ნახვა`);
+            });
+        }
+
+        function initForexRateLinks() {
+            const container = document.getElementById('intl-rates-container');
+            if (!container || container.dataset.forexLinksReady === 'true') return;
+            container.dataset.forexLinksReady = 'true';
+
+            const openPair = item => {
+                const pairCode = normalizeForexPairCode(item?.dataset?.forexPair);
+                if (pairCode.length !== 6) return;
+                window.location.href = getForexAnalyticsUrl(pairCode);
+            };
+
+            container.addEventListener('click', event => {
+                const item = event.target.closest('.forex-rate-link[data-forex-pair]');
+                if (!item || !container.contains(item)) return;
+                openPair(item);
+            });
+
+            container.addEventListener('keydown', event => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                const item = event.target.closest('.forex-rate-link[data-forex-pair]');
+                if (!item || !container.contains(item)) return;
+                event.preventDefault();
+                openPair(item);
+            });
+        }
+
         
         async function fetchRates() {
             fetchNBG();
@@ -339,8 +400,8 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
                         // fetchCommodities();
             
             try {
-                // Fetch unified API (MFOs and Banks together)
-                const resAll = await fetch(API_MFO_URL).catch(() => null);
+                // Fetch Google Sheet data only for FOREX and popular assets.
+                const resAll = await fetch(API_SHEETS_DATA_URL).catch(() => null);
                 
                 let combinedData = [];
 
@@ -429,6 +490,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                     cont.innerHTML = '';
                                     arr.forEach(rate => {
                                         let pairName = rate.Pair;
+                                        const forexPairCode = normalizeForexPairCode(pairName);
                                         let currentRate = parseFloat(rate.Rate);
                                         let changeHtml = '';
                                         
@@ -511,13 +573,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                             }
                                         }
 
+                                        const forexClass = isFx && forexPairCode.length === 6 ? ' forex-rate-link' : '';
+                                        const forexData = isFx && forexPairCode.length === 6 ? ` data-forex-pair="${forexPairCode}" role="button" tabindex="0"` : '';
+
                                         cont.innerHTML += `
-                                            <div class="intl-rate-item">
+                                            <div class="intl-rate-item${forexClass}"${forexData}>
                                                 <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
                                                 <span class="intl-value">${displayRate} ${changeHtml}</span>
                                             </div>
                                         `;
                                     });
+                                    if (isFx) hydrateForexRateLinks(cont);
                                 }
 
                                 renderRates(intlRates, intlContainer, true);
@@ -537,6 +603,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                     cont.innerHTML = '';
                                     arr.forEach(rate => {
                                         let pairName = rate.Pair;
+                                        const forexPairCode = normalizeForexPairCode(pairName);
                                         if (isFx) {
                                             if (pairName.length === 6 && !pairName.includes('/')) {
                                                 pairName = pairName.substring(0,3) + ' / ' + pairName.substring(3);
@@ -591,13 +658,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                             }
                                         }
 
+                                        const forexClass = isFx && forexPairCode.length === 6 ? ' forex-rate-link' : '';
+                                        const forexData = isFx && forexPairCode.length === 6 ? ` data-forex-pair="${forexPairCode}" role="button" tabindex="0"` : '';
+
                                         cont.innerHTML += `
-                                            <div class="intl-rate-item">
+                                            <div class="intl-rate-item${forexClass}"${forexData}>
                                                 <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
                                                 <span class="intl-value">${displayRate}</span>
                                             </div>
                                         `;
                                     });
+                                    if (isFx) hydrateForexRateLinks(cont);
                                 };
                                 renderFallback(intlRates, intlContainer, true);
                                 renderFallback(popularAssetsRates, popularAssetsContainer, false);
@@ -654,7 +725,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         });
                 } catch(e) { console.error("New API fetch failed:", e); }
 
-                originalData = newApiData.length > 0 ? newApiData : combinedData.filter(item => item.Company && ALL_COMPANIES.includes(item.Company.toLowerCase()));
+                originalData = newApiData;
                 const kursigeLiveRow = await fetchKursigePublicRateRow();
                 if (kursigeLiveRow) {
                     originalData = originalData.filter(item => getCompanyKey(item) !== 'kursige');
@@ -739,7 +810,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 updateHomeConverter();
                 
                 // Cache data for instant loading next time
-                localStorage.setItem('cachedRatesData', JSON.stringify(originalData));
+                localStorage.setItem(CACHE_COMPANY_RATES_DATA_KEY, JSON.stringify(originalData));
 
                 setDisplay('loader', 'none');
             } catch (error) {
@@ -858,6 +929,73 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const stats = calculateStats(currency);
                 updateDom(currency, stats);
             });
+
+            fetchHomeMarketHistoryRates();
+        }
+
+        function applyHomeMarketHistoryPair(currency, pairData) {
+            const buy = Number(pairData?.buy);
+            const sell = Number(pairData?.sell);
+            const spread = Number(pairData?.spread);
+            if (!Number.isFinite(buy) || !Number.isFinite(sell)) return false;
+
+            const stats = {
+                avgBuy: buy,
+                avgSell: sell,
+                avgSpread: Number.isFinite(spread) ? spread : sell - buy
+            };
+            const change = (() => {
+                const officialRate = getOfficialMarketRate(currency);
+                if (!Number.isFinite(officialRate) || officialRate <= 0) return '';
+                const marketMid = (stats.avgBuy + stats.avgSell) / 2;
+                const value = ((officialRate - marketMid) / officialRate) * 100;
+                if (!Number.isFinite(value)) return '';
+                const className = value > 0
+                    ? 'market-change-positive'
+                    : value < 0
+                        ? 'market-change-negative'
+                        : 'market-change-neutral';
+                const sign = value > 0 ? '+' : '';
+                return `<span class="${className}">${sign}${value.toFixed(2)}%</span>`;
+            })();
+
+            setInnerText(`home-${currency}-market-buy`, stats.avgBuy.toFixed(4));
+            setInnerText(`home-${currency}-market-sell`, stats.avgSell.toFixed(4));
+            setInnerText(`home-${currency}-market-spread`, stats.avgSpread.toFixed(4));
+            setInnerHTML(`home-${currency}-market-change`, change);
+            return true;
+        }
+
+        function renderHomeMarketHistoryLatest(record) {
+            if (!record) return false;
+            const usdUpdated = applyHomeMarketHistoryPair('usd', record.usdgel);
+            const eurUpdated = applyHomeMarketHistoryPair('eur', record.eurgel);
+            return usdUpdated || eurUpdated;
+        }
+
+        async function fetchHomeMarketHistoryRates() {
+            try {
+                const cached = JSON.parse(localStorage.getItem(HOME_MARKET_HISTORY_CACHE_KEY) || 'null');
+                if (cached?.record && Date.now() - Number(cached.cachedAt || 0) < 60_000) {
+                    renderHomeMarketHistoryLatest(cached.record);
+                }
+            } catch {
+                localStorage.removeItem(HOME_MARKET_HISTORY_CACHE_KEY);
+            }
+
+            try {
+                const response = await fetch(`${API_MARKET_HISTORY_URL}/latest`, { headers: { accept: 'application/json' } });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const record = await response.json();
+                if (renderHomeMarketHistoryLatest(record)) {
+                    localStorage.setItem(HOME_MARKET_HISTORY_CACHE_KEY, JSON.stringify({
+                        cachedAt: Date.now(),
+                        record
+                    }));
+                }
+            } catch (error) {
+                console.warn('საბაზრო USD/EUR ისტორიის ბოლო კურსის ჩატვირთვა ვერ მოხერხდა:', error.message);
+            }
         }
 
         function getHomeConverterCurrency(pair) {
@@ -1715,6 +1853,49 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             '5y': { months: 60, stepDays: 30 }
         };
 
+        const marketDynamicsState = {
+            mode: 'usd',
+            period: '1d',
+            chart: null,
+            blinkTimer: null,
+            dataCache: {}
+        };
+        const MARKET_DYNAMICS_CACHE_MS = 60_000;
+
+        const marketDynamicsPeriods = {
+            '1d': { hours: 24, label: 'ბოლო 12 საათი' },
+            '3d': { hours: 72, label: 'ბოლო 3 დღე' },
+            '1w': { hours: 168, label: 'ბოლო 1 კვირა' },
+            custom: { label: 'არჩეული დღე' }
+        };
+
+        function formatDateForInput(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function formatDateForMarketHistoryPath(dateInputValue) {
+            const [year, month, day] = String(dateInputValue || '').split('-');
+            if (!year || !month || !day) return '';
+            return `${day}-${month}-${year}`;
+        }
+
+        function addDaysToInputDate(dateInputValue, days) {
+            const date = new Date(`${dateInputValue}T12:00:00`);
+            date.setDate(date.getDate() + days);
+            return formatDateForInput(date);
+        }
+
+        function formatMarketRecordLabel(record, includeDate = false) {
+            if (!includeDate) return record.time;
+            const [day, month] = String(record.date || '').split('.');
+            return `${day}/${month} ${record.time}`;
+        }
+
+        function formatMarketSlotTime(timestamp) {
+            const date = new Date(timestamp);
+            return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        }
+
         function formatDateForApi(date) {
             return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         }
@@ -1748,6 +1929,16 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             return dates;
         }
 
+        function clearStaleNbgChartCache() {
+            try {
+                if (localStorage.getItem(NBG_CHART_CACHE_VERSION_KEY) === NBG_CHART_CACHE_VERSION) return;
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('cachedNbgChart_')) localStorage.removeItem(key);
+                });
+                localStorage.setItem(NBG_CHART_CACHE_VERSION_KEY, NBG_CHART_CACHE_VERSION);
+            } catch {}
+        }
+
         async function fetchNbgRatesForDate(dateStr) {
             const baseDate = new Date(`${dateStr}T00:00:00`);
             for (let i = 0; i < 5; i++) {
@@ -1768,7 +1959,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 });
                 if (rates.USD) {
                     return {
-                        date: queryDate,
+                        date: dateStr,
+                        sourceDate: queryDate,
                         rates
                     };
                 }
@@ -1798,7 +1990,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         }
 
         async function loadNbgChartData(type, period, pair = nbgChartState.pairByType[type]) {
-            const cacheId = `${type}_${pair}_${period}`;
+            const todayKey = formatDateForApi(new Date());
+            const cacheId = `${type}_${pair}_${period}_${todayKey}`;
             if (nbgChartState.dataCache[cacheId]) return nbgChartState.dataCache[cacheId];
 
             const cacheKey = `cachedNbgChart_${cacheId}`;
@@ -1806,8 +1999,11 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             if (cached) {
                 try {
                     const parsed = JSON.parse(cached);
-                    nbgChartState.dataCache[cacheId] = parsed;
-                    return parsed;
+                    if (Date.now() - Number(parsed.cachedAt || 0) < NBG_CHART_CACHE_TTL_MS && parsed.data) {
+                        nbgChartState.dataCache[cacheId] = parsed.data;
+                        return parsed.data;
+                    }
+                    localStorage.removeItem(cacheKey);
                 } catch {}
             }
 
@@ -1826,12 +2022,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
             const data = {
                 labels: points.map(point => formatChartLabel(point.date)),
-                values: points.map(point => point.value)
+                values: points.map(point => point.value),
+                dates: points.map(point => point.date)
             };
 
             if (data.values.length) {
                 nbgChartState.dataCache[cacheId] = data;
-                localStorage.setItem(cacheKey, JSON.stringify(data));
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    cachedAt: Date.now(),
+                    version: NBG_CHART_CACHE_VERSION,
+                    data
+                }));
             }
             return data;
         }
@@ -1950,6 +2151,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         function initNbgCharts() {
             if (typeof Chart === 'undefined') return;
+            clearStaleNbgChartCache();
 
             const modal = document.getElementById('home-chart-modal');
             const modalClose = document.getElementById('home-chart-modal-close');
@@ -2003,6 +2205,470 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     if (event.target === modal) closeModal();
                 });
             }
+        }
+
+        function setMarketDynamicsLoading(isLoading) {
+            const loader = document.getElementById('home-market-dynamics-loading');
+            if (loader) loader.style.display = isLoading ? 'flex' : 'none';
+        }
+
+        function setMarketDynamicsEmpty(isEmpty) {
+            const empty = document.getElementById('home-market-dynamics-empty');
+            if (empty) empty.hidden = !isEmpty;
+        }
+
+        function stopMarketDynamicsBlink() {
+            if (marketDynamicsState.blinkTimer) {
+                clearInterval(marketDynamicsState.blinkTimer);
+                marketDynamicsState.blinkTimer = null;
+            }
+        }
+
+        function formatMarketDynamicsTitle(mode) {
+            if (mode === 'eur') return 'საბაზრო კურსის დინამიკა დროში (EURGEL)';
+            if (mode === 'both') return 'საბაზრო კურსის დინამიკა დროში (USDGEL & EURGEL)';
+            return 'საბაზრო კურსის დინამიკა დროში (USDGEL)';
+        }
+
+        function updateMarketDynamicsTexts(mode, label, count) {
+            const title = document.getElementById('home-market-dynamics-title');
+            const subtitle = document.getElementById('home-market-dynamics-subtitle');
+            if (title) title.textContent = formatMarketDynamicsTitle(mode);
+            if (subtitle) {
+                subtitle.textContent = count
+                    ? label
+                    : `${label} · მონაცემები ჯერ არ არის`;
+            }
+        }
+
+        function hasMarketDynamicsRecords(data) {
+            return Array.isArray(data?.records) && data.records.length > 0;
+        }
+
+        async function loadMarketDynamicsData(dateValue) {
+            const datePath = formatDateForMarketHistoryPath(dateValue);
+            if (!datePath) return { records: [] };
+            const memoryCached = marketDynamicsState.dataCache[datePath];
+            if (memoryCached && hasMarketDynamicsRecords(memoryCached.data) && Date.now() - Number(memoryCached.cachedAt || 0) < MARKET_DYNAMICS_CACHE_MS) {
+                return memoryCached.data;
+            }
+
+            const cacheKey = `${MARKET_DYNAMICS_CACHE_PREFIX}_${datePath}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    const cacheRecord = parsed?.data ? parsed : { data: parsed, cachedAt: 0 };
+                    if (hasMarketDynamicsRecords(cacheRecord.data) && Date.now() - Number(cacheRecord.cachedAt || 0) < MARKET_DYNAMICS_CACHE_MS) {
+                        marketDynamicsState.dataCache[datePath] = cacheRecord;
+                        return cacheRecord.data;
+                    }
+                } catch {}
+            }
+
+            const response = await fetch(`${API_MARKET_HISTORY_URL}/day/${datePath}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            if (Array.isArray(data.records) && data.records.length) {
+                const cacheRecord = { cachedAt: Date.now(), data };
+                marketDynamicsState.dataCache[datePath] = cacheRecord;
+                localStorage.setItem(cacheKey, JSON.stringify(cacheRecord));
+            } else {
+                delete marketDynamicsState.dataCache[datePath];
+                localStorage.removeItem(cacheKey);
+            }
+            return data;
+        }
+
+        async function loadMarketDynamicsRangeData(fromDateValue, toDateValue) {
+            const fromPath = formatDateForMarketHistoryPath(fromDateValue);
+            const toPath = formatDateForMarketHistoryPath(toDateValue);
+            if (!fromPath || !toPath) return { records: [] };
+
+            const cacheKey = `range_${fromPath}_${toPath}`;
+            const memoryCached = marketDynamicsState.dataCache[cacheKey];
+            if (memoryCached && hasMarketDynamicsRecords(memoryCached.data) && Date.now() - Number(memoryCached.cachedAt || 0) < MARKET_DYNAMICS_CACHE_MS) {
+                return memoryCached.data;
+            }
+
+            const localCacheKey = `${MARKET_DYNAMICS_CACHE_PREFIX}_${cacheKey}`;
+            const cached = localStorage.getItem(localCacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    if (hasMarketDynamicsRecords(parsed.data) && Date.now() - Number(parsed.cachedAt || 0) < MARKET_DYNAMICS_CACHE_MS) {
+                        marketDynamicsState.dataCache[cacheKey] = parsed;
+                        return parsed.data;
+                    }
+                } catch {}
+            }
+
+            const response = await fetch(`${API_MARKET_HISTORY_URL}/range/${fromPath}/${toPath}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            if (Array.isArray(data.records) && data.records.length) {
+                const cacheRecord = { cachedAt: Date.now(), data };
+                marketDynamicsState.dataCache[cacheKey] = cacheRecord;
+                localStorage.setItem(localCacheKey, JSON.stringify(cacheRecord));
+            } else {
+                delete marketDynamicsState.dataCache[cacheKey];
+                localStorage.removeItem(localCacheKey);
+            }
+            return data;
+        }
+
+        function filterMarketDynamicsPeriodRecords(records, period) {
+            const sortedRecords = [...records].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            if (period === 'custom' || !sortedRecords.length) return sortedRecords;
+
+            const hours = marketDynamicsPeriods[period]?.hours || 24;
+            const latestTimestamp = new Date(sortedRecords[sortedRecords.length - 1].timestamp).getTime();
+            const fromTimestamp = latestTimestamp - (hours * 60 * 60 * 1000);
+            return sortedRecords.filter(record => new Date(record.timestamp).getTime() >= fromTimestamp);
+        }
+
+        function buildMarketDynamicsLiveEndSlots(records) {
+            const sortedRecords = [...records].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            if (!sortedRecords.length) return sortedRecords;
+
+            const slotMs = 30 * 60 * 1000;
+            const latestTimestamp = new Date(sortedRecords[sortedRecords.length - 1].timestamp).getTime();
+            const hoursBack = marketDynamicsState.period === '1d'
+                ? 12
+                : (marketDynamicsPeriods[marketDynamicsState.period]?.hours || 24);
+            const startTimestamp = latestTimestamp - (hoursBack * 60 * 60 * 1000);
+            const endTimestamp = latestTimestamp + (3 * 60 * 60 * 1000);
+            const byTimestamp = new Map(sortedRecords.map(record => [new Date(record.timestamp).getTime(), record]));
+            const slots = [];
+
+            for (let timestamp = startTimestamp; timestamp <= endTimestamp; timestamp += slotMs) {
+                const record = byTimestamp.get(timestamp);
+                slots.push(record || {
+                    timestamp: new Date(timestamp).toISOString(),
+                    date: '',
+                    time: formatMarketSlotTime(timestamp),
+                    isEmptySlot: true
+                });
+            }
+
+            return slots;
+        }
+
+        function shouldUseMarketDynamicsLiveEnd(period) {
+            return ['1d', '3d', '1w'].includes(period);
+        }
+
+        function getMarketDynamicsLastDataIndex(data) {
+            for (let index = data.length - 1; index >= 0; index -= 1) {
+                if (data[index] !== null && data[index] !== undefined && Number.isFinite(Number(data[index]))) return index;
+            }
+            return -1;
+        }
+
+        function getMarketDynamicsPairValues(record, pairKey) {
+            const source = record?.[pairKey] || {};
+            const buy = Number(source.buy);
+            const sell = Number(source.sell);
+            return {
+                buy: Number.isFinite(buy) ? buy : null,
+                sell: Number.isFinite(sell) ? sell : null,
+                spread: Number(source.spread),
+                average: Number.isFinite(buy) && Number.isFinite(sell) ? Number(((buy + sell) / 2).toFixed(4)) : null
+            };
+        }
+
+        function buildMarketDynamicsDatasets(records, mode) {
+            if (mode === 'both') {
+                return [
+                    {
+                        label: 'USD/GEL საშუალო',
+                        data: records.map(record => getMarketDynamicsPairValues(record, 'usdgel').average),
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        tension: 0.35,
+                        spanGaps: false,
+                        yAxisID: 'yUsd'
+                    },
+                    {
+                        label: 'EUR/GEL საშუალო',
+                        data: records.map(record => getMarketDynamicsPairValues(record, 'eurgel').average),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointHoverRadius: 5,
+                        tension: 0.35,
+                        spanGaps: false,
+                        yAxisID: 'yEur'
+                    }
+                ];
+            }
+
+            const pairKey = mode === 'eur' ? 'eurgel' : 'usdgel';
+            const pairLabel = mode === 'eur' ? 'EUR/GEL' : 'USD/GEL';
+            return [
+                {
+                    label: `${pairLabel} გაყიდვა`,
+                    data: records.map(record => getMarketDynamicsPairValues(record, pairKey).sell),
+                    borderColor: '#fb7185',
+                    backgroundColor: 'rgba(251, 113, 133, 0.16)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    spanGaps: false,
+                    fill: '+1'
+                },
+                {
+                    label: `${pairLabel} ყიდვა`,
+                    data: records.map(record => getMarketDynamicsPairValues(record, pairKey).buy),
+                    borderColor: '#34d399',
+                    backgroundColor: 'rgba(52, 211, 153, 0.10)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    spanGaps: false,
+                    fill: false
+                }
+            ];
+        }
+
+        const marketDynamicsLivePointPlugin = {
+            id: 'marketDynamicsLivePoint',
+            afterDatasetsDraw(chart, args, pluginOptions) {
+                if (!pluginOptions?.enabled) return;
+                const { ctx, data } = chart;
+                const pulse = 0.5 + (Math.sin(Date.now() / 260) + 1) / 2;
+
+                data.datasets.forEach((dataset, datasetIndex) => {
+                    const values = Array.isArray(dataset.data) ? dataset.data : [];
+                    const pointIndex = getMarketDynamicsLastDataIndex(values);
+                    if (pointIndex < 0) return;
+
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    const point = meta?.data?.[pointIndex];
+                    const value = Number(values[pointIndex]);
+                    if (!point || !Number.isFinite(value)) return;
+
+                    const { x, y } = point.getProps(['x', 'y'], true);
+                    const color = dataset.borderColor || '#38bdf8';
+
+                    ctx.save();
+                    ctx.globalAlpha = 0.16 + pulse * 0.12;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5 + pulse * 4, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 10 + pulse * 8;
+                    ctx.fill();
+
+                    const text = value.toFixed(4);
+                    const textX = Math.min(x + 13, chart.chartArea.right - 82);
+                    const textY = y - 11 + (datasetIndex % 2) * 24;
+                    ctx.shadowBlur = 0;
+                    ctx.font = '950 16px Inter, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.lineWidth = 6;
+                    ctx.strokeStyle = 'rgba(15, 23, 42, 0.96)';
+                    ctx.strokeText(text, textX, textY);
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = 'rgba(15, 23, 42, 0.55)';
+                    ctx.shadowBlur = 4;
+                    ctx.fillText(text, textX, textY);
+                    ctx.restore();
+                });
+            }
+        };
+
+        function makeMarketDynamicsChartConfig(records, mode, period = marketDynamicsState.period) {
+            const labels = records.map(record => formatMarketRecordLabel(record, period !== '1d' && period !== 'custom'));
+            const datasets = buildMarketDynamicsDatasets(records, mode);
+            const isBothMode = mode === 'both';
+            const isLiveEndMode = shouldUseMarketDynamicsLiveEnd(period);
+
+            return {
+                type: 'line',
+                data: { labels, datasets },
+                plugins: [marketDynamicsLivePointPlugin],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#cbd5e1',
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                usePointStyle: true,
+                                font: { size: 11, weight: '700' }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.dataset.label}: ${Number(ctx.raw).toFixed(4)}`,
+                                afterBody: (items) => {
+                                    if (isBothMode || !items?.length) return [];
+                                    const record = records[items[0].dataIndex];
+                                    const pairKey = mode === 'eur' ? 'eurgel' : 'usdgel';
+                                    const values = getMarketDynamicsPairValues(record, pairKey);
+                                    const spread = Number.isFinite(values.spread)
+                                        ? values.spread
+                                        : (Number.isFinite(values.sell) && Number.isFinite(values.buy) ? values.sell - values.buy : NaN);
+                                    return Number.isFinite(spread) ? [`სპრედი: ${spread.toFixed(4)}`] : [];
+                                }
+                            }
+                        },
+                        marketDynamicsLivePoint: {
+                            enabled: isLiveEndMode
+                        }
+                    },
+                    scales: isBothMode
+                        ? {
+                            x: {
+                                ticks: {
+                                    color: '#94a3b8',
+                                    maxTicksLimit: period === '1d' ? 31 : 14,
+                                    autoSkip: period !== '1d',
+                                    font: { size: period === '1d' ? 10 : 11 }
+                                },
+                                grid: { color: 'rgba(148, 163, 184, 0.10)' }
+                            },
+                            yUsd: {
+                                position: 'left',
+                                ticks: { color: '#38bdf8', callback: value => Number(value).toFixed(4) },
+                                grid: { color: 'rgba(148, 163, 184, 0.10)' }
+                            },
+                            yEur: {
+                                position: 'right',
+                                ticks: { color: '#f59e0b', callback: value => Number(value).toFixed(4) },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
+                        : {
+                            x: {
+                                ticks: {
+                                    color: '#94a3b8',
+                                    maxTicksLimit: period === '1d' ? 31 : 14,
+                                    autoSkip: period !== '1d',
+                                    font: { size: period === '1d' ? 10 : 11 }
+                                },
+                                grid: { color: 'rgba(148, 163, 184, 0.10)' }
+                            },
+                            y: {
+                                ticks: { color: '#94a3b8', callback: value => Number(value).toFixed(4) },
+                                grid: { color: 'rgba(148, 163, 184, 0.10)' }
+                            }
+                        }
+                }
+            };
+        }
+
+        async function updateMarketDynamicsChart() {
+            const canvas = document.getElementById('home-market-dynamics-chart');
+            const dateInput = document.getElementById('home-market-dynamics-date');
+            if (!canvas || !dateInput || typeof Chart === 'undefined') return;
+
+            const dateValue = dateInput.value || formatDateForInput(new Date());
+            setMarketDynamicsLoading(true);
+            setMarketDynamicsEmpty(false);
+
+            try {
+                let data;
+                let label;
+                if (marketDynamicsState.period === 'custom') {
+                    data = await loadMarketDynamicsData(dateValue);
+                    label = `${dateValue.split('-').reverse().join('.')} · არჩეული დღე`;
+                } else {
+                    const periodConfig = marketDynamicsPeriods[marketDynamicsState.period] || marketDynamicsPeriods['1d'];
+                    const daysBack = Math.ceil((periodConfig.hours || 24) / 24) + 1;
+                    const fromDateValue = addDaysToInputDate(dateValue, -daysBack);
+                    const toDateValue = addDaysToInputDate(dateValue, 1);
+                    data = await loadMarketDynamicsRangeData(fromDateValue, toDateValue);
+                    label = periodConfig.label;
+                }
+
+                const records = filterMarketDynamicsPeriodRecords(
+                    Array.isArray(data.records) ? data.records : [],
+                    marketDynamicsState.period
+                );
+                updateMarketDynamicsTexts(marketDynamicsState.mode, label, records.length);
+
+                if (marketDynamicsState.chart) {
+                    stopMarketDynamicsBlink();
+                    marketDynamicsState.chart.destroy();
+                    marketDynamicsState.chart = null;
+                }
+
+                const chartRecords = shouldUseMarketDynamicsLiveEnd(marketDynamicsState.period)
+                    ? buildMarketDynamicsLiveEndSlots(records)
+                    : records;
+
+                if (!chartRecords.length) {
+                    setMarketDynamicsEmpty(true);
+                    return;
+                }
+
+                marketDynamicsState.chart = new Chart(canvas, makeMarketDynamicsChartConfig(chartRecords, marketDynamicsState.mode, marketDynamicsState.period));
+                if (shouldUseMarketDynamicsLiveEnd(marketDynamicsState.period)) {
+                    marketDynamicsState.blinkTimer = setInterval(() => {
+                        if (marketDynamicsState.chart) marketDynamicsState.chart.draw();
+                    }, 260);
+                }
+            } catch (error) {
+                console.error('საბაზრო კურსების დინამიკის ჩატვირთვა ვერ მოხერხდა:', error);
+                updateMarketDynamicsTexts(marketDynamicsState.mode, marketDynamicsPeriods[marketDynamicsState.period]?.label || 'არჩეული დღე', 0);
+                setMarketDynamicsEmpty(true);
+            } finally {
+                setMarketDynamicsLoading(false);
+            }
+        }
+
+        function initMarketDynamicsChart() {
+            const panel = document.querySelector('.home-market-dynamics-panel');
+            const dateInput = document.getElementById('home-market-dynamics-date');
+            if (!panel || !dateInput || typeof Chart === 'undefined') return;
+
+            dateInput.value = formatDateForInput(new Date());
+            dateInput.addEventListener('change', () => {
+                marketDynamicsState.period = 'custom';
+                document.querySelectorAll('.home-market-dynamics-period').forEach(item => item.classList.remove('active'));
+                updateMarketDynamicsChart();
+            });
+
+            document.querySelectorAll('.home-market-dynamics-period').forEach(button => {
+                button.addEventListener('click', () => {
+                    marketDynamicsState.period = button.dataset.marketDynamicsPeriod || '1d';
+                    document.querySelectorAll('.home-market-dynamics-period').forEach(item => {
+                        item.classList.toggle('active', item === button);
+                    });
+                    updateMarketDynamicsChart();
+                });
+            });
+
+            document.querySelectorAll('.home-market-dynamics-mode').forEach(button => {
+                button.addEventListener('click', () => {
+                    marketDynamicsState.mode = button.dataset.marketDynamicsMode || 'usd';
+                    document.querySelectorAll('.home-market-dynamics-mode').forEach(item => {
+                        item.classList.toggle('active', item === button);
+                    });
+                    updateMarketDynamicsChart();
+                });
+            });
+
+            updateMarketDynamicsChart();
         }
 
         function switchTab(tab) {
@@ -2447,6 +3113,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const intlContainer = document.querySelector('.intl-rates-list');
                 if (cachedIntlRatesHtml && intlContainer) {
                     intlContainer.innerHTML = cachedIntlRatesHtml;
+                    hydrateForexRateLinks(intlContainer);
                 }
 
                 const cachedPopularAssetsHtml = localStorage.getItem(CACHE_POPULAR_ASSETS_HTML_KEY);
@@ -2456,7 +3123,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 }
 
                 // Load main rates
-                const cachedRates = localStorage.getItem('cachedRatesData');
+                const cachedRates = localStorage.getItem(CACHE_COMPANY_RATES_DATA_KEY);
                 if (cachedRates) {
                     originalData = JSON.parse(cachedRates);
                     updateTabCounts();
@@ -2508,6 +3175,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         
         loadCachedData(); // Load cached numbers instantly
+        initForexRateLinks();
         fetchRates();     // Fetch fresh numbers silently
 
 
@@ -2782,6 +3450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bindHomeMarketScrollControls();
     initHomeConverter();
 
+    initMarketDynamicsChart();
     initNbgCharts();
 });
 

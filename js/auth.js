@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const isLocalPreview = isLocalServer || isFilePreview;
     const apiOrigin = window.ALLRATES_API_ORIGIN
         || (isLocalServer ? "http://localhost:3000" : null)
-        || "https://allrates-backend-api-production.up.railway.app";
+        || "https://allrates-backend-api.onrender.com";
     const API_URL = `${apiOrigin}/api/auth`;
 
     function getAuthHref(path) {

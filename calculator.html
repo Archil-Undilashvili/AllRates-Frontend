@@ -694,8 +694,8 @@
     const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
     const API_RATES_URL = IS_LOCAL_FRONTEND
         ? 'http://localhost:3000/api/rates/latest'
-        : 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
-    const API_RATES_FALLBACK_URL = 'https://allrates-backend-api-production.up.railway.app/api/rates/latest';
+        : 'https://allrates-backend-api.onrender.com/api/rates/latest';
+    const API_RATES_FALLBACK_URL = 'https://allrates-backend-api.onrender.com/api/rates/latest';
 
     const currencyPriority = { 'EUR': 1, 'GBP': 2, 'USD': 3, 'RUB': 4, 'GEL': 5 };
     const flags = { 'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'RUB': '🇷🇺', 'GEL': '🇬🇪' };
@@ -1097,6 +1097,6 @@
 </script>
 
             <!-- Footer Section -->
-<script src="js/footer.js"></script>
+<script src="js/footer.js?v=2"></script>
 </body>
 </html>
