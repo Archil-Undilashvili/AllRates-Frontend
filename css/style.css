@@ -2596,6 +2596,14 @@
             animation: pulse 1.5s infinite;
         }
 
+        .home-page-loader {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            text-align: center !important;
+        }
+
         .error {
             text-align: center;
             padding: 30px;
@@ -4865,6 +4873,13 @@ th.sortable.active-sort .sort-icon {
     overflow-y: auto;
     z-index: 100;
     display: none;
+}
+
+@media (min-width: 769px) {
+    .rates-info-note,
+    .company-search-container {
+        transform: translateY(27px);
+    }
 }
 .dropdown-item {
     padding: 12px 15px;
