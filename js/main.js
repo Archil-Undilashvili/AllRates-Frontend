@@ -12,6 +12,28 @@ function setDisplay(id, display) {
     if (el) el.style.display = display;
 }
 
+const liveValueSnapshots = new Map();
+
+function flashLiveValue(key, nextValue) {
+    if (!key) return '';
+    const normalized = String(nextValue ?? '');
+    const previous = liveValueSnapshots.get(key);
+    liveValueSnapshots.set(key, normalized);
+    return previous !== undefined && previous !== normalized ? ' live-value-flash' : '';
+}
+
+function setLiveInnerText(id, text, key = id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const flashClass = flashLiveValue(key, text).trim();
+    el.innerText = text;
+    if (flashClass) {
+        el.classList.remove(flashClass);
+        void el.offsetWidth;
+        el.classList.add(flashClass);
+    }
+}
+
 const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
 const API_SHEETS_DATA_URL = IS_LOCAL_FRONTEND
     ? 'http://localhost:3000/api/data'
@@ -34,16 +56,43 @@ const NBG_CHART_CACHE_VERSION = 'v2';
 const NBG_CHART_CACHE_VERSION_KEY = 'cachedNbgChartVersion';
 const NBG_CHART_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
-const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v2';
+const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v3';
 const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
-const CACHE_COMPANY_RATES_DATA_KEY = 'cachedRatesData_scraper_v1';
+const CACHE_COMPANY_RATES_DATA_KEY = 'cachedRatesData_scraper_v2';
 const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
+const DISABLED_COMPANIES = new Set(['procredit']);
+const CRYPTO_REFRESH_INTERVAL_MS = 3 * 1000;
+const FOREX_MARKET_REFRESH_INTERVAL_MS = 30 * 1000;
+const CRYPTO_MARKET_CAP_CACHE_KEY = 'cachedCryptoMarketCaps_v1';
+const CRYPTO_MARKET_CAP_TTL_MS = 5 * 60 * 1000;
+
+async function fetchJsonWithFallback(urls, options = {}) {
+    let lastError = null;
+    for (const url of [...new Set(urls.filter(Boolean))]) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            lastError = error;
+        }
+    }
+    throw lastError || new Error('Fetch failed');
+}
+
+async function fetchSheetsData() {
+    return fetchJsonWithFallback([
+        API_SHEETS_DATA_URL,
+        IS_LOCAL_FRONTEND ? 'https://allrates-backend-api.onrender.com/api/data' : null
+    ]);
+}
+
         const API_BANKS_URL = 'https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMWFvbEgN6VC6wxI7pN9ABktXkqPN7bGMwsIYTLiCaWN4RieM33AZbs8-qa8HEDeftgFpcn-xFFPzwRSaTgjgRterE2f47ma1nXbsnHqRmyv3qqRUMcoK7bahbIzBU_73IYXskTCuokqU9ASX-yjm1xliNjC7W5CizWaijDgyoNmiB5-6hUsmGPO1wvrVcnBCp2ksgioARRQyHhKY31wcHxhT1kVD_E-qjxhMSAuplX7ZceMfMGKWPatecLm8K4G5KP7AjaRKvtVWWLD9LIwZtTTmE6fGg&lib=M-V5mEnEclei2QLgjN86iAykVBAJz9-Q8';
         const API_NBG_URL = 'https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/ka/json';
         
         // კატეგორიები
-        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'expresslombard', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp', 'paysera'];
-        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
+        const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'expresslombard', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp', 'paysera'];
+        const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'crystal', 'mbc'];
         const MFO_COMPANIES = ['rico', 'giro', 'goa', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp'];
         const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
         const TAB_LABELS = {
@@ -121,7 +170,7 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
             renderHomePage();
         }
 
-        async function fetchJsonWithFallback(urls) {
+        async function fetchRatesJsonWithFallback(urls) {
             let lastError = null;
             for (const url of [...new Set(urls.filter(Boolean))]) {
                 try {
@@ -138,6 +187,100 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
                 }
             }
             throw lastError || new Error('Rates API fetch failed');
+        }
+
+        function normalizeCompanyKey(companyName) {
+            const name = String(companyName || '');
+            let base = name.split(' ')[0].toLowerCase();
+            const lower = name.toLowerCase();
+            if (base === 'isbank') base = 'is';
+            if (base === 'terabank') base = 'tera';
+            if (base === 'inteliexpress' || base === 'inteli' || lower.includes('inex')) base = 'inex';
+            if (base === 'expresslombard' || lower.includes('express lombard')) base = 'expresslombard';
+            if (base === 'cartubank') base = 'cartu';
+            if (base === 'hashbank') base = 'hash';
+            if (base === 'basisbank') base = 'bb';
+            if (base === 'procredit') base = 'procredit';
+            if (base === 'leader') base = 'leader';
+            if (base === 'smarti' || base === 'smartfin' || base === 'smart') base = 'smarti';
+            if (base === 'central') base = 'central';
+            if (base === 'georgiancredit' || base === 'georgian') base = 'georgiancredit';
+            if (base === 'tbmc' || base === 'tbilmicrocredit') base = 'tbmc';
+            if (base === 'bermeli') base = 'bermeli';
+            if (base === 'alphaexpress' || base === 'alpha') base = 'alphaexpress';
+            if (base === 'scapp') base = 'scapp';
+            return base;
+        }
+
+        function isDisabledCompany(companyNameOrKey) {
+            return DISABLED_COMPANIES.has(normalizeCompanyKey(companyNameOrKey));
+        }
+
+        function normalizeScraperRateItem(item) {
+            const base = normalizeCompanyKey(item.company);
+            return {
+                Company: item.company,
+                baseCompany: base,
+                'USDGEL (Buy)': item.usdBuy,
+                'USDGEL (Sell)': item.usdSell,
+                'EURGEL (Buy)': item.eurBuy,
+                'EURGEL (Sell)': item.eurSell,
+                'GBPGEL (Buy)': item.gbpBuy,
+                'GBPGEL (Sell)': item.gbpSell,
+                'RUBGEL (Buy)': (base === 'crystal' && parseFloat(item.rubBuy) > 1) ? (parseFloat(item.rubBuy) / 100).toFixed(4) : item.rubBuy,
+                'RUBGEL (Sell)': (base === 'crystal' && parseFloat(item.rubSell) > 1) ? (parseFloat(item.rubSell) / 100).toFixed(4) : item.rubSell,
+                'TRYGEL (Buy)': item.tryBuy,
+                'TRYGEL (Sell)': item.trySell,
+                'Update Time': item.tbilisiDateString || item.createdAt
+            };
+        }
+
+        function applyCompanyRatesData(rows) {
+            originalData = rows.filter(item => !DISABLED_COMPANIES.has(getCompanyKey(item)));
+            updateTabCounts();
+
+            originalData = originalData.map(item => {
+                const usdB = parseFloat(item['USDGEL (Buy)']);
+                const usdS = parseFloat(item['USDGEL (Sell)']);
+                const eurB = parseFloat(item['EURGEL (Buy)']);
+                const eurS = parseFloat(item['EURGEL (Sell)']);
+
+                return {
+                    ...item,
+                    usdSpread: (!isNaN(usdS) && !isNaN(usdB)) ? (usdS - usdB) : Infinity,
+                    eurSpread: (!isNaN(eurS) && !isNaN(eurB)) ? (eurS - eurB) : Infinity,
+                    gbpSpread: (!isNaN(parseFloat(item['GBPGEL (Sell)'])) && !isNaN(parseFloat(item['GBPGEL (Buy)']))) ? (parseFloat(item['GBPGEL (Sell)']) - parseFloat(item['GBPGEL (Buy)'])) : Infinity,
+                    rubSpread: (!isNaN(parseFloat(item['RUBGEL (Sell)'])) && !isNaN(parseFloat(item['RUBGEL (Buy)']))) ? (parseFloat(item['RUBGEL (Sell)']) - parseFloat(item['RUBGEL (Buy)'])) : Infinity,
+                    trySpread: (!isNaN(parseFloat(item['TRYGEL (Sell)'])) && !isNaN(parseFloat(item['TRYGEL (Buy)']))) ? (parseFloat(item['TRYGEL (Sell)']) - parseFloat(item['TRYGEL (Buy)'])) : Infinity
+                };
+            });
+
+            usdData = [...originalData]; applySorting("usd");
+            eurData = [...originalData]; applySorting("eur");
+            gbpData = [...originalData]; applySorting("gbp");
+            rubData = [...originalData]; applySorting("rub");
+            tryData = [...originalData]; applySorting("try");
+
+            renderHomePage();
+            updateHomeConverter();
+            localStorage.setItem(CACHE_COMPANY_RATES_DATA_KEY, JSON.stringify(originalData));
+        }
+
+        async function refreshCompanyRatesOnly() {
+            try {
+                const rawNewData = await fetchRatesJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]);
+                let rows = rawNewData
+                    .filter(item => !isDisabledCompany(item.company))
+                    .map(normalizeScraperRateItem);
+                const kursigeLiveRow = await fetchKursigePublicRateRow();
+                if (kursigeLiveRow) {
+                    rows = rows.filter(item => getCompanyKey(item) !== 'kursige');
+                    rows.push(kursigeLiveRow);
+                }
+                applyCompanyRatesData(rows);
+            } catch (error) {
+                console.warn('Market rates auto-refresh failed:', error.message);
+            }
         }
 
         function switchPage(page) {
@@ -253,7 +396,6 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         'halyk': 'ხალიკ ბანკი',
         'is': 'იშბანკი',
         'silk': 'სილქ ბანკი',
-        'procredit': 'პროკრედიტ ბანკი',
         'leader': 'ლიდერ კრედიტი',
         'smarti': 'სმარტი',
         'central': 'ცენტრალი',
@@ -276,7 +418,7 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         'bb': 'https://basisbank.ge/',
         'credo': 'https://credobank.ge/',
         'cartu': 'https://cartubank.ge/',
-        'inex': 'http://ge.inteliexpress.net/',
+        'inex': 'https://inteliexpress.com/ka/main-page-geo/',
         'expresslombard': 'https://expresslombard.ge/',
         'giro': 'https://girocredit.ge/',
         'goa': 'https://goacredit.ge/',
@@ -287,7 +429,6 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
         'is': 'http://isbank.ge/ka/individual',
         'silk': 'https://silkbank.ge/',
         'paysera': 'https://www.paysera.ge/v2/ka-GE/index',
-        'procredit': 'https://procreditbank.ge/',
         'leader': 'https://leadercredit.ge/',
         'smarti': 'http://smartfin.ge/index.php/ka/products-ka/currency-exchange-k',
         'central': 'https://central.ge/',
@@ -319,7 +460,6 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
             'halyk': 'Logos/halyk_icon.png',
             'is': 'Logos/is_icon.png',
             'silk': 'Logos/silk_icon.png',
-            'procredit': 'Logos/procredit.jpg',
             'leader': 'Logos/leader.jpg',
             'smarti': 'Logos/smarti_icon.png',
             'central': 'Logos/central_icon.svg',
@@ -392,6 +532,140 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
             });
         }
 
+        function parseSheetsRows(rawData) {
+            if (rawData?.data && Array.isArray(rawData.data)) {
+                const headers = rawData.data[0];
+                return rawData.data.slice(1)
+                    .filter(row => row && row.length > 0)
+                    .map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => obj[header] = row[index]);
+                        return obj;
+                    });
+            }
+            return Array.isArray(rawData) ? rawData : [];
+        }
+
+        async function getYesterdayForexMap() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            if (d.getDay() === 0) d.setDate(d.getDate() - 2);
+            else if (d.getDay() === 6) d.setDate(d.getDate() - 1);
+            const yesterdayStr = d.toISOString().split('T')[0];
+            const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${yesterdayStr}/v1/currencies/eur.json`);
+            if (!response.ok) throw new Error(`Historical FX HTTP ${response.status}`);
+            const historicalData = await response.json();
+            const map = { EUR: 1 };
+            Object.entries(historicalData.eur || {}).forEach(([key, value]) => {
+                map[key.toUpperCase()] = value;
+            });
+            return map;
+        }
+
+        function renderHomeForexRates(intlRates, ratesYdayMap = null) {
+            const container = document.querySelector('.intl-rates-list');
+            if (!container || !Array.isArray(intlRates) || intlRates.length === 0) return;
+
+            const getFlagCode = cur => {
+                const map = {
+                    usd: 'us', eur: 'eu', gbp: 'gb', jpy: 'jp',
+                    chf: 'ch', aud: 'au', cad: 'ca', nzd: 'nz',
+                    try: 'tr', rub: 'ru', gel: 'ge', azn: 'az', amd: 'am'
+                };
+                return map[String(cur || '').toLowerCase()] || 'un';
+            };
+
+            container.innerHTML = intlRates.map(rate => {
+                let pairName = String(rate.Pair || '').trim().toUpperCase();
+                const forexPairCode = normalizeForexPairCode(pairName);
+                const currentRate = parseFloat(rate.Rate);
+                if (!pairName || !Number.isFinite(currentRate)) return '';
+
+                let baseCur = pairName.substring(0, 3);
+                let quoteCur = pairName.substring(3, 6);
+                if (pairName.length === 6 && !pairName.includes('/')) {
+                    pairName = `${baseCur} / ${quoteCur}`;
+                } else if (pairName.includes('/')) {
+                    const parts = pairName.split('/');
+                    baseCur = parts[0].trim();
+                    quoteCur = parts[1].trim();
+                }
+
+                let changeHtml = '';
+                if (ratesYdayMap?.[baseCur] && ratesYdayMap?.[quoteCur]) {
+                    const yesterdayRate = ratesYdayMap[quoteCur] / ratesYdayMap[baseCur];
+                    const changePercent = ((currentRate - yesterdayRate) / yesterdayRate) * 100;
+                    const color = changePercent > 0 ? 'var(--buy-color)' : changePercent < 0 ? 'var(--sell-color)' : 'var(--text-muted)';
+                    const sign = changePercent > 0 ? '+' : '';
+                    changeHtml = `<span style="color: ${color}; font-size: 0.65em; margin-left: 8px;">${sign}${changePercent.toFixed(2)}%</span>`;
+                }
+
+                const flag1 = getFlagCode(baseCur);
+                const flag2 = getFlagCode(quoteCur);
+                const logoHtml = `
+                    <div class="forex-flag-stack">
+                        <img src="https://flagcdn.com/w40/${flag1}.png" alt="">
+                        <img src="https://flagcdn.com/w40/${flag2}.png" alt="">
+                    </div>`;
+                const forexClass = forexPairCode.length === 6 ? ' forex-rate-link' : '';
+                const forexData = forexPairCode.length === 6 ? ` data-forex-pair="${forexPairCode}" role="button" tabindex="0"` : '';
+
+                return `
+                    <div class="intl-rate-item${forexClass}"${forexData}>
+                        <span class="intl-pair forex-pair-row">${logoHtml}<span>${pairName}</span></span>
+                        <span class="intl-value home-split-value${flashLiveValue(`forex:${forexPairCode || pairName}`, currentRate.toFixed(4))}">
+                            <span class="home-split-main">${currentRate.toFixed(4)}</span>
+                            <span class="home-split-change">${changeHtml}</span>
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            hydrateForexRateLinks(container);
+            if (container.innerHTML.trim()) localStorage.setItem(CACHE_INTL_RATES_HTML_KEY, container.innerHTML);
+        }
+
+        async function refreshForexRatesOnly() {
+            try {
+                const rows = parseSheetsRows(await fetchSheetsData());
+                const intlRates = rows
+                    .filter(item => item['Pair (Popular)'] && item['Rate (Popular)'])
+                    .map(item => ({ Pair: item['Pair (Popular)'], Rate: item['Rate (Popular)'] }))
+                    .slice(0, 10);
+                if (!intlRates.length) return;
+                try {
+                    renderHomeForexRates(intlRates, await getYesterdayForexMap());
+                } catch (_) {
+                    renderHomeForexRates(intlRates);
+                }
+            } catch (error) {
+                console.warn('Forex auto-refresh failed:', error.message);
+            }
+        }
+
+        function preloadHomeLogos() {
+            const logoPaths = [
+                'Logos/nbg_logo_cropped.png',
+                'Logos/market-rates-icon.svg',
+                'Logos/forex-icon.svg',
+                'Logos/crypto-icon.svg',
+                'Logos/fuel-icon.svg',
+                'Logos/assets-icon.svg',
+                'Logos/US.png',
+                'Logos/EU.png',
+                'Logos/GB.png',
+                'Logos/RU.png',
+                'Logos/TR.png',
+                ...Object.values(CRYPTO_LOGOS || {}).slice(0, 10)
+            ];
+            [...new Set(logoPaths)].forEach(src => {
+                if (!src) return;
+                const img = new Image();
+                img.decoding = 'async';
+                img.src = src;
+            });
+        }
+
         
         async function fetchRates() {
             fetchNBG();
@@ -401,12 +675,13 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
             
             try {
                 // Fetch Google Sheet data only for FOREX and popular assets.
-                const resAll = await fetch(API_SHEETS_DATA_URL).catch(() => null);
-                
                 let combinedData = [];
+                const rawData = await fetchSheetsData().catch(error => {
+                    console.warn('Sheets initial fetch failed:', error.message);
+                    return null;
+                });
 
-                if (resAll && resAll.ok) {
-                    let rawData = await resAll.json();
+                if (rawData) {
                     if (rawData.data && Array.isArray(rawData.data)) {
                         let headers = rawData.data[0];
                         // Skip empty rows and map to objects
@@ -548,9 +823,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                                 const flag1 = getFlagCode(baseCur);
                                                 const flag2 = getFlagCode(quoteCur);
                                                 logoHtml = `
-                                                <div style="display: flex; align-items: center; margin-right: 12px; position: relative; min-width: 40px; justify-content: center;">
-                                                    <img src="https://flagcdn.com/w40/${flag1}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                                    <img src="https://flagcdn.com/w40/${flag2}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 1; margin-left: -12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                <div class="forex-flag-stack">
+                                                    <img src="https://flagcdn.com/w40/${flag1}.png" alt="">
+                                                    <img src="https://flagcdn.com/w40/${flag2}.png" alt="">
                                                 </div>`;
                                             }
                                         } else {
@@ -576,10 +851,16 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                         const forexClass = isFx && forexPairCode.length === 6 ? ' forex-rate-link' : '';
                                         const forexData = isFx && forexPairCode.length === 6 ? ` data-forex-pair="${forexPairCode}" role="button" tabindex="0"` : '';
 
+                                        const valueHtml = isFx
+                                            ? `<span class="intl-value home-split-value">
+                                                    <span class="home-split-main">${displayRate}</span>
+                                                    <span class="home-split-change">${changeHtml}</span>
+                                                </span>`
+                                            : `<span class="intl-value">${displayRate} ${changeHtml}</span>`;
                                         cont.innerHTML += `
                                             <div class="intl-rate-item${forexClass}"${forexData}>
-                                                <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
-                                                <span class="intl-value">${displayRate} ${changeHtml}</span>
+                                                <span class="intl-pair forex-pair-row">${logoHtml}<span>${pairName}</span></span>
+                                                ${valueHtml}
                                             </div>
                                         `;
                                     });
@@ -633,9 +914,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                                 const flag1 = getFlagCode(baseCur);
                                                 const flag2 = getFlagCode(quoteCur);
                                                 logoHtml = `
-                                                <div style="display: flex; align-items: center; margin-right: 12px; position: relative; min-width: 40px; justify-content: center;">
-                                                    <img src="https://flagcdn.com/w40/${flag1}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 2; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                                    <img src="https://flagcdn.com/w40/${flag2}.png" style="width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; z-index: 1; margin-left: -12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                <div class="forex-flag-stack">
+                                                    <img src="https://flagcdn.com/w40/${flag1}.png" alt="">
+                                                    <img src="https://flagcdn.com/w40/${flag2}.png" alt="">
                                                 </div>`;
                                             }
                                         } else {
@@ -661,10 +942,16 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                         const forexClass = isFx && forexPairCode.length === 6 ? ' forex-rate-link' : '';
                                         const forexData = isFx && forexPairCode.length === 6 ? ` data-forex-pair="${forexPairCode}" role="button" tabindex="0"` : '';
 
+                                        const valueHtml = isFx
+                                            ? `<span class="intl-value home-split-value">
+                                                    <span class="home-split-main">${displayRate}</span>
+                                                    <span class="home-split-change"></span>
+                                                </span>`
+                                            : `<span class="intl-value">${displayRate}</span>`;
                                         cont.innerHTML += `
                                             <div class="intl-rate-item${forexClass}"${forexData}>
-                                                <span class="intl-pair" style="display: flex; align-items: center;">${logoHtml}${pairName}</span>
-                                                <span class="intl-value">${displayRate}</span>
+                                                <span class="intl-pair forex-pair-row">${logoHtml}<span>${pairName}</span></span>
+                                                ${valueHtml}
                                             </div>
                                         `;
                                     });
@@ -687,45 +974,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 // --- NEW API CALL FOR GEORGIAN COMPANIES ---
                 let newApiData = [];
                 try {
-                        const rawNewData = await fetchJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]);
-                        newApiData = rawNewData.map(item => {
-                            let base = item.company.split(' ')[0].toLowerCase();
-                            if (base === 'isbank') base = 'is';
-                            if (base === 'terabank') base = 'tera';
-                            if (base === 'inteliexpress' || base === 'inteli' || item.company.toLowerCase().includes('inex')) base = 'inex';
-                            if (base === 'expresslombard' || item.company.toLowerCase().includes('express lombard')) base = 'expresslombard';
-                            if (base === 'cartubank') base = 'cartu';
-                            if (base === 'hashbank') base = 'hash';
-                            if (base === 'basisbank') base = 'bb';
-                            if (base === 'procredit') base = 'procredit';
-                            if (base === 'leader') base = 'leader';
-                            if (base === 'smarti' || base === 'smartfin' || base === 'smart') base = 'smarti';
-                            if (base === 'central') base = 'central';
-                            if (base === 'georgiancredit' || base === 'georgian') base = 'georgiancredit';
-                            if (base === 'tbmc' || base === 'tbilmicrocredit') base = 'tbmc';
-                            if (base === 'bermeli') base = 'bermeli';
-                            if (base === 'alphaexpress' || base === 'alpha') base = 'alphaexpress';
-                            if (base === 'scapp') base = 'scapp';
-                            
-                            return {
-                                Company: item.company,
-                                baseCompany: base,
-                                'USDGEL (Buy)': item.usdBuy,
-                                'USDGEL (Sell)': item.usdSell,
-                                'EURGEL (Buy)': item.eurBuy,
-                                'EURGEL (Sell)': item.eurSell,
-                                'GBPGEL (Buy)': item.gbpBuy,
-                                'GBPGEL (Sell)': item.gbpSell,
-                                'RUBGEL (Buy)': (base === 'crystal' && parseFloat(item.rubBuy) > 1) ? (parseFloat(item.rubBuy) / 100).toFixed(4) : item.rubBuy,
-                                'RUBGEL (Sell)': (base === 'crystal' && parseFloat(item.rubSell) > 1) ? (parseFloat(item.rubSell) / 100).toFixed(4) : item.rubSell,
-                                'TRYGEL (Buy)': item.tryBuy,
-                                'TRYGEL (Sell)': item.trySell,
-                                'Update Time': item.tbilisiDateString || item.createdAt
-                            };
-                        });
+                        const rawNewData = await fetchRatesJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]);
+                        newApiData = rawNewData
+                            .filter(item => !isDisabledCompany(item.company))
+                            .map(normalizeScraperRateItem);
                 } catch(e) { console.error("New API fetch failed:", e); }
 
-                originalData = newApiData;
+                originalData = newApiData.filter(item => !DISABLED_COMPANIES.has(getCompanyKey(item)));
                 const kursigeLiveRow = await fetchKursigePublicRateRow();
                 if (kursigeLiveRow) {
                     originalData = originalData.filter(item => getCompanyKey(item) !== 'kursige');
@@ -913,9 +1168,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const buyText = isNaN(stats.avgBuy) ? '--.---' : stats.avgBuy.toFixed(digits);
                 const sellText = isNaN(stats.avgSell) ? '--.---' : stats.avgSell.toFixed(digits);
 
-                setInnerText(`home-${currency}-market-buy`, buyText);
-                setInnerText(`home-${currency}-market-sell`, sellText);
-                setInnerText(`home-${currency}-market-spread`, isNaN(stats.avgSpread) ? '--.---' : stats.avgSpread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
+                const spreadText = isNaN(stats.avgSpread) ? '--.---' : stats.avgSpread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3);
+                setLiveInnerText(`home-${currency}-market-buy`, buyText, `market:${currency}:buy`);
+                setLiveInnerText(`home-${currency}-market-sell`, sellText, `market:${currency}:sell`);
+                setLiveInnerText(`home-${currency}-market-spread`, spreadText, `market:${currency}:spread`);
                 setInnerHTML(
                     `home-${currency}-market-change`,
                     change ? `<span class="${change.className}">${change.text}</span>` : ''
@@ -1300,26 +1556,106 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             }
         }
 
+        async function fetchCryptoMarketCaps() {
+            try {
+                const cached = JSON.parse(localStorage.getItem(CRYPTO_MARKET_CAP_CACHE_KEY) || 'null');
+                if (cached?.updatedAt && Date.now() - cached.updatedAt < CRYPTO_MARKET_CAP_TTL_MS && Array.isArray(cached.items)) {
+                    return cached.items;
+                }
+            } catch (_) {}
+
+            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h');
+            if (!response.ok) throw new Error(`CoinGecko HTTP ${response.status}`);
+            const items = await response.json();
+            const normalized = (Array.isArray(items) ? items : [])
+                .filter(item => item?.symbol && Number.isFinite(Number(item.market_cap)))
+                .map((item, index) => ({
+                    symbol: String(item.symbol).toUpperCase(),
+                    name: item.name,
+                    marketCap: Number(item.market_cap),
+                    marketCapRank: Number(item.market_cap_rank) || index + 1,
+                    logo: item.image || ''
+                }));
+            localStorage.setItem(CRYPTO_MARKET_CAP_CACHE_KEY, JSON.stringify({ updatedAt: Date.now(), items: normalized }));
+            return normalized;
+        }
+
+        function getCachedCryptoMarketCaps() {
+            try {
+                const cached = JSON.parse(localStorage.getItem(CRYPTO_MARKET_CAP_CACHE_KEY) || 'null');
+                return Array.isArray(cached?.items) ? cached.items : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        async function getCryptoMarketCapsSafe() {
+            try {
+                return await fetchCryptoMarketCaps();
+            } catch (error) {
+                console.warn('Crypto market cap fetch failed:', error.message);
+                return getCachedCryptoMarketCaps();
+            }
+        }
+
+        function formatMarketCap(value) {
+            const num = Number(value);
+            if (!Number.isFinite(num) || num <= 0) return '';
+            if (num >= 1_000_000_000_000) return `${(num / 1_000_000_000_000).toFixed(1)}T`;
+            if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1)}B`;
+            if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+            if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
+            return num.toFixed(1);
+        }
+
         async function fetchCrypto() {
             try {
-                const res = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const [res, marketCaps] = await Promise.all([
+                    fetch('https://api.binance.com/api/v3/ticker/24hr'),
+                    getCryptoMarketCapsSafe()
+                ]);
                 if (!res.ok) return;
                 const data = await res.json();
+                const binanceBySymbol = new Map(
+                    data
+                        .filter(item => item.symbol.endsWith('USDT') && !item.symbol.includes('UPUSDT') && !item.symbol.includes('DOWNUSDT') && !item.symbol.includes('BULLUSDT') && !item.symbol.includes('BEARUSDT'))
+                        .map(item => [item.symbol.replace('USDT', ''), item])
+                );
 
-                const cryptoData = data
-                    .filter(item => item.symbol.endsWith('USDT') && !item.symbol.includes('UPUSDT') && !item.symbol.includes('DOWNUSDT') && !item.symbol.includes('BULLUSDT') && !item.symbol.includes('BEARUSDT'))
-                    .sort(sortCryptoTickers)
+                const marketCapRows = marketCaps
+                    .filter(meta => binanceBySymbol.has(meta.symbol))
+                    .sort((a, b) => (a.marketCapRank || 9999) - (b.marketCapRank || 9999))
                     .slice(0, 100)
-                    .map(item => {
-                        const symbol = item.symbol.replace('USDT', '');
+                    .map(meta => {
+                        const item = binanceBySymbol.get(meta.symbol);
                         return {
-                            symbol,
-                            name: CRYPTO_NAMES[symbol] || symbol,
+                            symbol: meta.symbol,
+                            name: meta.name || CRYPTO_NAMES[meta.symbol] || meta.symbol,
                             price: formatCryptoPrice(Number(item.lastPrice)),
                             change: Number(item.priceChangePercent).toFixed(1),
-                            logo: getCryptoLogo(symbol)
+                            logo: meta.logo || getCryptoLogo(meta.symbol),
+                            marketCap: meta.marketCap,
+                            marketCapRank: meta.marketCapRank
                         };
                     });
+                const cryptoData = marketCapRows.length
+                    ? marketCapRows
+                    : data
+                        .filter(item => item.symbol.endsWith('USDT') && !item.symbol.includes('UPUSDT') && !item.symbol.includes('DOWNUSDT') && !item.symbol.includes('BULLUSDT') && !item.symbol.includes('BEARUSDT'))
+                        .sort(sortCryptoTickers)
+                        .slice(0, 100)
+                        .map(item => {
+                            const symbol = item.symbol.replace('USDT', '');
+                            return {
+                                symbol,
+                                name: CRYPTO_NAMES[symbol] || symbol,
+                                price: formatCryptoPrice(Number(item.lastPrice)),
+                                change: Number(item.priceChangePercent).toFixed(1),
+                                logo: getCryptoLogo(symbol),
+                                marketCap: null,
+                                marketCapRank: null
+                            };
+                        });
 
                 renderCryptoList(cryptoData);
                 localStorage.setItem('cachedCryptoData', JSON.stringify(cryptoData));
@@ -1378,6 +1714,8 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const changeVal = Number(item.change);
                 const changeColor = changeVal > 0 ? 'var(--buy-color)' : changeVal < 0 ? 'var(--sell-color)' : 'var(--text-muted)';
                 const changeText = changeVal > 0 ? `+${item.change}%` : `${item.change}%`;
+                const marketCapText = formatMarketCap(item.marketCap);
+                const liveClass = flashLiveValue(`crypto:${item.symbol}`, `${item.price}:${item.change}`);
                 const logoHtml = item.logo
                     ? `<img src="${item.logo}" alt="${item.symbol}" class="crypto-token-logo" onerror="this.outerHTML='<span class=&quot;crypto-token-initial&quot;>${item.symbol.charAt(0)}</span>';">`
                     : `<span class="crypto-token-initial">${item.symbol.charAt(0)}</span>`;
@@ -1386,9 +1724,15 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     <div class="intl-rate-item crypto-rate-item">
                         <span class="intl-pair crypto-token-name" data-crypto-search="${`${item.name} ${item.symbol}`.toLowerCase()}">
                             ${logoHtml}
-                            <span>${item.name} (${item.symbol})</span>
+                            <span class="crypto-token-copy">
+                                <span>${item.name} (${item.symbol})</span>
+                            </span>
                         </span>
-                        <span class="intl-value">$ ${item.price} <span style="color: ${changeColor}; font-size: 0.65em; margin-left: 8px;">${changeText}</span></span>
+                        <span class="intl-value crypto-value${liveClass}">
+                            <span class="crypto-price">$ ${item.price}</span>
+                            <span class="crypto-change" style="color: ${changeColor};">${changeText}</span>
+                            ${marketCapText ? `<span class="crypto-market-cap">Market Cap ${marketCapText}</span>` : '<span class="crypto-market-cap"></span>'}
+                        </span>
                     </div>
                 `;
             }).join('');
@@ -1469,10 +1813,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             container.innerHTML = rows.map(row => `
                 <div class="intl-rate-item home-gas-rate-item" data-market-search="${row.label.toLowerCase()}">
                     <span class="intl-pair home-gas-pair">
-                        <img src="${row.icon}" alt="" class="home-gas-category-icon" loading="lazy">
+                        <img src="${row.icon}" alt="" class="home-gas-category-icon" decoding="async">
                         <span>${row.label}</span>
                     </span>
-                    <span class="intl-value home-gas-value">${row.average ? `${row.average.toFixed(2)} ₾` : '- - -'}</span>
+                    <span class="intl-value home-gas-value home-split-value">
+                        <span class="home-split-main">${row.average ? `${row.average.toFixed(2)} ₾` : '- - -'}</span>
+                        <span class="home-split-change"></span>
+                    </span>
                 </div>
             `).join('');
         }
@@ -1503,10 +1850,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 return `
                     <div class="intl-rate-item home-gas-rate-item" data-market-search="${String(row.label || '').toLowerCase()}">
                         <span class="intl-pair home-gas-pair">
-                            <img src="${row.icon || `Logos/gas/categories/${row.key}.svg`}" alt="" class="home-gas-category-icon" loading="lazy">
+                            <img src="${row.icon || `Logos/gas/categories/${row.key}.svg`}" alt="" class="home-gas-category-icon" decoding="async">
                             <span>${row.label}</span>
                         </span>
-                        <span class="intl-value home-gas-value">${valueText} ${formatHomeGasChange(row.changePercent)}</span>
+                        <span class="intl-value home-gas-value home-split-value">
+                            <span class="home-split-main">${valueText}</span>
+                            <span class="home-split-change">${formatHomeGasChange(row.changePercent)}</span>
+                        </span>
                     </div>
                 `;
             }).join('');
@@ -1792,14 +2142,13 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             container.innerHTML = list.map(item => `
                 <div class="home-section" data-market-search="${`${item.code} ${item.title}`.toLowerCase()}">
                     <div class="section-title home-official-section-title">
-                        ${item.logo ? `<img src="${item.logo}" alt="${item.code} Flag" loading="lazy" onerror="this.style.display='none'">` : ''}
+                        ${item.logo ? `<img src="${item.logo}" alt="${item.code} Flag" decoding="async" onerror="this.style.display='none'">` : ''}
                         <span>${item.title}</span>
                     </div>
                     <div class="rates-flex home-official-rate-row">
                         <div class="rate-block home-official-rate-block">
-                            <div class="rate-label">კურსი</div>
                             <div class="home-official-values">
-                                <span class="rate-value buy">${item.rate}</span>
+                                <span class="rate-value buy home-split-main">${item.rate}</span>
                                 <span class="rate-value home-official-change ${item.changeClass}">${item.change}</span>
                             </div>
                         </div>
@@ -2960,9 +3309,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
             if (dataToRender.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="empty-message">ჯერჯერობით მონაცემები არ არის</td></tr>`;
-                setInnerText(`${currency}-market-buy`, '- - -');
-                setInnerText(`${currency}-market-sell`, '- - -');
-                setInnerText(`${currency}-market-spread`, '- - -');
+                setLiveInnerText(`${currency}-market-buy`, '- - -', `rates:${currency}:buy`);
+                setLiveInnerText(`${currency}-market-sell`, '- - -', `rates:${currency}:sell`);
+                setLiveInnerText(`${currency}-market-spread`, '- - -', `rates:${currency}:spread`);
                 return;
             }
 
@@ -3087,9 +3436,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             const avgSellDom = countAvg > 0 ? (totalSellAvg / countAvg).toFixed((currency === 'rub' || currency === 'try') ? 4 : 3) : '- - -';
             const avgSpreadDom = countAvg > 0 ? ((totalSellAvg / countAvg) - (totalBuyAvg / countAvg)).toFixed((currency === 'rub' || currency === 'try') ? 4 : 3) : '- - -';
             
-            setInnerText(`${currency}-market-buy`, avgBuyDom);
-            setInnerText(`${currency}-market-sell`, avgSellDom);
-            setInnerText(`${currency}-market-spread`, avgSpreadDom);
+            setLiveInnerText(`${currency}-market-buy`, avgBuyDom, `rates:${currency}:buy`);
+            setLiveInnerText(`${currency}-market-sell`, avgSellDom, `rates:${currency}:sell`);
+            setLiveInnerText(`${currency}-market-spread`, avgSpreadDom, `rates:${currency}:spread`);
             
             const expandContainer = document.getElementById(`${currency}-expand-container`);
             const expandBtn = document.getElementById(`${currency}-expand-btn`);
@@ -3125,7 +3474,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 // Load main rates
                 const cachedRates = localStorage.getItem(CACHE_COMPANY_RATES_DATA_KEY);
                 if (cachedRates) {
-                    originalData = JSON.parse(cachedRates);
+                    originalData = JSON.parse(cachedRates).filter(item => !DISABLED_COMPANIES.has(getCompanyKey(item)));
                     updateTabCounts();
                     usdData = [...originalData]; applySorting("usd");
                     eurData = [...originalData]; applySorting("eur");
@@ -3174,9 +3523,22 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         }
 
         
+        preloadHomeLogos();
         loadCachedData(); // Load cached numbers instantly
         initForexRateLinks();
         fetchRates();     // Fetch fresh numbers silently
+        if (document.getElementById('crypto-rates-list')) {
+            setInterval(() => {
+                if (!document.hidden) fetchCrypto();
+            }, CRYPTO_REFRESH_INTERVAL_MS);
+        }
+        if (document.querySelector('.intl-rates-list') || document.getElementById('home-commercial-list') || document.getElementById('usd-body')) {
+            setInterval(() => {
+                if (document.hidden) return;
+                refreshForexRatesOnly();
+                refreshCompanyRatesOnly();
+            }, FOREX_MARKET_REFRESH_INTERVAL_MS);
+        }
 
 
 // --- Company Search Logic ---
@@ -3338,70 +3700,115 @@ if (typeof originalData !== 'undefined' && originalData.length > 0) {
 
 
 const COMPANY_INFO_DATA = {
-    'bog': { fullName: 'სს "საქართველოს ბანკი"', branches: ['გაგარინის ქ. 29ა (სათაო ოფისი)', 'პუშკინის ქ. 5/7', 'ჭავჭავაძის გამზ. 74', 'წერეთლის გამზ. 112', '+ 100-ზე მეტი ფილიალი მთელ საქართველოში'], mapUrl: 'https://bankofgeorgia.ge/ka/retail/branches' },
-    'tbc': { fullName: 'სს "თიბისი ბანკი"', branches: ['მარჯანიშვილის ქ. 7 (სათაო ოფისი)', 'რუსთაველის გამზ. 24', 'ჭავჭავაძის გამზ. 11', 'პეკინის გამზ. 14', '+ 100-ზე მეტი ფილიალი'], mapUrl: 'https://www.tbcbank.ge/web/ka/web/guest/branch-network' },
-    'liberty': { fullName: 'სს "ლიბერთი ბანკი"', branches: ['ჭავჭავაძის გამზ. 74 (სათაო ოფისი)', 'აღმაშენებლის გამზ. 86', 'ვაჟა-ფშაველას გამზ. 70', 'რუსთაველის გამზ. 14', '+ 300-მდე ფილიალი'], mapUrl: 'https://libertybank.ge/ka/faq/geografia' },
-    'bb': { fullName: 'სს "ბაზისბანკი"', branches: ['ქეთევან წამებულის გამზ. 1 (სათაო ოფისი)', 'რუსთაველის გამზ. 30', 'ყაზბეგის გამზ. 14', 'ჭავჭავაძის გამზ. 37'], mapUrl: 'https://www.basisbank.ge/ka/branches' },
-    'credo': { fullName: 'სს "კრედო ბანკი"', branches: ['რ. თაბუკაშვილის ქ. 27 (სათაო ოფისი)', 'წერეთლის გამზ. 73', 'აღმაშენებლის ხეივანი მე-12 კმ', 'ყაზბეგის გამზ. 14ა', '+ 80-ზე მეტი ფილიალი'], mapUrl: 'https://credobank.ge/branches/' },
-    'cartu': { fullName: 'სს "ბანკი ქართუ"', branches: ['ჭავჭავაძის გამზ. 39ა (სათაო ოფისი)', 'აღმაშენებლის გამზ. 138', 'პეკინის გამზ. 14', 'წერეთლის გამზ. 112'], mapUrl: 'https://cartubank.ge/ka/branches' },
-    'tera': { fullName: 'სს "ტერაბანკი"', branches: ['წმინდა ქეთევან დედოფლის გამზ. 3 (სათაო)', 'ჭავჭავაძის გამზ. 29', 'ყაზბეგის გამზ. 14', 'მელიქიშვილის გამზ. 17'], mapUrl: 'https://terabank.ge/ka/retail/contact' },
-    'halyk': { fullName: 'სს "ხალიკ ბანკი საქართველო"', branches: ['შარტავას ქ. 40 (სათაო ოფისი)', 'კოსტავას ქ. 14', 'აღმაშენებლის გამზ. 137', 'ყაზბეგის გამზ. 24'], mapUrl: 'https://halykbank.ge/ka/individuals/branches' },
-    'is': { fullName: 'სს "იშბანკი საქართველო"', branches: ['აღმაშენებლის გამზ. 140/ბ (სათაო)', 'ჭავჭავაძის გამზ. 74', 'ბათუმი, გოგებაშვილის ქ. 32'], mapUrl: 'http://isbank.ge/ka/individual/branches' },
-    'silk': { fullName: 'სს "სილქ ბანკი"', branches: ['ზაარბრიუკენის მოედანი 2 (სათაო ოფისი)', 'წინანდლის ქ. 9'], mapUrl: 'https://silkbank.ge/contact/' },
-    'paysera': { fullName: 'სს "პეისერა საქართველო"', branches: ['ბელიაშვილის ქ. 106 (სათაო ოფისი)'], mapUrl: 'https://www.paysera.ge/v2/ka-GE/contacts' },
-    'crystal': { fullName: 'სს "მიკრობანკი კრისტალი"', branches: ['წერეთლის გამზ. 116 (სათაო)', 'ალ. ყაზბეგის გამზ. 15', 'პეკინის გამზ. 14', '+ 50-ზე მეტი ფილიალი'], mapUrl: 'https://crystal.ge/branches/' },
-    'rico': { fullName: 'შპს "რიკო ექსპრესი"', branches: ['ჭავჭავაძის გამზ. 70 (სათაო ოფისი)', 'თამარაშვილის ქ. 14', 'პეკინის გამზ. 3', 'ვაჟა-ფშაველას გამზ. 71', 'მელიქიშვილის გამზ. 17', 'რუსთაველის გამზ. 14', 'წერეთლის გამზ. 111', 'აღმაშენებლის გამზ. 129', 'გლდანი, ვეკუას ქ. 14', '+ 50-მდე ფილიალი'], mapUrl: 'https://rico.ge/ka/branches' },
-    'valuto': { fullName: 'შპს "ვალუტო"', branches: ['ალ. ყაზბეგის გამზ. 34', 'წერეთლის გამზ. 72ა', 'პეკინის გამზ. 5', 'აღმაშენებლის გამზ. 154', 'გურამიშვილის გამზ. 17', 'მოსკოვის გამზ. 14', 'დოლიძის ქ. 2', 'ქეთევან დედოფლის გამზ. 53'], mapUrl: 'https://valuto.ge/branches/' },
-    'kursige': { fullName: 'შპს "კურსი"', branches: ['პეკინის გამზ. 21', 'ჭავჭავაძის გამზ. 33', 'ვაჟა-ფშაველას 71', 'რუსთაველის 14'], mapUrl: 'https://kursi.ge' },
-    'inex': { fullName: 'შპს "ინტელიექსპრესი"', branches: ['აღმაშენებლის გამზ. 89 (სათაო)', 'ჭავჭავაძის გამზ. 24', 'მელიქიშვილის ქ. 17', 'პეკინის ქ. 4', 'წერეთლის გამზ. 116'], mapUrl: 'https://ge.inteliexpress.net/branches/' },
-    'giro': { fullName: 'შპს "გირო კრედიტი"', branches: ['ყაზბეგის გამზ. 14 (სათაო)', 'წერეთლის 116', 'გურამიშვილის 15'], mapUrl: 'https://girocredit.ge/branch/' },
-    'goa': { fullName: 'შპს "გოა კრედიტი"', branches: ['თევდორე მღვდლის ქ. 13', 'წერეთლის 73'], mapUrl: 'https://goacredit.ge' },
-    'hash': { fullName: 'სს "ჰაშ ბანკი"', branches: ['რუსთაველის გამზ. 12', 'ზ. ფალიაშვილის 15'], mapUrl: 'https://hashbank.ge' },
-    'mbc': { fullName: 'შპს "მიკრო ბიზნეს კაპიტალი (MBC)"', branches: ['წერეთლის გამზ. 114', 'ალ. ყაზბეგის 15', 'პეკინის გამზ. 14', 'ქეთევან დედოფლის გამზ. 67'], mapUrl: 'https://mbc.com.ge/ka/contact/branches' },
-    'procredit': { fullName: 'სს "პროკრედიტ ბანკი"', branches: ['ალ. ყაზბეგის გამზ. 21 (სათაო ოფისი)', 'წერეთლის გამზ. 105', 'დავით აღმაშენებლის გამზ. 154', 'რუსთაველის გამზ. 31'], mapUrl: 'https://www.procreditbank.ge/ge/contact' },
-    'leader': { fullName: 'შპს "ლიდერ კრედიტი"', branches: ['თბილისი, დადიანის ქ. 7', 'თბილისი, ჭავჭავაძის გამზ. 39', 'ბათუმი, გორგილაძის ქ. 54', 'ქუთაისი, წერეთლის ქ. 2'], mapUrl: 'https://leadercredit.ge' }
+    'bog': { fullName: 'სს "საქართველოს ბანკი"', website: 'https://bankofgeorgia.ge/', headOffice: 'გაგარინის ქ. 29ა, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 244 44 44' },
+    'tbc': { fullName: 'სს "თიბისი ბანკი"', website: 'https://tbcbank.ge/', headOffice: 'მარჯანიშვილის ქ. 7, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 227 27 27' },
+    'liberty': { fullName: 'სს "ლიბერთი ბანკი"', website: 'https://libertybank.ge/', headOffice: 'ჭავჭავაძის გამზ. 74, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 255 55 00' },
+    'bb': { fullName: 'სს "ბაზისბანკი"', website: 'https://basisbank.ge/', headOffice: 'ქეთევან წამებულის გამზ. 1, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 292 29 22' },
+    'credo': { fullName: 'სს "კრედო ბანკი"', website: 'https://credobank.ge/', headOffice: 'რ. თაბუკაშვილის ქ. 27, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 242 42 42' },
+    'cartu': { fullName: 'სს "ბანკი ქართუ"', website: 'https://cartubank.ge/', headOffice: 'ჭავჭავაძის გამზ. 39ა, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 200 80 80' },
+    'tera': { fullName: 'სს "ტერაბანკი"', website: 'https://terabank.ge/ka/retail', headOffice: 'წმინდა ქეთევან დედოფლის გამზ. 3, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 255 00 00' },
+    'halyk': { fullName: 'სს "ხალიკ ბანკი საქართველო"', website: 'https://halykbank.ge/ka/individuals', headOffice: 'შარტავას ქ. 40, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 224 07 07' },
+    'is': { fullName: 'სს "იშბანკი საქართველო"', website: 'http://isbank.ge/ka/individual', headOffice: 'აღმაშენებლის გამზ. 140ბ, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 294 22 44' },
+    'silk': { fullName: 'სს "სილქ ბანკი"', website: 'https://silkbank.ge/', headOffice: 'ზაარბრიუკენის მოედანი 2, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 242 42 42' },
+    'paysera': { fullName: 'სს "პეისერა საქართველო"', website: 'https://www.paysera.ge/v2/ka-GE/index', headOffice: 'ბელიაშვილის ქ. 106, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 242 42 40' },
+    'crystal': { fullName: 'სს "მიკრობანკი კრისტალი"', website: 'https://crystal.ge/', headOffice: 'წერეთლის გამზ. 116, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 202 20 20' },
+    'rico': { fullName: 'შპს "რიკო ექსპრესი"', website: 'https://rico.ge/', headOffice: 'ჭავჭავაძის გამზ. 70, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '+995 322 29 29 29' },
+    'valuto': { fullName: 'შპს "ვალუტო"', website: 'https://valuto.ge/', headOffice: 'ალ. ყაზბეგის გამზ. 34, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '032 2 24 27 27' },
+    'kursige': { fullName: 'შპს "კურსი"', website: 'https://kursi.ge/', headOffice: 'პეკინის გამზ. 21, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '0322 20 30 40' },
+    'inex': { fullName: 'შპს "ინტელიექსპრესი"', website: 'https://inteliexpress.com/ka/main-page-geo/', headOffice: 'აღმაშენებლის გამზ. 89, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 249 25 25' },
+    'expresslombard': { fullName: 'შპს "ექსპრეს ლომბარდი"', website: 'https://expresslombard.ge/', headOffice: 'გურამ ფანჯიკიძის ქუჩა, შესახვევი I, N8, 0160, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '0322 39 39 39' },
+    'giro': { fullName: 'შპს "გირო კრედიტი"', website: 'https://girocredit.ge/', headOffice: 'ყაზბეგის გამზ. 14, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '0322 38 37 37' },
+    'goa': { fullName: 'შპს "გოა კრედიტი"', website: 'https://goacredit.ge/', headOffice: 'თევდორე მღვდლის ქ. 13, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '032 2 37 15 15' },
+    'hash': { fullName: 'სს "ჰაშ ბანკი"', website: 'https://hashbank.ge/ka', headOffice: 'ვაჟა-ფშაველას გამზ. N71, ოფისი N21, თბილისი', officeLabel: 'იურიდიული და ფაქტობრივი მისამართი', hotline: '+995 32 280 11 77' },
+    'mbc': { fullName: 'შპს "მიკრო ბიზნეს კაპიტალი (MBC)"', website: 'https://mbc.com.ge/', headOffice: 'წერეთლის გამზ. 114, თბილისი', officeLabel: 'სათაო ოფისი', hotline: '032 250 50 02' },
+    'leader': { fullName: 'შპს "ლიდერ კრედიტი"', website: 'https://leadercredit.ge/', headOffice: 'დადიანის ქ. 7, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '032 273 00 73' },
+    'smarti': { fullName: 'შპს "სმარტი მიკროსაფინანსო"', website: 'http://smartfin.ge/', headOffice: '4, Newport str. Kutaisi', officeLabel: 'მთავარი ოფისი', hotline: '(431) 26 26 26' },
+    'central': { fullName: 'შპს "ცენტრალი მიკროსაფინანსო ორგანიზაცია"', website: 'https://central.ge/', headOffice: 'ინფორმაცია მოწმდება', officeLabel: 'სათაო ოფისი', hotline: '+995 322 88 00 88' },
+    'georgiancredit': { fullName: 'შპს "ქართული კრედიტი"', website: 'https://www.georgiancredit.ge/', headOffice: 'გურამ ფანჯიკიძის ქუჩა, შესახვევი I, N8, 0160, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '(+995 32) 2 500 100' },
+    'tbmc': { fullName: 'შპს "თბილმიკროკრედიტი"', website: 'https://www.tbmc.ge/', headOffice: 'ინფორმაცია მოწმდება', officeLabel: 'მთავარი ოფისი', hotline: 'ინფორმაცია მოწმდება' },
+    'bermeli': { fullName: 'შპს "ბერმელი"', website: 'https://bermeli.ge/', headOffice: 'ბათუმი, საქართველო', officeLabel: 'მთავარი ოფისი', hotline: '+995 568 700 300 / 0422 27 56 50' },
+    'alphaexpress': { fullName: 'შპს "ალფა ექსპრესი"', website: 'https://alphaexpress.ge/', headOffice: 'ლ. კავსაძის ქ. 5, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '(032) 2 355 112' },
+    'scapp': { fullName: 'შპს "სკაპი"', website: 'https://scapp.ge/', headOffice: 'წერეთლის გამზ. 118, I პავილიონი, თბილისი', officeLabel: 'მთავარი ოფისი', hotline: '032 2 300 300' }
 };
+
+function escapeInfoHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    }[char]));
+}
+
+function formatWebsiteLabel(url) {
+    if (!url || url === '#') return 'ვებ გვერდი მითითებული არ არის';
+    try {
+        return new URL(url).hostname.replace(/^www\./, 'www.');
+    } catch {
+        return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    }
+}
 
 window.openCompanyInfo = function(key, displayName) {
     const modal = document.getElementById('company-info-modal');
     if (!modal) return;
-    
-    const info = COMPANY_INFO_DATA[key] || { fullName: displayName, branches: ['ინფორმაცია ფილიალებზე ხელმიუწვდომელია'], mapUrl: COMPANY_URLS[key] || '#' };
-    const websiteUrl = COMPANY_URLS[key] || '#';
+
+    const info = COMPANY_INFO_DATA[key] || {
+        fullName: displayName,
+        website: COMPANY_URLS[key] || '#',
+        headOffice: 'ინფორმაცია მოწმდება',
+        officeLabel: 'მთავარი ოფისი',
+        hotline: 'ინფორმაცია მოწმდება'
+    };
+    const websiteUrl = info.website || COMPANY_URLS[key] || '#';
     const logoPath = LOGOS[key] || 'Logos/logo.jpg';
+    const companyName = displayName || COMPANY_NAMES_KA[key] || info.fullName || 'კომპანია';
+    const safeWebsiteUrl = websiteUrl === '#' ? '#' : escapeInfoHtml(websiteUrl);
+    const websiteLabel = formatWebsiteLabel(websiteUrl);
     
     const header = document.getElementById('info-modal-header');
     header.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%;">
-            <div style="width: 70px; height: 70px; border-radius: 16px; background: #ffffff; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 15px;">
-                <img src="${logoPath}" style="width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: 12px;">
+        <div class="company-info-profile">
+            <div class="company-info-logo">
+                <img src="${escapeInfoHtml(logoPath)}" alt="${escapeInfoHtml(companyName)} ლოგო">
             </div>
-            <h2 style="margin: 0 0 5px 0; color: var(--text-main); font-size: 1.6em;">${displayName}</h2>
-            <div style="color: var(--text-muted); font-size: 0.9em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${info.fullName}</div>
-            <a href="${websiteUrl}" target="_blank" class="info-website-link" style="margin-top: 15px; display: inline-flex; align-items: center; gap: 8px; color: var(--primary); font-weight: 600; text-decoration: none; background: rgba(56, 189, 248, 0.1); padding: 8px 16px; border-radius: 20px; transition: background 0.2s;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                ვებ-გვერდზე გადასვლა
-            </a>
+            <h2>${escapeInfoHtml(companyName)}</h2>
+            <div class="company-info-official-name">${escapeInfoHtml(info.fullName || companyName)}</div>
         </div>
     `;
-    
-    let branchesHtml = `<div class="info-section-title" style="margin-top: 30px; margin-bottom: 15px; font-weight: 700; color: var(--text-main); font-size: 1.1em; display: flex; align-items: center; gap: 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--buy-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> მთავარი ფილიალები</div><ul class="info-branch-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">`;
-    
-    info.branches.forEach(branch => {
-        branchesHtml += `<li style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 12px 15px; border-radius: 8px; color: var(--text-main); font-size: 0.95em; display: flex; align-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; flex-shrink: 0;"><path d="M5 9l2.89 2.89a2 2 0 0 0 2.83 0L19 3"></path></svg>${branch}</li>`;
-    });
-    
-    branchesHtml += `</ul>`;
-    
-    if (info.mapUrl && info.mapUrl !== '#') {
-        branchesHtml += `
-            <a href="${info.mapUrl}" target="_blank" style="display: block; text-align: center; margin-top: 20px; color: var(--primary); text-decoration: none; font-weight: 600; padding: 12px; border: 1px dashed var(--primary); border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='rgba(56, 189, 248, 0.1)'" onmouseout="this.style.background='transparent'">
-                ყველა ფილიალის ნახვა რუკაზე &rarr;
+
+    document.getElementById('info-modal-body').innerHTML = `
+        <div class="company-info-details">
+            <a class="company-info-row company-info-row-link" href="${safeWebsiteUrl}" target="_blank" rel="noopener noreferrer">
+                <span class="company-info-row-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path><path d="M12 2a15.3 15.3 0 0 1 0 20"></path><path d="M12 2a15.3 15.3 0 0 0 0 20"></path></svg>
+                </span>
+                <span class="company-info-copy">
+                    <span class="company-info-label">მთავარი ვებ გვერდი</span>
+                    <span class="company-info-value">${escapeInfoHtml(websiteLabel)}</span>
+                </span>
             </a>
-        `;
-    }
-    
-    document.getElementById('info-modal-body').innerHTML = branchesHtml;
+            <div class="company-info-row">
+                <span class="company-info-row-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><path d="M9 9h1"></path><path d="M9 13h1"></path><path d="M9 17h1"></path></svg>
+                </span>
+                <span class="company-info-copy">
+                    <span class="company-info-label">${escapeInfoHtml(info.officeLabel || 'მთავარი ოფისი')}</span>
+                    <span class="company-info-value">${escapeInfoHtml(info.headOffice || 'ინფორმაცია მოწმდება')}</span>
+                </span>
+            </div>
+            <div class="company-info-row">
+                <span class="company-info-row-icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.11 5.18 2 2 0 0 1 5.1 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.62 2.61a2 2 0 0 1-.45 2.11L9 10.71a16 16 0 0 0 4.29 4.29l1.27-1.27a2 2 0 0 1 2.11-.45c.84.29 1.71.5 2.61.62A2 2 0 0 1 22 16.92z"></path></svg>
+                </span>
+                <span class="company-info-copy">
+                    <span class="company-info-label">ცხელი ხაზი</span>
+                    <span class="company-info-value">${escapeInfoHtml(info.hotline || 'ინფორმაცია მოწმდება')}</span>
+                </span>
+            </div>
+        </div>
+    `;
     modal.style.display = 'flex';
 };
 

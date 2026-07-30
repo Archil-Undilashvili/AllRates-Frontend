@@ -185,7 +185,7 @@
             bb: "ბაზისბანკი", credo: "კრედო ბანკი", cartu: "ბანკი ქართუ",
             inex: "ინტელიექსპრესი", giro: "გირო კრედიტი", goa: "გოა კრედიტი",
             hash: "ჰაშ ბანკი", mbc: "ემბისი", tera: "ტერაბანკი", halyk: "ხალიკ ბანკი",
-            is: "იშბანკი", silk: "სილქ ბანკი", procredit: "პროკრედიტ ბანკი",
+            is: "იშბანკი", silk: "სილქ ბანკი",
             leader: "ლიდერ კრედიტი", smarti: "სმარტი", central: "ცენტრალი",
             georgiancredit: "ქართული კრედიტი", tbmc: "თბილმიკროკრედიტი",
             bermeli: "ბერმელი", alphaexpress: "ალფა ექსპრესი", scapp: "სკაპი",
@@ -199,7 +199,7 @@
             cartu: "Logos/cartu_icon.ico", inex: "Logos/Inex.png", giro: "Logos/giro_icon.png",
             goa: "Logos/goa_icon.png", hash: "Logos/hash_icon.ico", mbc: "Logos/mbc_icon.png",
             tera: "Logos/tera_icon.png", halyk: "Logos/halyk_icon.png", is: "Logos/is_icon.png",
-            silk: "Logos/silk_icon.png", procredit: "Logos/procredit.jpg", leader: "Logos/leader.jpg",
+            silk: "Logos/silk_icon.png", leader: "Logos/leader.jpg",
             smarti: "Logos/smarti_icon.png", central: "Logos/central_icon.svg",
             georgiancredit: "Logos/georgiancredit_icon.png", tbmc: "Logos/tbmc_icon.png",
             bermeli: "Logos/bermeli_icon.svg", alphaexpress: "Logos/alphaexpress_icon.png",
@@ -1570,10 +1570,10 @@
         async function loadCompanyPicker(apiOrigin) {
             try {
                 await ensureDashboardOfficialRates();
-                const data = await fetchJsonWithFallback([
+                const data = (await fetchJsonWithFallback([
                     `${apiOrigin}/api/rates/latest`,
                     "https://allrates-backend-api.onrender.com/api/rates/latest"
-                ]);
+                ])).filter(item => companyKey(item) !== "procredit");
                 const rowsByCurrency = Object.fromEntries(Object.keys(CURRENCY_CONFIG).map(currency => [currency, []]));
                 dashboardAlertCatalog = buildDashboardAlertCatalog(data);
 

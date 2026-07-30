@@ -608,7 +608,6 @@
         'halyk': 'Logos/halyk_icon.png',
         'is': 'Logos/is_icon.png',
         'silk': 'Logos/silk_icon.png',
-        'procredit': 'Logos/procredit.jpg',
         'leader': 'Logos/leader.jpg',
         'smarti': 'Logos/smarti_icon.png',
         'central': 'Logos/central_icon.svg',
@@ -641,7 +640,6 @@
         'halyk': 'ხალიკ ბანკი',
         'is': 'იშბანკი',
         'silk': 'სილქ ბანკი',
-        'procredit': 'პროკრედიტ ბანკი',
         'leader': 'ლიდერ კრედიტი',
         'smarti': 'სმარტი',
         'central': 'ცენტრალი',
@@ -664,7 +662,7 @@
         'bb': 'https://basisbank.ge/',
         'credo': 'https://credobank.ge/',
         'cartu': 'https://cartubank.ge/',
-        'inex': 'http://ge.inteliexpress.net/',
+        'inex': 'https://inteliexpress.com/ka/main-page-geo/',
         'giro': 'https://girocredit.ge/',
         'goa': 'https://goacredit.ge/',
         'hash': 'https://hashbank.ge/ka',
@@ -673,7 +671,6 @@
         'halyk': 'https://halykbank.ge/ka/individuals',
         'is': 'http://isbank.ge/ka/individual',
         'silk': 'https://silkbank.ge/',
-        'procredit': 'https://procreditbank.ge/',
         'leader': 'https://leadercredit.ge/',
         'smarti': 'http://smartfin.ge/index.php/ka/products-ka/currency-exchange-k',
         'central': 'https://central.ge/',
@@ -686,8 +683,8 @@
         'paysera': 'https://www.paysera.ge/v2/ka-GE/index'
     };
 
-    const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'expresslombard', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'procredit', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp', 'paysera'];
-    const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'procredit', 'crystal', 'mbc'];
+    const ALL_COMPANIES = ['rico', 'valuto', 'kursige', 'crystal', 'bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'inex', 'expresslombard', 'giro', 'goa', 'hash', 'mbc', 'tera', 'halyk', 'is', 'silk', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp', 'paysera'];
+    const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'crystal', 'mbc'];
     const MFO_COMPANIES = ['rico', 'giro', 'goa', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp'];
     const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
     const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
@@ -881,7 +878,8 @@
                 }
             }
 
-            commercialRates = await fetchJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]);
+            commercialRates = (await fetchJsonWithFallback([API_RATES_URL, API_RATES_FALLBACK_URL]))
+                .filter(item => getBaseCompany(item.company) !== 'procredit');
             const kursigeLiveRate = await fetchKursigePublicCalculatorRate();
             if (kursigeLiveRate) {
                 commercialRates = commercialRates.filter(item => getBaseCompany(item.company) !== 'kursige');
