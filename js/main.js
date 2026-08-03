@@ -55,7 +55,10 @@ const MARKET_DYNAMICS_CACHE_PREFIX = 'cachedMarketDynamics_v2';
 const NBG_CHART_CACHE_VERSION = 'v2';
 const NBG_CHART_CACHE_VERSION_KEY = 'cachedNbgChartVersion';
 const NBG_CHART_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
+const KURSIGE_PUBLIC_API_URLS = [
+    'https://api-core.kursi.ge/api/public/currencies',
+    'https://api.kursi.ge:8080/api/public/currencies'
+];
 const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v3';
 const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
 const CACHE_COMPANY_RATES_DATA_KEY = 'cachedRatesData_scraper_v2';
@@ -63,8 +66,11 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
 const DISABLED_COMPANIES = new Set(['procredit']);
 const CRYPTO_REFRESH_INTERVAL_MS = 3 * 1000;
 const FOREX_MARKET_REFRESH_INTERVAL_MS = 30 * 1000;
+const FOREX_TICK_MIN_MS = 1000;
+const FOREX_TICK_MAX_MS = 70000;
 const CRYPTO_MARKET_CAP_CACHE_KEY = 'cachedCryptoMarketCaps_v1';
 const CRYPTO_MARKET_CAP_TTL_MS = 5 * 60 * 1000;
+const forexTickTimers = new Map();
 
 async function fetchJsonWithFallback(urls, options = {}) {
     let lastError = null;
@@ -506,6 +512,40 @@ async function fetchSheetsData() {
             });
         }
 
+        function getForexTickDelay() {
+            return Math.floor(FOREX_TICK_MIN_MS + Math.random() * (FOREX_TICK_MAX_MS - FOREX_TICK_MIN_MS));
+        }
+
+        function clearForexTickTimers() {
+            forexTickTimers.forEach(timerId => clearTimeout(timerId));
+            forexTickTimers.clear();
+        }
+
+        function pulseForexRateItem(item) {
+            if (!item || !document.body.contains(item)) return;
+            const valueEl = item.querySelector('.home-split-main') || item.querySelector('.intl-value');
+            if (valueEl) valueEl.classList.remove('live-value-flash');
+            void (valueEl || item).offsetWidth;
+            if (valueEl) valueEl.classList.add('live-value-flash');
+        }
+
+        function startForexMarketTicks(container = document.getElementById('intl-rates-container')) {
+            if (!container) return;
+            clearForexTickTimers();
+            const items = Array.from(container.querySelectorAll('.forex-rate-link[data-forex-pair]'));
+            items.forEach((item, index) => {
+                const key = item.dataset.forexPair || `pair-${index}`;
+                const schedule = () => {
+                    const timerId = setTimeout(() => {
+                        pulseForexRateItem(item);
+                        if (document.body.contains(item)) schedule();
+                    }, getForexTickDelay() + index * 90);
+                    forexTickTimers.set(key, timerId);
+                };
+                schedule();
+            });
+        }
+
         function initForexRateLinks() {
             const container = document.getElementById('intl-rates-container');
             if (!container || container.dataset.forexLinksReady === 'true') return;
@@ -622,6 +662,7 @@ async function fetchSheetsData() {
             }).join('');
 
             hydrateForexRateLinks(container);
+            startForexMarketTicks(container);
             if (container.innerHTML.trim()) localStorage.setItem(CACHE_INTL_RATES_HTML_KEY, container.innerHTML);
         }
 
@@ -661,7 +702,9 @@ async function fetchSheetsData() {
             [...new Set(logoPaths)].forEach(src => {
                 if (!src) return;
                 const img = new Image();
-                img.decoding = 'async';
+                img.decoding = 'sync';
+                img.loading = 'eager';
+                img.fetchPriority = 'high';
                 img.src = src;
             });
         }
@@ -864,7 +907,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                             </div>
                                         `;
                                     });
-                                    if (isFx) hydrateForexRateLinks(cont);
+                                    if (isFx) {
+                                        hydrateForexRateLinks(cont);
+                                        startForexMarketTicks(cont);
+                                    }
                                 }
 
                                 renderRates(intlRates, intlContainer, true);
@@ -1345,9 +1391,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
 
         async function fetchKursigePublicRateRow() {
             try {
-                const response = await fetch(KURSIGE_PUBLIC_API_URL, { headers: { accept: 'application/json' } });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const rows = await response.json();
+                const rows = await fetchJsonWithFallback(KURSIGE_PUBLIC_API_URLS, { headers: { accept: 'application/json' } });
                 const usd = getKursigePublicPair(rows, 'USD');
                 const eur = getKursigePublicPair(rows, 'EUR');
                 const rub = getKursigePublicPair(rows, 'RUB');
@@ -1715,9 +1759,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const changeColor = changeVal > 0 ? 'var(--buy-color)' : changeVal < 0 ? 'var(--sell-color)' : 'var(--text-muted)';
                 const changeText = changeVal > 0 ? `+${item.change}%` : `${item.change}%`;
                 const marketCapText = formatMarketCap(item.marketCap);
-                const liveClass = flashLiveValue(`crypto:${item.symbol}`, `${item.price}:${item.change}`);
+                const liveClass = flashLiveValue(`crypto:${item.symbol}`, `${item.price}:${item.change}`).trim();
                 const logoHtml = item.logo
-                    ? `<img src="${item.logo}" alt="${item.symbol}" class="crypto-token-logo" onerror="this.outerHTML='<span class=&quot;crypto-token-initial&quot;>${item.symbol.charAt(0)}</span>';">`
+                    ? `<img src="${item.logo}" alt="${item.symbol}" class="crypto-token-logo" loading="eager" decoding="sync" fetchpriority="high" onerror="this.outerHTML='<span class=&quot;crypto-token-initial&quot;>${item.symbol.charAt(0)}</span>';">`
                     : `<span class="crypto-token-initial">${item.symbol.charAt(0)}</span>`;
 
                 return `
@@ -1728,10 +1772,10 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                 <span>${item.name} (${item.symbol})</span>
                             </span>
                         </span>
-                        <span class="intl-value crypto-value${liveClass}">
-                            <span class="crypto-price">$ ${item.price}</span>
+                        <span class="intl-value crypto-value">
+                            <span class="crypto-price${liveClass ? ` ${liveClass}` : ''}">$ ${item.price}</span>
                             <span class="crypto-change" style="color: ${changeColor};">${changeText}</span>
-                            ${marketCapText ? `<span class="crypto-market-cap">Market Cap ${marketCapText}</span>` : '<span class="crypto-market-cap"></span>'}
+                            ${marketCapText ? `<span class="crypto-market-cap">MC ${marketCapText}</span>` : '<span class="crypto-market-cap"></span>'}
                         </span>
                     </div>
                 `;
@@ -1813,7 +1857,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             container.innerHTML = rows.map(row => `
                 <div class="intl-rate-item home-gas-rate-item" data-market-search="${row.label.toLowerCase()}">
                     <span class="intl-pair home-gas-pair">
-                        <img src="${row.icon}" alt="" class="home-gas-category-icon" decoding="async">
+                        <img src="${row.icon}" alt="" class="home-gas-category-icon" loading="eager" decoding="sync" fetchpriority="high">
                         <span>${row.label}</span>
                     </span>
                     <span class="intl-value home-gas-value home-split-value">
@@ -1850,7 +1894,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 return `
                     <div class="intl-rate-item home-gas-rate-item" data-market-search="${String(row.label || '').toLowerCase()}">
                         <span class="intl-pair home-gas-pair">
-                            <img src="${row.icon || `Logos/gas/categories/${row.key}.svg`}" alt="" class="home-gas-category-icon" decoding="async">
+                            <img src="${row.icon || `Logos/gas/categories/${row.key}.svg`}" alt="" class="home-gas-category-icon" loading="eager" decoding="sync" fetchpriority="high">
                             <span>${row.label}</span>
                         </span>
                         <span class="intl-value home-gas-value home-split-value">
@@ -2142,7 +2186,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             container.innerHTML = list.map(item => `
                 <div class="home-section" data-market-search="${`${item.code} ${item.title}`.toLowerCase()}">
                     <div class="section-title home-official-section-title">
-                        ${item.logo ? `<img src="${item.logo}" alt="${item.code} Flag" decoding="async" onerror="this.style.display='none'">` : ''}
+                        ${item.logo ? `<img src="${item.logo}" alt="${item.code} Flag" loading="eager" decoding="sync" fetchpriority="high" onerror="this.style.display='none'">` : ''}
                         <span>${item.title}</span>
                     </div>
                     <div class="rates-flex home-official-rate-row">
@@ -3485,6 +3529,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     
                     renderHomePage();
                     updateHomeConverter();
+                    setDisplay('loader', 'none');
                     setDisplay('tables-wrapper', 'flex');
                 }
                 

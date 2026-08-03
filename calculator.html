@@ -687,7 +687,10 @@
     const BANK_COMPANIES = ['bog', 'tbc', 'liberty', 'bb', 'credo', 'cartu', 'hash', 'tera', 'halyk', 'is', 'silk', 'crystal', 'mbc'];
     const MFO_COMPANIES = ['rico', 'giro', 'goa', 'leader', 'smarti', 'central', 'georgiancredit', 'tbmc', 'bermeli', 'alphaexpress', 'scapp'];
     const KIOSK_COMPANIES = ALL_COMPANIES.filter(company => !BANK_COMPANIES.includes(company) && !MFO_COMPANIES.includes(company));
-    const KURSIGE_PUBLIC_API_URL = 'https://api.kursi.ge:8080/api/public/currencies';
+    const KURSIGE_PUBLIC_API_URLS = [
+        'https://api-core.kursi.ge/api/public/currencies',
+        'https://api.kursi.ge:8080/api/public/currencies'
+    ];
     const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
     const API_RATES_URL = IS_LOCAL_FRONTEND
         ? 'http://localhost:3000/api/rates/latest'
@@ -837,9 +840,7 @@
 
     async function fetchKursigePublicCalculatorRate() {
         try {
-            const response = await fetch(KURSIGE_PUBLIC_API_URL, { headers: { accept: 'application/json' } });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const rows = await response.json();
+            const rows = await fetchJsonWithFallback(KURSIGE_PUBLIC_API_URLS, { headers: { accept: 'application/json' } });
             const usd = getKursigePublicPair(rows, 'USD');
             const eur = getKursigePublicPair(rows, 'EUR');
             const rub = getKursigePublicPair(rows, 'RUB');

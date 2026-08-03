@@ -8,6 +8,16 @@
     <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
     <link rel="apple-touch-icon" href="/favicon-192.png">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="preload" as="image" href="Logos/nbg_logo_cropped.png">
+    <link rel="preload" as="image" href="Logos/market-rates-icon.svg">
+    <link rel="preload" as="image" href="Logos/forex-icon.svg">
+    <link rel="preload" as="image" href="Logos/crypto-icon.svg">
+    <link rel="preload" as="image" href="Logos/fuel-icon.svg">
+    <link rel="preload" as="image" href="Logos/US.png">
+    <link rel="preload" as="image" href="Logos/EU.png">
+    <link rel="preload" as="image" href="Logos/GB.png">
+    <link rel="preload" as="image" href="Logos/RU.png">
+    <link rel="preload" as="image" href="Logos/TR.png">
     <title>ვალუტის კურსები დღეს საქართველოში | AllRates.ge</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -177,7 +187,7 @@
 
             <div class="home-card-uniform home-official-card home-card-collapsible">
                 <div class="card-uniform-title market-card-title">
-                    <span><img src="Logos/nbg_logo_cropped.png" alt="" class="home-title-logo">ოფიციალური კურსები</span>
+                    <span><img loading="eager" decoding="sync" fetchpriority="high" src="Logos/nbg_logo_cropped.png" alt="" class="home-title-logo">ოფიციალური კურსები</span>
                     <button type="button" class="market-search-toggle" data-search-target="home-official-list" data-search-panel="official-search-panel" aria-label="ოფიციალური კურსების ძებნა" aria-expanded="false">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <circle cx="11" cy="11" r="7"></circle>
@@ -209,7 +219,7 @@
                 <div class="card-uniform-content" style="justify-content: flex-start;">
 
                     <div class="home-section interactive-card" onclick="window.location.href='/rates#usd-container'">
-                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/US.png" alt="US Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USD / აშშ დოლარი <span class="home-market-title-change" id="home-usd-market-change"></span></div>
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img loading="eager" decoding="sync" fetchpriority="high" src="Logos/US.png" alt="US Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">USD / აშშ დოლარი <span class="home-market-title-change" id="home-usd-market-change"></span></div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -227,7 +237,7 @@
                     </div>
 
                     <div class="home-section interactive-card" onclick="window.location.href='/rates#eur-container'">
-                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/EU.png" alt="EU Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">EUR / ევრო <span class="home-market-title-change" id="home-eur-market-change"></span></div>
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img loading="eager" decoding="sync" fetchpriority="high" src="Logos/EU.png" alt="EU Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">EUR / ევრო <span class="home-market-title-change" id="home-eur-market-change"></span></div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -245,7 +255,7 @@
                     </div>
 
                     <div class="home-section interactive-card" onclick="window.location.href='/rates#gbp-container'">
-                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/GB.png" alt="GB Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">GBP/ფუნტი <span class="home-market-title-change" id="home-gbp-market-change"></span></div>
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img loading="eager" decoding="sync" fetchpriority="high" src="Logos/GB.png" alt="GB Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">GBP/ფუნტი <span class="home-market-title-change" id="home-gbp-market-change"></span></div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -263,7 +273,7 @@
                     </div>
 
                     <div class="home-section interactive-card" onclick="window.location.href='/rates#rub-container'">
-                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/RU.png" alt="RU Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">RUB / რუბლი <span class="home-market-title-change" id="home-rub-market-change"></span></div>
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img loading="eager" decoding="sync" fetchpriority="high" src="Logos/RU.png" alt="RU Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">RUB / რუბლი <span class="home-market-title-change" id="home-rub-market-change"></span></div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -280,7 +290,7 @@
                         </div>
                     </div>
                     <div class="home-section interactive-card" onclick="window.location.href='/rates#try-container'">
-                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img src="Logos/TR.png" alt="TR Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">TRY / ლირა <span class="home-market-title-change" id="home-try-market-change"></span></div>
+                        <div class="section-title" style="margin-bottom: 8px; justify-content: center; display: flex; align-items: center; gap: 6px;"><img loading="eager" decoding="sync" fetchpriority="high" src="Logos/TR.png" alt="TR Flag" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background: var(--card-bg); border: 1px solid var(--border);">TRY / ლირა <span class="home-market-title-change" id="home-try-market-change"></span></div>
                         <div class="rates-flex">
                             <div class="rate-block">
                                 <div class="rate-label">ყიდვა</div>
@@ -682,6 +692,5 @@
             <!-- Footer Section -->
 <script src="js/footer.js?v=3"></script>
 <script src="js/main.js?v=20"></script>
-
 </body>
 </html>
