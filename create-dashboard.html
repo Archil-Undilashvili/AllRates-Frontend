@@ -124,7 +124,7 @@
         const dashboardIsLocalServer = ["localhost", "127.0.0.1", ""].includes(window.location.hostname) || window.location.protocol === "file:";
         const dashboardApiOrigins = window.ALLRATES_API_ORIGIN
             ? [window.ALLRATES_API_ORIGIN]
-            : (dashboardIsLocalServer ? ["http://localhost:3000", DASHBOARD_PROD_API_ORIGIN] : [DASHBOARD_PROD_API_ORIGIN]);
+            : (dashboardIsLocalServer ? ["http://localhost:3000"] : [DASHBOARD_PROD_API_ORIGIN]);
         let apiOrigin = dashboardApiOrigins[0];
 
         async function fetchDashboardJsonFromOrigins(path, options = {}) {

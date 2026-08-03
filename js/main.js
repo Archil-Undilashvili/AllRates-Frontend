@@ -60,7 +60,7 @@ const KURSIGE_PUBLIC_API_URLS = [
     'https://api.kursi.ge:8080/api/public/currencies'
 ];
 const CACHE_INTL_RATES_HTML_KEY = 'cachedIntlRatesHtml_v3';
-const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v2';
+const CACHE_POPULAR_ASSETS_HTML_KEY = 'cachedPopularAssetsHtml_v3';
 const CACHE_COMPANY_RATES_DATA_KEY = 'cachedRatesData_scraper_v2';
 const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
 const DISABLED_COMPANIES = new Set(['procredit']);
@@ -350,7 +350,7 @@ async function fetchSheetsData() {
             btn.textContent = 'იგზავნება...';
 
             try {
-                const res = await fetch('https://formsubmit.co/ajax/info@allrates.ge', {
+                const res = await fetch('https://formsubmit.co/ajax/info.allrates@gmail.com', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
@@ -899,7 +899,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                                     <span class="home-split-main">${displayRate}</span>
                                                     <span class="home-split-change">${changeHtml}</span>
                                                 </span>`
-                                            : `<span class="intl-value">${displayRate} ${changeHtml}</span>`;
+                                            : `<span class="intl-value">$ ${displayRate} ${changeHtml}</span>`;
                                         cont.innerHTML += `
                                             <div class="intl-rate-item${forexClass}"${forexData}>
                                                 <span class="intl-pair forex-pair-row">${logoHtml}<span>${pairName}</span></span>
@@ -993,7 +993,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                                                     <span class="home-split-main">${displayRate}</span>
                                                     <span class="home-split-change"></span>
                                                 </span>`
-                                            : `<span class="intl-value">${displayRate}</span>`;
+                                            : `<span class="intl-value">$ ${displayRate}</span>`;
                                         cont.innerHTML += `
                                             <div class="intl-rate-item${forexClass}"${forexData}>
                                                 <span class="intl-pair forex-pair-row">${logoHtml}<span>${pairName}</span></span>

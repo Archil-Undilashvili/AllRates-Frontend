@@ -3638,6 +3638,42 @@
             height: 20px;
         }
 
+        .allrates-footer-contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            align-items: flex-start;
+        }
+
+        .allrates-footer-column .allrates-footer-contact-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 130px;
+            padding: 8px 11px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            background: rgba(15, 23, 42, 0.04);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1;
+            transform: none;
+        }
+
+        .allrates-footer-column .allrates-footer-contact-chip:hover {
+            color: var(--primary);
+            border-color: rgba(56, 189, 248, 0.38);
+            background: rgba(56, 189, 248, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .allrates-footer-contact-chip svg {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+        }
+
         .allrates-footer-contact {
             margin-top: 14px;
             font-weight: 700;

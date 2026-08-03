@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const PROD_API_ORIGIN = "https://allrates-backend-api.onrender.com";
     const apiOrigins = window.ALLRATES_API_ORIGIN
         ? [window.ALLRATES_API_ORIGIN]
-        : (isLocalServer ? ["http://localhost:3000", PROD_API_ORIGIN] : [PROD_API_ORIGIN]);
+        : (isLocalServer ? ["http://localhost:3000"] : [PROD_API_ORIGIN]);
 
     async function fetchAuthJson(path, options = {}) {
         let lastError = null;
