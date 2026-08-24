@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>დეპოზიტის კალკულატორი | AllRates.ge</title>
+    <meta name="description" content="დეპოზიტის კალკულატორი საწყისი თანხის, თვიური შენატანების, ზრდადი დეპოზიტის, დარიცხული სარგებლისა და საბოლოო ბალანსის გრაფიკით.">
+    <link rel="canonical" href="https://allrates.ge/deposit-calculator">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loan-calculator-body">
+<script src="js/header.js"></script>
+
+<main class="loan-calculator-page">
+    <section class="loan-shell" aria-labelledby="deposit-calculator-title">
+        <div class="loan-header">
+            <h1 id="deposit-calculator-title">დეპოზიტის კალკულატორი</h1>
+        </div>
+
+        <form class="loan-form deposit-form" id="deposit-form">
+            <label>
+                <span>საწყისი თანხა</span>
+                <input type="number" id="deposit-initial" min="0" step="any" inputmode="decimal" value="10000" required>
+            </label>
+            <label>
+                <span>ვადა თვეებში</span>
+                <input type="number" id="deposit-term" min="1" max="480" step="1" value="24" required>
+            </label>
+            <label>
+                <span>სარგებელი წლიური</span>
+                <input type="number" id="deposit-rate" min="0" max="100" step="0.01" value="9.5" required>
+            </label>
+            <label>
+                <span>დეპოზიტის ტიპი</span>
+                <select id="deposit-type">
+                    <option value="standard">სტანდარტული</option>
+                    <option value="growing">ზრდადი</option>
+                </select>
+            </label>
+            <label class="deposit-growing-field">
+                <span>თვიური შენატანი</span>
+                <input type="number" id="deposit-monthly" min="0" step="any" inputmode="decimal" value="500">
+            </label>
+            <label class="deposit-growing-field">
+                <span>შენატანის ზრდა წლიური</span>
+                <input type="number" id="deposit-growth" min="0" max="100" step="0.01" value="0">
+            </label>
+            <label>
+                <span>სარგებლის გატანის ტიპი</span>
+                <select id="deposit-interest-mode">
+                    <option value="capitalized">ვადის ბოლოს</option>
+                    <option value="monthly">ყოველთვიური</option>
+                </select>
+            </label>
+            <label>
+                <span>დაწყების თარიღი</span>
+                <input type="date" id="deposit-start">
+            </label>
+            <button type="submit" id="deposit-submit-btn">დათვლა</button>
+        </form>
+
+        <section class="loan-summary deposit-summary" id="deposit-summary" hidden aria-live="polite">
+            <article>
+                <span>საბოლოო ბალანსი</span>
+                <strong id="deposit-final">-</strong>
+            </article>
+            <article>
+                <span>შენატანები სულ</span>
+                <strong id="deposit-contributions">-</strong>
+            </article>
+            <article>
+                <span>დარიცხული სარგებელი</span>
+                <strong id="deposit-interest">-</strong>
+            </article>
+            <article>
+                <span>საშუალო თვიური ზრდა</span>
+                <strong id="deposit-average-growth">-</strong>
+            </article>
+            <article>
+                <span>ეფექტური პროცენტი</span>
+                <strong id="deposit-effective-rate">-</strong>
+            </article>
+        </section>
+
+        <section class="loan-chart-card" id="deposit-chart-card" hidden>
+            <div class="loan-chart-head">
+                <div>
+                    <h2>დეპოზიტის გრაფიკი</h2>
+                </div>
+                <div class="loan-chart-legend" aria-label="გრაფიკის განმარტება">
+                    <span><i class="principal"></i>შენატანი</span>
+                    <span><i class="interest"></i>სარგებელი</span>
+                    <span><i class="balance"></i>ბალანსი</span>
+                </div>
+            </div>
+            <canvas id="deposit-chart" width="1200" height="430" aria-label="დეპოზიტის ზრდის გრაფიკი"></canvas>
+        </section>
+
+        <section class="loan-table-card" id="deposit-table-card" hidden>
+            <div class="loan-table-head">
+                <h2>დეპოზიტის ცხრილი</h2>
+                <button type="button" class="loan-export-btn" id="deposit-export-btn">
+                    <span>ჩამოტვირთვა</span>
+                    <i aria-hidden="true">XLS</i>
+                </button>
+            </div>
+            <div class="loan-table-wrap">
+                <table class="loan-table deposit-table">
+                    <thead>
+                        <tr>
+                            <th>თვე</th>
+                            <th>თარიღი</th>
+                            <th>საწყისი ბალანსი</th>
+                            <th>შენატანი</th>
+                            <th>სარგებელი</th>
+                            <th>გატანილი სარგებელი</th>
+                            <th>საბოლოო ბალანსი</th>
+                            <th>შენატანის კორექტირება</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deposit-schedule-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="js/deposit-calculator.js"></script>
+</body>
+</html>

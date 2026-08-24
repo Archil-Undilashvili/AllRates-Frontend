@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>ინფლაციის კალკულატორი | AllRates.ge</title>
+    <meta name="description" content="ინფლაციის კალკულატორი გიჩვენებთ თანხის მომავალ ღირებულებას, მსყიდველუნარიანობის შემცირებას, საჭირო შემოსავალს და რეალურ ზრდას.">
+    <link rel="canonical" href="https://allrates.ge/inflation-calculator">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loan-calculator-body">
+<script src="js/header.js"></script>
+
+<main class="loan-calculator-page inflation-calculator-page">
+    <section class="loan-shell" aria-labelledby="inflation-calculator-title">
+        <div class="loan-header">
+            <h1 id="inflation-calculator-title">ინფლაციის კალკულატორი</h1>
+        </div>
+
+        <form class="loan-form inflation-form" id="inflation-form">
+            <label>
+                <span class="loan-field-title">
+                    დღევანდელი თანხა <em>PV</em>
+                    <i class="loan-info-dot" tabindex="0" aria-label="Present Value: თანხის დღევანდელი ნომინალური ღირებულება, რომლის ინფლაციით მომავალ ფასს და რეალურ მსყიდველუნარიანობას ითვლი.">i</i>
+                </span>
+                <input type="number" id="inflation-amount" min="0" step="any" inputmode="decimal" value="1000" required>
+            </label>
+            <label>
+                <span class="loan-field-title">
+                    პერიოდი წლებში <em>n</em>
+                    <i class="loan-info-dot" tabindex="0" aria-label="Number of periods: რამდენი წლის შემდეგ გინდა დაინახო ინფლაციის გავლენა თანხაზე.">i</i>
+                </span>
+                <input type="number" id="inflation-years" min="1" max="80" step="1" value="5" required>
+            </label>
+            <label>
+                <span class="loan-field-title">
+                    წლიური ინფლაცია <em>i</em>
+                    <i class="loan-info-dot" tabindex="0" aria-label="Inflation Rate: საშუალო წლიური ფასების ზრდა. მაგალითად 4 ნიშნავს, რომ ფასები საშუალოდ წელიწადში 4%-ით იზრდება.">i</i>
+                </span>
+                <input type="number" id="inflation-rate" min="-50" max="100" step="0.01" inputmode="decimal" value="4" required>
+            </label>
+            <label>
+                <span class="loan-field-title">
+                    თანხის/შემოსავლის ზრდა <em>g</em>
+                    <i class="loan-info-dot" tabindex="0" aria-label="Growth Rate: რამდენი პროცენტით იზრდება შენი თანხა, შემოსავალი ან ინვესტიცია ყოველწლიურად ინფლაციასთან შედარებისთვის.">i</i>
+                </span>
+                <input type="number" id="income-growth-rate" min="-100" max="100" step="0.01" inputmode="decimal" value="0">
+            </label>
+            <label>
+                <span class="loan-field-title">
+                    თვიური დამატება <em>PMT</em>
+                    <i class="loan-info-dot" tabindex="0" aria-label="Payment: დამატებითი თანხა, რომელსაც ყოველ თვე ამატებ დანაზოგს ან ინვესტიციას. თუ დამატება არ გაქვს, დატოვე 0.">i</i>
+                </span>
+                <input type="number" id="monthly-addition" min="0" step="any" inputmode="decimal" value="0">
+            </label>
+            <label>
+                <span class="loan-field-title">
+                    დამატების ზრდა წლიური <em>PMT g</em>
+                    <i class="loan-info-dot" tabindex="0" aria-label="Payment Growth: თვიური დამატების წლიური ზრდა. მაგალითად 5 ნიშნავს, რომ ყოველ წელს შენატანის მოცულობა 5%-ით იზრდება.">i</i>
+                </span>
+                <input type="number" id="addition-growth-rate" min="-100" max="100" step="0.01" inputmode="decimal" value="0">
+            </label>
+            <button type="submit">დათვლა</button>
+        </form>
+
+        <section class="loan-summary inflation-summary" id="inflation-summary" hidden aria-live="polite">
+            <article>
+                <span>მომავალი ფასი <em>FV</em></span>
+                <strong id="inflation-future-price">-</strong>
+            </article>
+            <article>
+                <span>მსყიდველუნარიანობა <em>Real PV</em></span>
+                <strong id="inflation-buying-power">-</strong>
+            </article>
+            <article>
+                <span>ღირებულების დაკარგვა <em>Loss</em></span>
+                <strong id="inflation-lost-value">-</strong>
+            </article>
+            <article>
+                <span>ზრდის რეალური შედეგი <em>Real Gain</em></span>
+                <strong id="inflation-real-growth">-</strong>
+            </article>
+            <article>
+                <span>დაგროვილი დამატებები <em>PMT Sum</em></span>
+                <strong id="inflation-total-additions">-</strong>
+            </article>
+        </section>
+
+        <section class="loan-chart-card inflation-chart-card" id="inflation-chart-card" hidden>
+            <div class="loan-chart-head">
+                <div>
+                    <h2>ინფლაციის გავლენა დროში</h2>
+                </div>
+                <div class="loan-chart-legend" aria-label="გრაფიკის განმარტება">
+                    <span><i class="principal"></i>მომავალი ფასი FV</span>
+                    <span><i class="interest"></i>რეალური ღირებულება Real Value</span>
+                    <span><i class="balance"></i>ნომინალური ზრდა Nominal Value</span>
+                </div>
+            </div>
+            <canvas id="inflation-chart" width="1200" height="430" aria-label="ინფლაციის გრაფიკი"></canvas>
+        </section>
+    </section>
+</main>
+
+<script src="js/inflation-calculator.js"></script>
+</body>
+</html>

@@ -66,11 +66,44 @@ const HOME_GAS_CACHE_KEY = 'allrates_home_gas_market_cache_v2';
 const DISABLED_COMPANIES = new Set(['procredit']);
 const CRYPTO_REFRESH_INTERVAL_MS = 3 * 1000;
 const FOREX_MARKET_REFRESH_INTERVAL_MS = 30 * 1000;
+const COMPANY_RATES_SCHEDULE_CHECK_MS = 60 * 1000;
 const FOREX_TICK_MIN_MS = 1000;
 const FOREX_TICK_MAX_MS = 70000;
 const CRYPTO_MARKET_CAP_CACHE_KEY = 'cachedCryptoMarketCaps_v1';
 const CRYPTO_MARKET_CAP_TTL_MS = 5 * 60 * 1000;
 const forexTickTimers = new Map();
+
+function getTbilisiScheduleParts(date = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Tbilisi',
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(date).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+    }, {});
+
+    return {
+        weekday: parts.weekday,
+        hour: Number(parts.hour),
+        minute: Number(parts.minute)
+    };
+}
+
+function shouldRefreshCompanyRatesNow(date = new Date()) {
+    const { weekday, hour, minute } = getTbilisiScheduleParts(date);
+    const isFiveMinuteMark = minute % 5 === 0;
+
+    if (['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(weekday)) {
+        return hour >= 9 || isFiveMinuteMark;
+    }
+
+    if (weekday === 'Sat') return isFiveMinuteMark;
+    if (weekday === 'Sun') return hour >= 2 && hour < 9 && isFiveMinuteMark;
+    return false;
+}
 
 async function fetchJsonWithFallback(urls, options = {}) {
     let lastError = null;
@@ -237,7 +270,43 @@ async function fetchSheetsData() {
                 'RUBGEL (Sell)': (base === 'crystal' && parseFloat(item.rubSell) > 1) ? (parseFloat(item.rubSell) / 100).toFixed(4) : item.rubSell,
                 'TRYGEL (Buy)': item.tryBuy,
                 'TRYGEL (Sell)': item.trySell,
-                'Update Time': item.tbilisiDateString || item.createdAt
+                'Update Time': item.tbilisiDateString || item.createdAt,
+                'Update Timestamp': item.createdAt || item.date || item.tbilisiDateString
+            };
+        }
+
+        function parseCompanyUpdateTime(item) {
+            const value = item?.['Update Timestamp'] || item?.createdAt || item?.date || item?.['Update Time'];
+            if (!value) return null;
+            const parsed = new Date(value);
+            if (!Number.isNaN(parsed.getTime())) return parsed;
+
+            const match = String(value).match(/(\d{1,2})[./-](\d{1,2})[./-](\d{4}).*?(\d{1,2}):(\d{2})/);
+            if (!match) return null;
+            const [, dd, mm, yyyy, hh, min] = match;
+            const fallback = new Date(Number(yyyy), Number(mm) - 1, Number(dd), Number(hh), Number(min));
+            return Number.isNaN(fallback.getTime()) ? null : fallback;
+        }
+
+        function formatCompanyUpdateTime(item) {
+            const date = parseCompanyUpdateTime(item);
+            if (!date) {
+                return { label: '--:--:--', stale: true, full: 'განახლების დრო უცნობია' };
+            }
+
+            const formatter = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Tbilisi',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hourCycle: 'h23'
+            });
+            const label = formatter.format(date).replace(',', '');
+            const diffMs = Date.now() - date.getTime();
+            return {
+                label,
+                stale: diffMs > 5 * 60 * 1000,
+                full: `კურსის განახლების დრო: ${label}`
             };
         }
 
@@ -3352,7 +3421,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             });
 
             if (dataToRender.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="empty-message">ჯერჯერობით მონაცემები არ არის</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-message">ჯერჯერობით მონაცემები არ არის</td></tr>`;
                 setLiveInnerText(`${currency}-market-buy`, '- - -', `rates:${currency}:buy`);
                 setLiveInnerText(`${currency}-market-sell`, '- - -', `rates:${currency}:sell`);
                 setLiveInnerText(`${currency}-market-spread`, '- - -', `rates:${currency}:spread`);
@@ -3441,6 +3510,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 let buyDisplay = isNaN(buy) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (!isOutlier && buy === bestBuy ? `${buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : buy.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
                 let sellDisplay = isNaN(sell) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : (!isOutlier && sell === bestSell ? `${sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3)}<span class="best-dot" title="საუკეთესო კურსი"></span>` : sell.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3));
                 let spreadDisplay = (isNaN(spread) || spread === Infinity) ? '<span style="display:inline-block; padding: 2px 8px; background: rgba(255,255,255,0.08); color: #94a3b8; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: 1px;">- - -</span>' : spread.toFixed((currency === 'rub' || currency === 'try') ? 4 : 3);
+                const updateTime = formatCompanyUpdateTime(item);
 
                 let mainName = compNameKa;
                 let subName = '';
@@ -3469,6 +3539,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     <td class="buy${isOutlier ? ' rate-outlier-value' : ''}">${buyDisplay}</td>
                     <td class="sell${isOutlier ? ' rate-outlier-value' : ''}">${sellDisplay}</td>
                     <td class="spread">${spreadDisplay}</td>
+                    <td class="rate-updated-cell">
+                        <span class="rate-updated-time${updateTime.stale ? ' is-stale' : ''}" title="${updateTime.full}">${updateTime.label}</span>
+                    </td>
                     <td class="info-cell"><button class="btn-info-icon" onclick="event.preventDefault(); openCompanyInfo('${companyKey}', '${compNameKa}')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button></td>
                 `;
                 
@@ -3577,12 +3650,17 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 if (!document.hidden) fetchCrypto();
             }, CRYPTO_REFRESH_INTERVAL_MS);
         }
-        if (document.querySelector('.intl-rates-list') || document.getElementById('home-commercial-list') || document.getElementById('usd-body')) {
+        if (document.querySelector('.intl-rates-list')) {
             setInterval(() => {
                 if (document.hidden) return;
                 refreshForexRatesOnly();
-                refreshCompanyRatesOnly();
             }, FOREX_MARKET_REFRESH_INTERVAL_MS);
+        }
+        if (document.getElementById('home-commercial-list') || document.getElementById('usd-body')) {
+            setInterval(() => {
+                if (document.hidden || !shouldRefreshCompanyRatesNow()) return;
+                refreshCompanyRatesOnly();
+            }, COMPANY_RATES_SCHEDULE_CHECK_MS);
         }
 
 

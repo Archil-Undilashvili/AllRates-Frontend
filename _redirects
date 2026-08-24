@@ -2,6 +2,10 @@
 /about.html                 /about                    301!
 /rates.html                 /rates                    301!
 /calculator.html            /calculator               301!
+/loan-calculator.html       /loan-calculator          301!
+/loan-comparison.html       /loan-comparison          301!
+/deposit-calculator.html    /deposit-calculator       301!
+/inflation-calculator.html  /inflation-calculator     301!
 /official.html              /official                 301!
 /articles.html              /articles                 301!
 /contact.html               /contact                  301!
@@ -33,6 +37,10 @@
 /rates                    /rates.html                 200
 /about                    /about.html                 200
 /calculator               /calculator.html            200
+/loan-calculator          /loan-calculator.html       200
+/loan-comparison          /loan-comparison.html       200
+/deposit-calculator       /deposit-calculator.html    200
+/inflation-calculator     /inflation-calculator.html  200
 /official                 /official.html              200
 /articles                 /articles.html              200
 /articles/*               /articles.html              200

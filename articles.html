@@ -9,7 +9,12 @@
     <link rel="apple-touch-icon" href="/favicon-192.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>სტატიები ვალუტის კურსებზე, საბაზრო კურსზე და ფინანსურ ბაზრებზე | AllRates.ge</title>
-    <link rel="stylesheet" href="/css/style.css?v=10">
+    <script>
+      (function() {
+        var prefix = window.location.protocol === 'file:' ? '' : '/';
+        document.write('<link rel="stylesheet" href="' + prefix + 'css/style.css?v=10">');
+      })();
+    </script>
     <meta name="description" content="AllRates.ge-ის სტატიები ვალუტის კურსებზე, დოლარის კურსზე, ევროს კურსზე, საბაზრო კურსზე, სპრედზე, ეროვნული ბანკის ოფიციალურ კურსზე, FOREX-ზე, კრიპტოვალუტებსა და ფინანსურ ბაზრებზე.">
     <link rel="canonical" href="https://allrates.ge/articles">
     <meta name="keywords" content="სტატიები ვალუტის კურსებზე, დოლარის კურსი, ევროს კურსი, საბაზრო კურსი, ვალუტის კურსები დღეს, ეროვნული ბანკის კურსი, ოფიციალური კურსი, forex კურსები, კრიპტოვალუტის ფასები, საწვავის ფასები, ფინანსური ანალიზი, AllRates.ge">
@@ -77,7 +82,12 @@
     <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-KFQ7LLZ9EF');</script>
 </head>
 <body class="articles-body">
-<script src="/js/header.js"></script>
+<script>
+  (function() {
+    var prefix = window.location.protocol === 'file:' ? '' : '/';
+    document.write('<script src="' + prefix + 'js/header.js"><\/script>');
+  })();
+</script>
 <main class="articles-page">
   <section class="articles-grid-view" aria-label="სტატიების ჩამონათვალი">
 
@@ -328,7 +338,12 @@
     </aside>
   </section>
 </main>
-<script src="/js/footer.js?v=4"></script>
+<script>
+  (function() {
+    var prefix = window.location.protocol === 'file:' ? '' : '/';
+    document.write('<script src="' + prefix + 'js/footer.js?v=4"><\/script>');
+  })();
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const gridView = document.querySelector('.articles-grid-view');
@@ -337,16 +352,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const buttons = [...document.querySelectorAll('.article-tile')];
   const articleById = new Map(articles.map(article => [article.dataset.article, article]));
   const articleBySlug = new Map(articles.map(article => [article.dataset.slug, article]));
-  const getArticlePath = article => '/articles/' + article.dataset.slug;
+  const isFilePage = window.location.protocol === 'file:';
+  if (isFilePage) {
+    document.querySelectorAll('img[src^="/Logos/"]').forEach(img => {
+      img.src = img.getAttribute('src').replace(/^\//, '');
+    });
+  }
+  const getArticlePath = article => isFilePage
+    ? window.location.pathname + '#/' + article.dataset.slug
+    : '/articles/' + article.dataset.slug;
   const getCurrentSlug = () => {
+    if (isFilePage) return window.location.hash.replace(/^#\/?/, '');
     const parts = window.location.pathname.split('/').filter(Boolean);
     return parts[0] === 'articles' && parts.length > 1 ? parts[1] : '';
   };
+  const listPath = () => isFilePage ? window.location.pathname : '/articles';
   function showList(shouldScroll = true, shouldPush = false) {
     gridView.hidden = false; openView.hidden = true;
     articles.forEach(article => article.classList.remove('is-active'));
     buttons.forEach(button => { button.classList.remove('is-active'); button.setAttribute('aria-expanded', 'false'); });
-    if (shouldPush) history.pushState({ list: true }, '', '/articles');
+    if (shouldPush) history.pushState({ list: true }, '', listPath());
     if (shouldScroll) gridView.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function openArticle(id, shouldPush = true, shouldScroll = true) {
@@ -369,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialSlug = getCurrentSlug();
   const initialArticle = articleBySlug.get(initialSlug);
   if (initialArticle) openArticle(initialArticle.dataset.article, false, false);
-  else { history.replaceState({ list: true }, '', '/articles'); showList(false, false); }
+  else { history.replaceState({ list: true }, '', listPath()); showList(false, false); }
 });
 </script>
 </body>

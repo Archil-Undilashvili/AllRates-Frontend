@@ -60,10 +60,20 @@ document.write(`
                 </svg>
                 საწვავის ფასები
             </a>
-            <a href="${getPreviewHref('/calculator')}" class="nav-link" data-page="calculator">
-                <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M8 7h8"></path><path d="M8 11h.01"></path><path d="M12 11h.01"></path><path d="M16 11h.01"></path><path d="M8 15h.01"></path><path d="M12 15h.01"></path><path d="M16 15h.01"></path></svg>
-                კონვერტაციის კალკულატორი
-            </a>
+            <div class="nav-dropdown nav-calculators">
+                <button class="nav-link nav-dropdown-toggle" type="button" data-page="calculators" aria-expanded="false">
+                    <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M8 7h8"></path><path d="M8 11h.01"></path><path d="M12 11h.01"></path><path d="M16 11h.01"></path><path d="M8 15h.01"></path><path d="M12 15h.01"></path><path d="M16 15h.01"></path></svg>
+                    კალკულატორები
+                    <svg class="nav-dropdown-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"></path></svg>
+                </button>
+                <div class="nav-dropdown-menu" role="menu">
+                    <a href="${getPreviewHref('/calculator')}" class="nav-dropdown-item" data-page="calculator" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6z"></path><path d="M9 8h6"></path><path d="M9 12h.01"></path><path d="M12 12h.01"></path><path d="M15 12h.01"></path><path d="M9 16h6"></path></svg>კონვერტაციის კალკულატორი</a>
+                    <a href="${getPreviewHref('/loan-calculator')}" class="nav-dropdown-item" data-page="loan-calculator" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"></path><path d="M6 18V9l6-4 6 4v9"></path><path d="M9 18v-6h6v6"></path></svg>სესხის კალკულატორი</a>
+                    <a href="${getPreviewHref('/loan-comparison')}" class="nav-dropdown-item" data-page="loan-comparison" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V8"></path><path d="M12 19V5"></path><path d="M19 19v-9"></path><path d="M3 19h18"></path></svg>სესხების შედარება</a>
+                    <a href="${getPreviewHref('/deposit-calculator')}" class="nav-dropdown-item" data-page="deposit-calculator" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v10H4z"></path><path d="M7 8V6h10v2"></path><path d="M12 11v4"></path><path d="M10 13h4"></path></svg>დეპოზიტის კალკულატორი</a>
+                    <a href="${getPreviewHref('/inflation-calculator')}" class="nav-dropdown-item" data-page="inflation-calculator" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"></path><path d="M7 15l4-4 3 3 5-7"></path><path d="M16 7h3v3"></path></svg>ინფლაციის კალკულატორი</a>
+                </div>
+            </div>
             <a href="${getPreviewHref('/official')}" class="nav-link nav-link-with-note" data-page="official">
                 <img src="${assetRoot}Logos/nbg_logo_cropped.png" alt="" class="nav-link-logo">
                 ოფიციალური კურსები <span class="nav-download-note">ჩამოტვირთე <i aria-hidden="true">XLS</i></span>
@@ -87,11 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const pathSegments = window.location.pathname.split('/').filter(Boolean);
     const pathPart = pathSegments[0] === 'articles' ? 'articles' : (pathSegments.pop() || 'index');
     const page = pathPart.replace('.html', '') || 'index';
-    document.querySelectorAll('.nav-link').forEach(link => {
+    document.querySelectorAll('.nav-link, .nav-dropdown-item').forEach(link => {
         if (link.getAttribute('data-page') === page) {
             link.classList.add('active');
         }
     });
+    if (page === 'calculator' || page === 'loan-calculator' || page === 'loan-comparison' || page === 'deposit-calculator' || page === 'inflation-calculator') {
+        document.querySelector('.nav-dropdown-toggle[data-page="calculators"]')?.classList.add('active');
+    }
 
     const toggle = document.querySelector('.mobile-menu-toggle');
     const links = document.getElementById('site-nav-links');
@@ -109,8 +122,23 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.setAttribute('aria-expanded', String(isOpen));
     });
 
+    document.querySelectorAll('.nav-dropdown-toggle').forEach(dropdownToggle => {
+        dropdownToggle.addEventListener('click', event => {
+            event.stopPropagation();
+            const dropdown = dropdownToggle.closest('.nav-dropdown');
+            const isOpen = dropdown?.classList.toggle('open');
+            dropdownToggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+        });
+    });
+
     links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
     document.addEventListener('click', event => {
+        document.querySelectorAll('.nav-dropdown.open').forEach(dropdown => {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('open');
+                dropdown.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+            }
+        });
         if (!event.target.closest('.site-nav')) closeMenu();
     });
 });

@@ -20,6 +20,10 @@ document.write(`
                 <li><a href="${getFooterHref('/rates')}">შეადარე კურსები</a></li>
                 <li><a href="${getFooterHref('/sawvavis-fasebi')}">საწვავის ფასები</a></li>
                 <li><a href="${getFooterHref('/calculator')}">კონვერტაციის კალკულატორი</a></li>
+                <li><a href="${getFooterHref('/loan-calculator')}">სესხის კალკულატორი</a></li>
+                <li><a href="${getFooterHref('/loan-comparison')}">სესხების შედარება</a></li>
+                <li><a href="${getFooterHref('/deposit-calculator')}">დეპოზიტის კალკულატორი</a></li>
+                <li><a href="${getFooterHref('/inflation-calculator')}">ინფლაციის კალკულატორი</a></li>
                 <li><a href="${getFooterHref('/official')}">ოფიციალური კურსები</a></li>
                 <li><a href="${getFooterHref('/articles')}">სტატიები</a></li>
                 <li><a href="${getFooterHref('/#faq')}">FAQ</a></li>
@@ -30,13 +34,10 @@ document.write(`
         <div class="allrates-footer-column">
             <h4>პოპულარული გვერდები</h4>
             <ul>
-                <li><a href="${getFooterHref('/valutis-kursi')}">ვალუტის კურსი</a></li>
-                <li><a href="${getFooterHref('/dolaris-kursi')}">დოლარის კურსი</a></li>
-                <li><a href="${getFooterHref('/evros-kursi')}">ევროს კურსი</a></li>
-                <li><a href="${getFooterHref('/laris-kursi')}">ლარის კურსი</a></li>
-                <li><a href="${getFooterHref('/valutis-gacvla')}">ვალუტის გაცვლა</a></li>
-                <li><a href="${getFooterHref('/bitcoinis-fasi')}">ბიტკოინის ფასი</a></li>
-                <li><a href="${getFooterHref('/valutis-kursebi-dges')}">NBG სტატისტიკა</a></li>
+                <li><a href="${getFooterHref('/rates')}">შეადარე კურსები</a></li>
+                <li><a href="${getFooterHref('/sawvavis-fasebi')}">საწვავის ფასები</a></li>
+                <li><a href="${getFooterHref('/loan-calculator')}">სესხის კალკულატორი</a></li>
+                <li><a href="${getFooterHref('/articles')}">სტატიები</a></li>
             </ul>
         </div>
 

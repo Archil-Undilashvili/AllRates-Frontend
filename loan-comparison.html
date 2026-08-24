@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>სესხების შედარება | AllRates.ge</title>
+    <meta name="description" content="სესხების შედარების კალკულატორი ფიქსირებული და ცვლადი პროცენტით, თვიური გადასახადის, ჯამური გადახდისა და ეფექტური პროცენტის შედარებით.">
+    <link rel="canonical" href="https://allrates.ge/loan-comparison">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loan-calculator-body">
+<script src="js/header.js"></script>
+
+<main class="loan-calculator-page loan-comparison-page">
+    <section class="loan-shell" aria-labelledby="loan-comparison-title">
+        <div class="loan-header">
+            <h1 id="loan-comparison-title">სესხების შედარება</h1>
+            <button type="button" class="loan-add-btn" id="add-loan-btn">+ სესხის დამატება</button>
+        </div>
+
+        <form id="loan-comparison-form" class="loan-comparison-form">
+            <div class="loan-comparison-grid" id="loan-comparison-grid"></div>
+            <button type="submit" class="loan-compare-submit">შედარების გენერირება</button>
+        </form>
+
+        <section class="loan-comparison-results" id="loan-comparison-results" hidden aria-live="polite">
+            <div class="loan-comparison-result-grid" id="loan-comparison-result-grid"></div>
+        </section>
+
+        <section class="loan-chart-card loan-comparison-chart-card" id="loan-comparison-chart-card" hidden>
+            <div class="loan-chart-head">
+                <div>
+                    <h2>სესხების შედარებითი გრაფიკი</h2>
+                </div>
+                <div class="loan-chart-legend" aria-label="გრაფიკის განმარტება">
+                    <span><i class="principal"></i>ძირი</span>
+                    <span><i class="interest"></i>პროცენტი</span>
+                    <span><i class="balance"></i>სრული გადახდა</span>
+                </div>
+            </div>
+            <canvas id="loan-comparison-chart" width="1200" height="430" aria-label="სესხების შედარების გრაფიკი"></canvas>
+        </section>
+    </section>
+</main>
+
+<script src="js/loan-comparison.js"></script>
+</body>
+</html>

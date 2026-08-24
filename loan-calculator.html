@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="shortcut icon" href="/favicon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>სესხის კალკულატორი | AllRates.ge</title>
+    <meta name="description" content="სესხის კალკულატორი თვიური გადასახადის, პროცენტის, ძირის დაფარვისა და დარჩენილი ბალანსის დეტალური გრაფიკით.">
+    <link rel="canonical" href="https://allrates.ge/loan-calculator">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loan-calculator-body">
+<script src="js/header.js"></script>
+
+<main class="loan-calculator-page">
+    <section class="loan-shell" aria-labelledby="loan-calculator-title">
+        <div class="loan-header">
+            <h1 id="loan-calculator-title">სესხის კალკულატორი</h1>
+        </div>
+
+        <form class="loan-form" id="loan-form">
+            <label>
+                <span>სესხის თანხა</span>
+                <input type="number" id="loan-amount" min="0" step="any" inputmode="decimal" value="100000" required>
+            </label>
+            <label>
+                <span>ვადა თვეებში</span>
+                <input type="number" id="loan-term" min="1" max="480" step="1" value="120" required>
+            </label>
+            <label>
+                <span>სესხის პროცენტი წლიური</span>
+                <input type="number" id="loan-rate" min="0" max="100" step="0.01" value="12" required>
+            </label>
+            <label>
+                <span>პროცენტის ტიპი</span>
+                <select id="loan-rate-type">
+                    <option value="fixed">ფიქსირებული</option>
+                    <option value="variable">ცვლადი</option>
+                </select>
+            </label>
+            <label>
+                <span>გადახდის ტიპი</span>
+                <select id="loan-method">
+                    <option value="annuity">ანუიტეტი</option>
+                    <option value="equal-principal">თანაბარი ძირი</option>
+                </select>
+            </label>
+            <label>
+                <span>პირველი გადახდის თარიღი</span>
+                <input type="date" id="loan-start">
+            </label>
+            <button type="submit">გრაფიკის გენერირება</button>
+        </form>
+
+        <section class="loan-summary" id="loan-summary" hidden aria-live="polite">
+            <article>
+                <span>საწყისი თვიური გადახდა</span>
+                <strong id="summary-payment">-</strong>
+            </article>
+            <article>
+                <span>სულ პროცენტი</span>
+                <strong id="summary-interest">-</strong>
+            </article>
+            <article>
+                <span>სრული გადახდა</span>
+                <strong id="summary-total">-</strong>
+            </article>
+            <article>
+                <span>ეფექტური პროცენტი</span>
+                <strong id="summary-effective-rate">-</strong>
+            </article>
+        </section>
+
+        <section class="loan-chart-card" id="loan-chart-card" hidden>
+            <div class="loan-chart-head">
+                <div>
+                    <h2>გადახდის გრაფიკი</h2>
+                </div>
+                <div class="loan-chart-legend" aria-label="გრაფიკის განმარტება">
+                    <span><i class="principal"></i>ძირი</span>
+                    <span><i class="interest"></i>პროცენტი</span>
+                    <span><i class="balance"></i>ბალანსი</span>
+                </div>
+            </div>
+            <canvas id="loan-chart" width="1200" height="430" aria-label="სესხის გადახდის გრაფიკი"></canvas>
+        </section>
+
+        <section class="loan-table-card" id="loan-table-card" hidden>
+            <div class="loan-table-head">
+                <h2>ამორტიზაციის ცხრილი</h2>
+                <button type="button" class="loan-export-btn" id="loan-export-btn">
+                    <span>ჩამოტვირთვა</span>
+                    <i aria-hidden="true">XLS</i>
+                </button>
+            </div>
+            <div class="loan-table-wrap">
+                <table class="loan-table">
+                    <thead>
+                        <tr>
+                            <th>თვე</th>
+                            <th>თარიღი</th>
+                            <th>საწყისი ბალანსი</th>
+                            <th>ძირი</th>
+                            <th>პროცენტი</th>
+                            <th>წლიური %</th>
+                            <th>ძირის დაფარვა</th>
+                            <th>ჯამური გადახდა</th>
+                            <th>დარჩენილი ბალანსი</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loan-schedule-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="js/loan-calculator.js"></script>
+</body>
+</html>
