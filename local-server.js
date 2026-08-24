@@ -54,6 +54,11 @@ http.createServer((req, res) => {
     return;
   }
 
+  if (routePath.startsWith('/articles/')) {
+    serveFile(res, path.join(root, 'articles.html'));
+    return;
+  }
+
   const directFile = path.join(root, requested === '/' ? 'index.html' : requested.slice(1));
   if (fs.existsSync(directFile) && fs.statSync(directFile).isFile()) {
     serveFile(res, directFile);

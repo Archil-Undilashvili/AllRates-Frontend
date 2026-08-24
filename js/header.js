@@ -1,4 +1,5 @@
 const isLocalPreview = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+const assetRoot = window.location.protocol === 'file:' ? '' : '/';
 
 function getPreviewHref(path) {
     if (!isLocalPreview) return path;
@@ -64,8 +65,12 @@ document.write(`
                 კონვერტაციის კალკულატორი
             </a>
             <a href="${getPreviewHref('/official')}" class="nav-link nav-link-with-note" data-page="official">
-                <img src="Logos/nbg_logo_cropped.png" alt="" class="nav-link-logo">
+                <img src="${assetRoot}Logos/nbg_logo_cropped.png" alt="" class="nav-link-logo">
                 ოფიციალური კურსები <span class="nav-download-note">ჩამოტვირთე <i aria-hidden="true">XLS</i></span>
+            </a>
+            <a href="${getPreviewHref('/articles')}" class="nav-link" data-page="articles">
+                <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5z"></path><path d="M15 4v5h5"></path><path d="M8 12h8"></path><path d="M8 16h8"></path><path d="M8 8h4"></path></svg>
+                სტატიები
             </a>
             <a href="${getPreviewHref('/contact')}" class="nav-link" data-page="contact">
                 <svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"></path><path d="m4 7 8 6 8-6"></path></svg>
@@ -75,11 +80,12 @@ document.write(`
         </div>
     </nav>
 </div>
-<script src="js/auth.js?v=3"></script>
+<script src="${assetRoot}js/auth.js?v=3"></script>
 `);
 
 document.addEventListener('DOMContentLoaded', () => {
-    const pathPart = window.location.pathname.split('/').filter(Boolean).pop() || 'index';
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const pathPart = pathSegments[0] === 'articles' ? 'articles' : (pathSegments.pop() || 'index');
     const page = pathPart.replace('.html', '') || 'index';
     document.querySelectorAll('.nav-link').forEach(link => {
         if (link.getAttribute('data-page') === page) {

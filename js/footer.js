@@ -21,6 +21,7 @@ document.write(`
                 <li><a href="${getFooterHref('/sawvavis-fasebi')}">საწვავის ფასები</a></li>
                 <li><a href="${getFooterHref('/calculator')}">კონვერტაციის კალკულატორი</a></li>
                 <li><a href="${getFooterHref('/official')}">ოფიციალური კურსები</a></li>
+                <li><a href="${getFooterHref('/articles')}">სტატიები</a></li>
                 <li><a href="${getFooterHref('/#faq')}">FAQ</a></li>
                 <li><a href="${getFooterHref('/contact')}">კონტაქტი</a></li>
             </ul>

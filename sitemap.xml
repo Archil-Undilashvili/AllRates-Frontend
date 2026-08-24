@@ -31,6 +31,54 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://allrates.ge/articles</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/dolaris-dasusteba-bitcoin-oqro</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/rogor-dgindeba-usdgel-eurgel-kursi</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/sawvavis-fasis-sashualo-ghirebuleba</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/coinbase-usdgel-100jer-acdenili-kursi</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/ratom-icvleba-kursi-dgis-ganmavlobashi</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/fomo-martva-gadawyvetilebamde-pauza</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/fed-rate-gavlena-bazrebze</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+  <url>
     <loc>https://allrates.ge/valutis-kursebi-dges</loc>
     <lastmod>2026-05-12</lastmod>
     <changefreq>daily</changefreq>

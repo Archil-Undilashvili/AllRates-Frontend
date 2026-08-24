@@ -305,7 +305,7 @@
                 </div>
                 <div>
                     <button id="exportBtn" style="background: var(--primary); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 14px; transition: opacity 0.2s;">
-                        ექსპორტი
+                        იმპორტი
                     </button>
                 </div>
             </div>
@@ -596,10 +596,10 @@
                 XLSX.writeFile(workbook, `NBG_${currency}_${fromDateStr}_to_${toDateStr}.xlsx`);
                 
                 statusEl.style.color = '#10b981';
-                statusEl.innerText = "ექსპორტი წარმატებით დასრულდა!";
+                statusEl.innerText = "იმპორტი წარმატებით დასრულდა!";
             } catch (e) {
                 statusEl.style.color = '#ef4444';
-                statusEl.innerText = "შეცდომა ექსპორტის დროს.";
+                statusEl.innerText = "შეცდომა იმპორტის დროს.";
             }
 
             btn.disabled = false;

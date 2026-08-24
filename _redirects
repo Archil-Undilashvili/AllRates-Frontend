@@ -3,6 +3,7 @@
 /rates.html                 /rates                    301!
 /calculator.html            /calculator               301!
 /official.html              /official                 301!
+/articles.html              /articles                 301!
 /contact.html               /contact                  301!
 /api.html                   /api                      301!
 /admin.html                 /admin                    301!
@@ -33,6 +34,8 @@
 /about                    /about.html                 200
 /calculator               /calculator.html            200
 /official                 /official.html              200
+/articles                 /articles.html              200
+/articles/*               /articles.html              200
 /contact                  /contact.html               200
 /api                      /api.html                   200
 /admin                    /admin.html                 200
