@@ -56,9 +56,15 @@
   </url>
   <url>
     <loc>https://allrates.ge/articles</loc>
-    <lastmod>2026-08-24</lastmod>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/jackson-hole-dolaris-kursi</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
   </url>
   <url>
     <loc>https://allrates.ge/articles/dolaris-dasusteba-bitcoin-oqro</loc>
