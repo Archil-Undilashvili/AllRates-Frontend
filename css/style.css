@@ -7112,13 +7112,54 @@ body.articles-body {
     font-weight: 500;
 }
 
-.articles-body .article-reader-body ul {
+.articles-body .article-reader-body h2 {
+    margin: 34px 0 14px;
+    color: #252b33;
+    font-size: 1.45rem;
+    line-height: 1.35;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.articles-body .article-reader-body h3 {
+    margin: 26px 0 10px;
+    color: #2f343b;
+    font-size: 1.16rem;
+    line-height: 1.45;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.articles-body .article-reader-body ul,
+.articles-body .article-reader-body ol {
     margin: 0 0 18px;
     padding-left: 24px;
     color: #424953;
     font-size: 1.04rem;
     line-height: 1.85;
     font-weight: 500;
+}
+
+.articles-body .article-reader-chart {
+    margin: 28px 0 32px;
+}
+
+.articles-body .article-reader-chart img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid #d9dee7;
+    border-radius: 2px;
+    background: #eef2f7;
+}
+
+.articles-body .article-reader-chart figcaption {
+    margin-top: 8px;
+    color: #707986;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    font-weight: 600;
 }
 
 .articles-body .article-reader-body a {
