@@ -128,12 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function redirectToDashboardOnFirstLoggedInLoad() {
-        const token = getStoredToken();
-        const redirectKey = "allrates_logged_in_initial_page_done";
-        if (!token || !isHomePage() || sessionStorage.getItem(redirectKey)) return;
-
-        sessionStorage.setItem(redirectKey, "1");
-        window.location.href = getAuthHref("/create-dashboard");
+        return;
     }
 
     function saveSession(data, remember = true) {
@@ -221,10 +216,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button type="button" class="profile-menu-item profile-email-item">${displayEmail}</button>
                 <a href="${getAuthHref("/create-dashboard")}" class="profile-menu-item profile-dashboard-link">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"></rect>
-                        <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                        <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+                        <path d="M4 22h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
                     </svg>
-                    <span>შექმენი დეშბორდი</span>
+                    <span>შენი Watch List</span>
                 </a>
                 <button type="button" class="profile-menu-item">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">

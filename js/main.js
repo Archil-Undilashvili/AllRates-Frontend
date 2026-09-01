@@ -71,7 +71,12 @@ const FOREX_TICK_MIN_MS = 1000;
 const FOREX_TICK_MAX_MS = 70000;
 const CRYPTO_MARKET_CAP_CACHE_KEY = 'cachedCryptoMarketCaps_v1';
 const CRYPTO_MARKET_CAP_TTL_MS = 5 * 60 * 1000;
+const CRYPTO_WATCHLIST_CHANNEL = 'allrates_crypto_prices_v1';
+const CRYPTO_LIVE_CACHE_KEY = 'allrates_crypto_live_map_v1';
 const forexTickTimers = new Map();
+const cryptoWatchlistChannel = typeof BroadcastChannel !== 'undefined'
+    ? new BroadcastChannel(CRYPTO_WATCHLIST_CHANNEL)
+    : null;
 
 function getTbilisiScheduleParts(date = new Date()) {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -1330,9 +1335,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 return `<span class="${className}">${sign}${value.toFixed(2)}%</span>`;
             })();
 
-            setInnerText(`home-${currency}-market-buy`, stats.avgBuy.toFixed(4));
-            setInnerText(`home-${currency}-market-sell`, stats.avgSell.toFixed(4));
-            setInnerText(`home-${currency}-market-spread`, stats.avgSpread.toFixed(4));
+            setInnerText(`home-${currency}-market-buy`, stats.avgBuy.toFixed(3));
+            setInnerText(`home-${currency}-market-sell`, stats.avgSell.toFixed(3));
+            setInnerText(`home-${currency}-market-spread`, stats.avgSpread.toFixed(3));
             setInnerHTML(`home-${currency}-market-change`, change);
             return true;
         }
@@ -1721,6 +1726,27 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
             return num.toFixed(1);
         }
 
+        function publishCryptoCache(cryptoData) {
+            const updatedAt = Date.now();
+            const liveMap = {};
+            cryptoData.forEach(item => {
+                const symbol = String(item.symbol || '').toUpperCase();
+                if (!symbol) return;
+                liveMap[symbol] = {
+                    symbol,
+                    name: item.name || '',
+                    price: item.price || '',
+                    change: item.change || '',
+                    logo: item.logo || '',
+                    updatedAt
+                };
+            });
+            localStorage.setItem('cachedCryptoData', JSON.stringify(cryptoData));
+            localStorage.setItem(CRYPTO_LIVE_CACHE_KEY, JSON.stringify({ updatedAt, items: liveMap }));
+            localStorage.setItem('cachedCryptoData_updatedAt', String(updatedAt));
+            cryptoWatchlistChannel?.postMessage({ type: 'crypto:update', data: cryptoData, liveMap, updatedAt });
+        }
+
         async function fetchCrypto() {
             try {
                 const [res, marketCaps] = await Promise.all([
@@ -1771,7 +1797,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                         });
 
                 renderCryptoList(cryptoData);
-                localStorage.setItem('cachedCryptoData', JSON.stringify(cryptoData));
+                publishCryptoCache(cryptoData);
             } catch (err) {
                 console.error("კრიპტოს ჩატვირთვის შეცდომა:", err);
             }
@@ -3646,9 +3672,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         initForexRateLinks();
         fetchRates();     // Fetch fresh numbers silently
         if (document.getElementById('crypto-rates-list')) {
-            setInterval(() => {
-                if (!document.hidden) fetchCrypto();
-            }, CRYPTO_REFRESH_INTERVAL_MS);
+            setInterval(fetchCrypto, CRYPTO_REFRESH_INTERVAL_MS);
         }
         if (document.querySelector('.intl-rates-list')) {
             setInterval(() => {

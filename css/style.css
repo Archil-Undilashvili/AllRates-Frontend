@@ -5674,6 +5674,79 @@ th.sortable.active-sort .sort-icon {
 }
 
 
+/* Collapse the dense desktop navigation before it can overflow. */
+@media (max-width: 1380px) {
+    .mobile-menu-toggle {
+        display: flex;
+        margin-left: auto;
+    }
+
+    .site-nav-links {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: min(86vw, 340px);
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        margin-left: 0;
+        padding: 12px;
+        background: rgba(30, 41, 59, 0.98);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(10px);
+    }
+
+    .site-nav-links.open {
+        display: flex;
+    }
+
+    .site-nav-links > .nav-link,
+    .site-nav-links > .nav-dropdown,
+    .site-nav-links > .nav-dropdown-toggle,
+    .site-nav-links > .auth-nav-btn,
+    .site-nav-links > .auth-user-badge {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(51, 65, 85, 0.9);
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .site-nav-links > .nav-dropdown {
+        display: block;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .site-nav-links .nav-dropdown-toggle {
+        justify-content: flex-start;
+    }
+
+    .site-nav-links .nav-dropdown-menu {
+        position: static;
+        min-width: 0;
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+        display: none;
+        margin-top: 6px;
+        background: rgba(2, 6, 23, 0.55);
+        box-shadow: none;
+    }
+
+    .site-nav-links .nav-dropdown.open .nav-dropdown-menu {
+        display: block;
+        transform: none;
+    }
+}
+
 /* Mobile Optimization - High Quality */
 @media (max-width: 768px) {
     body {
@@ -5700,6 +5773,9 @@ th.sortable.active-sort .sort-icon {
     }
 
     .site-brand {
+        flex: 0 1 auto;
+        align-items: flex-start;
+        max-width: calc(100% - 54px);
         margin-right: 0;
     }
 
@@ -5713,6 +5789,7 @@ th.sortable.active-sort .sort-icon {
 
     .site-brand-tagline {
         font-size: clamp(6.5px, 1.85vw, 8px);
+        width: auto;
         max-width: none;
         overflow: visible;
         text-overflow: clip;
@@ -7173,6 +7250,33 @@ body.articles-body {
     font-weight: 900;
 }
 
+.articles-body .article-reader-body table {
+    width: 100%;
+    margin: 24px 0 28px;
+    border-collapse: collapse;
+    border: 1px solid #d9dee7;
+    background: #ffffff;
+    color: #424953;
+    font-size: 1rem;
+}
+
+.articles-body .article-reader-body th,
+.articles-body .article-reader-body td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e4e8ee;
+    text-align: left;
+}
+
+.articles-body .article-reader-body th {
+    background: #f3f6f9;
+    color: #252b33;
+    font-weight: 900;
+}
+
+.articles-body .article-reader-body tbody tr:last-child td {
+    border-bottom: 0;
+}
+
 .articles-body .articles-related-grid {
     position: sticky;
     top: 92px;
@@ -7282,6 +7386,15 @@ body.articles-body {
     .articles-body .article-reader-body ul {
         font-size: 0.98rem;
         line-height: 1.8;
+    }
+
+    .articles-body .article-reader-body table {
+        font-size: 0.94rem;
+    }
+
+    .articles-body .article-reader-body th,
+    .articles-body .article-reader-body td {
+        padding: 10px 12px;
     }
 
     .articles-body .articles-related-grid {
@@ -7974,5 +8087,1685 @@ body.articles-body {
     .loan-variable-fields {
         grid-column: 1;
         grid-template-columns: 1fr;
+    }
+}
+/* User side watchlist */
+.user-side-body {
+    background: #ffffff;
+    color: #172033;
+}
+
+.user-side-page {
+    width: min(1480px, calc(100% - 36px));
+    margin: 22px auto 52px;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.user-side-page *,
+.user-side-page *::before,
+.user-side-page *::after {
+    box-sizing: border-box;
+}
+
+.user-side-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.user-side-tabs {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 6px;
+    padding: 5px;
+    border: 1px solid #dbe2ec;
+    border-radius: 999px;
+    background: #f8fafc;
+}
+
+.user-side-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 180px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.user-side-tab svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.user-side-tab.active {
+    background: #172033;
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.13);
+}
+
+.user-watchlist-panel {
+    display: grid;
+    grid-template-columns: minmax(700px, 800px) 1fr;
+    gap: 10px;
+    align-items: start;
+    margin-top: 14px;
+}
+
+.user-watchlist-panel[hidden],
+.user-calendar-panel[hidden],
+.watch-search-area[hidden] {
+    display: none !important;
+}
+
+.watch-category-row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+    align-items: stretch;
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+.watch-category-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    height: 42px;
+    border: 1px solid #d7e0eb;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #344256;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.watch-category-btn svg,
+.watch-category-btn img {
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+}
+
+.watch-category-btn img {
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.watch-category-btn svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-category-btn .watch-assets-icon {
+    stroke: currentColor;
+    stroke-width: 2.4;
+}
+
+.watch-category-btn span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.watch-category-btn:hover,
+.watch-category-btn.active {
+    background: #eaf4ff;
+    border-color: #9cc7eb;
+    color: #11659d;
+}
+
+.watch-search-area {
+    position: relative;
+    flex: 0 1 560px;
+    width: min(560px, 100%);
+    margin: 0 0 0 auto;
+}
+
+.watch-search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid #ccd8e7;
+    border-radius: 17px;
+    background: linear-gradient(180deg, #f1f5f9 0%, #eef3f8 100%);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+}
+
+.watch-search-box svg {
+    width: 20px;
+    height: 20px;
+    stroke: #8fa0b6;
+    fill: none;
+    stroke-width: 2;
+}
+
+.watch-search-box input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #162033;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.watch-search-dropdown {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(580px, calc(100vw - 36px));
+    max-height: 440px;
+    overflow: auto;
+    padding: 8px;
+    border: 1px solid #ccd8e7;
+    border-radius: 18px;
+    background: #edf3f8;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.watch-search-dropdown .watch-result-row {
+    grid-template-columns: 46px minmax(118px, 1fr) 166px 76px 56px 34px;
+    gap: 10px;
+    min-height: 76px;
+    border-color: #cbd8e8;
+    background: #f8fbff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.watch-search-dropdown .watch-company-updated {
+    display: inline-flex;
+    font-size: 11px;
+    gap: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watch-search-dropdown .watch-mini-values {
+    grid-template-columns: repeat(3, minmax(52px, 1fr));
+    gap: 6px;
+}
+
+.watch-search-dropdown .watch-rate-stack b,
+.watch-search-dropdown .watch-result-value {
+    font-size: 16px;
+}
+
+.watch-search-dropdown .watch-rate-stack.watch-rate-spread b {
+    font-size: 13px;
+}
+
+.watch-search-dropdown .watch-change {
+    justify-self: end;
+    text-align: right;
+    max-width: 54px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watch-result-row,
+.watchlist-card {
+    display: grid;
+    grid-template-columns: 50px minmax(150px, 1fr) 220px 88px 68px 38px;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    min-height: 72px;
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid #dce3ed;
+    border-radius: 16px;
+    background: #ffffff;
+    color: #1e293b;
+    text-align: left;
+    overflow: visible;
+}
+
+.watch-result-row + .watch-result-row,
+.watchlist-entry + .watchlist-entry {
+    margin-top: 8px;
+}
+
+.watch-result-row {
+    cursor: pointer;
+    background: #fbfdff;
+}
+
+.watch-result-row:hover {
+    background: #eef6fd;
+}
+
+.watch-logo {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #fff;
+    color: #64748b;
+    font-weight: 800;
+    overflow: hidden;
+}
+
+.watch-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 5px;
+}
+
+.watch-logo-duo {
+    overflow: visible;
+    background: #ffffff;
+}
+
+.watch-logo-duo .watch-forex-stack {
+    min-width: 44px;
+    flex-basis: 44px;
+}
+
+.watch-logo-duo .watch-forex-stack img {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.watch-logo-duo .watch-forex-stack img + img {
+    margin-left: -10px;
+}
+
+.watch-result-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.watch-result-copy strong {
+    color: #162033;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watch-result-copy small {
+    color: #8794a8;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.25;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.watch-result-value {
+    justify-self: start;
+    min-width: 0;
+    color: #172033;
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.watch-result-value > b {
+    font-size: inherit;
+    line-height: 1;
+}
+
+.watch-mini-values {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(58px, 1fr));
+    gap: 8px;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+}
+
+.watch-rate-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.watch-rate-stack small {
+    color: #9aa6b7;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.watch-rate-stack b {
+    font-size: 18px;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.watch-rate-buy b {
+    color: #19956b;
+}
+
+.watch-rate-sell b {
+    color: #d25555;
+}
+
+.watch-rate-spread b {
+    font-size: 14px;
+    color: #667085;
+    font-weight: 700;
+}
+
+.watch-company-updated {
+    justify-self: start;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #7b8797;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.watch-company-updated svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-company-header {
+    display: grid;
+    grid-template-columns: 50px minmax(150px, 1fr) 220px 88px 68px 38px;
+    gap: 10px;
+    align-items: center;
+    padding: 2px 12px 8px;
+    color: #8b98aa;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.watch-company-header b {
+    justify-self: end;
+}
+
+.watch-company-header-values {
+    justify-self: start;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(58px, 1fr));
+    gap: 8px;
+    text-align: left;
+    width: 100%;
+}
+
+.watch-company-header-values b {
+    justify-self: start;
+}
+
+.watch-company-header svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-change {
+    justify-self: start;
+    min-width: 0;
+    color: #96a2b2;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.watch-change.positive {
+    color: #19956b;
+}
+
+.watch-change.negative {
+    color: #d25555;
+}
+
+.watch-star {
+    justify-self: center;
+    color: transparent;
+    -webkit-text-stroke: 1.5px #a7b3c4;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.watch-star.active {
+    color: #f5bf2f;
+    -webkit-text-stroke: 1px #d99f00;
+}
+
+.watchlist-wrap {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 0;
+    width: 100%;
+    padding: 18px;
+    border: 1px solid #dbe2ec;
+    border-radius: 22px;
+    background: #ffffff;
+    overflow: visible;
+}
+
+.watchlist-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.watchlist-head h1 {
+    margin: 0;
+    color: #172033;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+#watchSaveStatus {
+    min-height: 18px;
+    color: #8794a8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.watchlist-items {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+}
+
+.watchlist-entry {
+    position: relative;
+    overflow: visible;
+}
+
+.watchlist-card {
+    grid-template-columns: 18px 46px 185px 204px 74px 70px 82px;
+    gap: 10px;
+    height: 82px;
+    min-height: 82px;
+    padding: 10px 14px;
+    background: #f3f6fa;
+    cursor: grab;
+}
+
+.watchlist-card .watch-logo {
+    width: 42px;
+    height: 42px;
+}
+
+.watchlist-card .watch-result-copy strong {
+    font-size: 16px;
+}
+
+.watchlist-card .watch-result-copy small {
+    font-size: 13px;
+}
+
+.watchlist-card .watch-mini-values {
+    grid-template-columns: 60px 60px 42px;
+    gap: 22px;
+}
+
+.watchlist-card .watch-rate-stack small {
+    font-size: 10px;
+}
+
+.watchlist-card .watch-rate-stack b {
+    font-size: 18px;
+}
+
+.watchlist-card .watch-rate-stack.watch-rate-spread b {
+    font-size: 14px;
+}
+
+.watchlist-card .watch-result-value {
+    font-size: 18px;
+}
+
+.watchlist-card .watch-company-updated,
+.watchlist-card .watch-change {
+    font-size: 13px;
+}
+
+.watchlist-card.dragging {
+    opacity: 0.55;
+}
+
+.watchlist-card-flash {
+    animation: watchlistWhiteFlash 1.05s ease-out;
+}
+
+@keyframes watchlistWhiteFlash {
+    0% {
+        background: #ffffff;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.98), 0 0 0 7px rgba(255, 255, 255, 0.78), 0 16px 34px rgba(148, 163, 184, 0.2);
+    }
+    45% {
+        background: #ffffff;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.95), 0 0 0 4px rgba(255, 255, 255, 0.62), 0 12px 28px rgba(148, 163, 184, 0.16);
+    }
+    100% {
+        background: #f3f6fa;
+        box-shadow: none;
+    }
+}
+
+.watch-drag {
+    color: #a3afbf;
+    font-size: 15px;
+    letter-spacing: -2px;
+}
+
+.watch-options {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-self: center;
+    z-index: 5;
+    margin-right: 2px;
+}
+
+.watch-options-btn {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 34px;
+    border: 1px solid #d6dee9;
+    border-radius: 12px;
+    background: #fff;
+    color: #8090a4;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.watch-options-menu {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    padding: 6px;
+    min-width: 190px;
+    border: 1px solid #dce3ed;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.13);
+    z-index: 30;
+}
+
+.watch-options.open .watch-options-menu {
+    display: block;
+}
+
+.watch-options-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 34px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #344256;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.watch-options-menu button:hover:not(:disabled) {
+    background: #eef6fd;
+    color: #11659d;
+}
+
+.watch-options-menu button.danger {
+    color: #d25555;
+}
+
+.watch-options-menu button.danger:hover {
+    background: #fff1f2;
+}
+
+.watch-options-menu button:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
+
+.watch-options-menu svg {
+    flex: 0 0 auto;
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-alert-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: calc(100% - 6px);
+    max-width: calc(100% - 6px);
+    margin: 7px 0 2px 6px;
+    padding: 8px;
+    border: 1px solid #f4bf72;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #fff7e8 0%, #fff0d6 100%);
+    box-shadow: 0 12px 28px rgba(181, 112, 24, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.watch-alert-builder {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+}
+
+.watch-alert-side {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 32px;
+    border: 1px solid #d5deeb;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #344256;
+    font-size: 11px;
+    font-weight: 800;
+    outline: 0;
+    padding: 0 8px;
+}
+
+.watch-alert-side:focus {
+    border-color: #9cc7eb;
+    box-shadow: 0 0 0 3px rgba(156, 199, 235, 0.26);
+}
+
+.watch-alert-actions {
+    display: inline-flex;
+    align-items: center;
+    flex: 1 1 390px;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid #f2ca8b;
+    border-radius: 999px;
+    background: #fffaf0;
+    min-width: 0;
+}
+
+.watch-alert-actions button {
+    position: relative;
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: auto;
+    min-width: 0;
+    height: 30px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #718096;
+    cursor: pointer;
+}
+
+.watch-alert-actions button span:not(.watch-percent-mark) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.watch-alert-actions button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: 250px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #172033;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    z-index: 50;
+}
+
+.watch-alert-actions button::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 4px);
+    transform: translateX(-50%) translateY(4px);
+    border: 6px solid transparent;
+    border-top-color: #172033;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    z-index: 51;
+}
+
+.watch-alert-actions button:hover::after,
+.watch-alert-actions button:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.watch-alert-actions button:hover,
+.watch-alert-actions button.active {
+    background: #172033;
+    color: #ffffff;
+}
+
+.watch-alert-actions svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-percent-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1;
+    font-family: Inter, system-ui, sans-serif;
+}
+
+.watch-alert-panel input {
+    flex: 0 0 160px;
+    width: 160px;
+    height: 32px;
+    border: 1px solid #d5deeb;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #172033;
+    font-size: 14px;
+    font-weight: 700;
+    outline: 0;
+    padding: 0 12px;
+}
+
+.watch-alert-panel input::placeholder {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.watch-alert-panel input:disabled {
+    background: #f6f9fc;
+    color: #9aa6b7;
+}
+
+.watch-alert-panel input:focus {
+    border-color: #9cc7eb;
+    box-shadow: 0 0 0 3px rgba(156, 199, 235, 0.26);
+}
+
+.watch-alert-status {
+    min-width: 0;
+    min-height: 15px;
+    padding-left: 5px;
+    color: #d25555;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.watch-alert-status.ok {
+    display: none;
+}
+
+.watch-alert-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.watch-alert-save,
+.watch-alert-close {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d5deeb;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #708197;
+    cursor: pointer;
+}
+
+.watch-alert-save {
+    color: #19956b;
+}
+
+.watch-alert-close {
+    color: #d25555;
+}
+
+.watch-alert-save:hover:not(:disabled),
+.watch-alert-close:hover {
+    background: #f3f6fa;
+}
+
+.watch-alert-save:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
+
+.watch-alert-save svg,
+.watch-alert-close svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-alert-active-bell {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 34px;
+    border: 1px solid #d6dee9;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #d25555;
+}
+
+.watch-alert-active-bell:hover {
+    background: #fff1f2;
+}
+
+.watch-alert-active-bell.triggered {
+    color: #159667;
+    border-color: #b9ead8;
+    background: #effcf7;
+}
+
+.watch-alert-active-bell.triggered:hover {
+    background: #e1f8ee;
+}
+
+.watch-alert-active-bell svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.watch-empty {
+    margin: 0;
+    padding: 18px;
+    color: #8794a8;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.watchlist-empty {
+    border: 1px dashed #d5deeb;
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.user-calendar-panel {
+    min-height: 460px;
+    margin-top: 22px;
+    border-radius: 22px;
+    background: #fff;
+}
+
+.economic-calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 26px 18px;
+    border: 1px solid #d9e3f0;
+    border-bottom: 0;
+    border-radius: 22px 22px 0 0;
+    background: #ffffff;
+}
+
+.economic-calendar-head h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.economic-calendar-head p {
+    margin: 5px 0 0;
+    color: #8491a5;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.economic-calendar-refresh {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #d6dee9;
+    border-radius: 14px;
+    background: #f7fafc;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.economic-calendar-refresh:hover:not(:disabled) {
+    border-color: #a8c7ed;
+    background: #eef6ff;
+    color: #2563eb;
+}
+
+.economic-calendar-refresh:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.economic-calendar-refresh svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.economic-calendar-filters {
+    display: grid;
+    grid-template-columns: minmax(250px, auto) minmax(420px, 1fr) minmax(330px, auto);
+    gap: 12px;
+    align-items: center;
+    padding: 14px 18px;
+    border: 1px solid #d9e3f0;
+    border-bottom: 0;
+    background: #ffffff;
+}
+
+.calendar-country-filters,
+.calendar-period-filters,
+.calendar-custom-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.calendar-country-filters {
+    flex-wrap: wrap;
+}
+
+.calendar-country-filters label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d8e2ef;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #637187;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.calendar-country-filters input {
+    width: 15px;
+    height: 15px;
+    accent-color: #172033;
+}
+
+.calendar-period-filters {
+    justify-content: center;
+    padding: 5px;
+    border: 1px solid #d8e2ef;
+    border-radius: 15px;
+    background: #eef3f8;
+}
+
+.calendar-period-filters button {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: #68778d;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.calendar-period-filters button.active {
+    background: #172033;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(23, 32, 51, 0.14);
+}
+
+.calendar-custom-range {
+    justify-content: flex-end;
+}
+
+.calendar-custom-range label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 10px 0 12px;
+    border: 1px solid #d8e2ef;
+    border-radius: 13px;
+    background: #f8fafc;
+    color: #7b889b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.calendar-custom-range input {
+    width: 130px;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #172033;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.economic-calendar-content {
+    border: 1px solid #d9e3f0;
+    border-radius: 0 0 22px 22px;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.economic-calendar-table {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+}
+
+.economic-calendar-row {
+    display: grid;
+    grid-template-columns: 72px 132px minmax(280px, 1fr) 120px 110px 110px 110px;
+    gap: 12px;
+    align-items: center;
+    min-height: 58px;
+    padding: 12px 14px;
+    border: 1px solid #dbe5f1;
+    border-radius: 16px;
+    background: #ffffff;
+    color: #172033;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.economic-calendar-row-head {
+    min-height: 42px;
+    background: #eef3f8;
+    color: #7c8a9d;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.economic-calendar-row strong {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.calendar-country {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #172033;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.calendar-country-flag {
+    display: block;
+    width: 38px;
+    height: 28px;
+    object-fit: cover;
+    border: 1px solid #d5deeb;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.calendar-country-eu {
+    background: #1d4ed8;
+}
+
+.calendar-country-uk {
+    background: #334155;
+}
+
+.calendar-country-us {
+    background: #b91c1c;
+}
+
+.calendar-country-ge {
+    background: #c1121f;
+}
+
+.economic-calendar-loading,
+.economic-calendar-empty,
+.economic-calendar-error {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.economic-calendar-error {
+    color: #d25555;
+}
+
+@media (max-width: 1100px) {
+    .user-side-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .user-watchlist-panel {
+        display: block;
+    }
+
+    .watch-category-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .watch-search-area {
+        width: 100%;
+        flex-basis: auto;
+        margin-top: 0;
+    }
+
+    .watchlist-wrap {
+        margin-top: 14px;
+        width: 100%;
+    }
+
+    .economic-calendar-content {
+        overflow-x: auto;
+    }
+
+    .economic-calendar-table {
+        min-width: 920px;
+    }
+
+    .economic-calendar-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-period-filters,
+    .calendar-custom-range {
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 720px) {
+    .user-side-body {
+        overflow-x: hidden;
+    }
+
+    .user-side-page {
+        width: min(100% - 16px, 720px);
+        margin-top: 10px;
+        margin-bottom: 30px;
+    }
+
+    .user-side-tabs,
+    .watch-category-row {
+        width: 100%;
+    }
+
+    .calendar-country-filters label,
+    .calendar-period-filters button {
+        font-size: 12px;
+    }
+
+    .calendar-custom-range {
+        flex-wrap: wrap;
+    }
+
+    .calendar-custom-range label {
+        flex: 1 1 150px;
+    }
+
+    .calendar-custom-range input {
+        width: 100%;
+    }
+
+    .user-side-tab {
+        min-width: 0;
+        width: 50%;
+        min-height: 44px;
+        height: auto;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .watch-category-row {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(146px, 43vw);
+        grid-template-columns: none;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 0 0 5px;
+        scroll-snap-type: x proximity;
+        scrollbar-width: thin;
+        overscroll-behavior-inline: contain;
+    }
+
+    .watch-category-btn {
+        min-height: 44px;
+        height: 44px;
+        scroll-snap-align: start;
+    }
+
+    .watch-search-box {
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .watch-search-dropdown {
+        right: auto;
+        left: 0;
+        width: calc(100vw - 16px);
+        max-height: 62vh;
+        border-radius: 14px;
+    }
+
+    .watchlist-wrap {
+        margin-top: 10px;
+        padding: 12px 10px;
+        border-radius: 16px;
+    }
+
+    .watchlist-head {
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .watchlist-head h1 {
+        font-size: 18px;
+    }
+
+    .watch-result-row {
+        grid-template-columns: 38px minmax(0, 1fr) 34px;
+        min-height: 0;
+        padding: 10px;
+        border-radius: 14px;
+    }
+
+    .watchlist-card {
+        grid-template-columns: 20px 38px minmax(0, 1fr) 34px;
+        gap: 8px;
+        height: auto;
+        min-height: 94px;
+        padding: 11px 10px;
+        border-radius: 14px;
+        cursor: default;
+        align-items: start;
+    }
+
+    .watchlist-card .watch-drag {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: center;
+    }
+
+    .watchlist-card > .watch-logo {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .watchlist-card > .watch-result-copy {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: center;
+    }
+
+    .watchlist-card > .watch-options {
+        grid-column: 4;
+        grid-row: 1;
+        align-self: center;
+        justify-self: end;
+        margin: 0;
+    }
+
+    .watchlist-card > .watch-result-value {
+        grid-column: 2 / 5;
+        grid-row: 2;
+        width: 100%;
+        margin-top: 3px;
+    }
+
+    .watchlist-card > .watch-company-updated {
+        grid-column: 2 / 4;
+        grid-row: 3;
+        align-self: center;
+    }
+
+    .watchlist-card > .watch-change {
+        grid-column: 4;
+        grid-row: 3;
+        align-self: center;
+        justify-self: end;
+        text-align: right;
+    }
+
+    .watchlist-card .watch-mini-values {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .watchlist-card .watch-rate-stack b {
+        font-size: 16px;
+    }
+
+    .watchlist-card .watch-rate-stack.watch-rate-spread b {
+        font-size: 13px;
+    }
+
+    .watch-options-menu {
+        top: calc(100% + 8px);
+        right: 0;
+        transform: none;
+        min-width: min(210px, calc(100vw - 42px));
+    }
+
+    .watch-result-value,
+    .watch-company-updated,
+    .watch-change {
+        grid-column: 2 / -1;
+        justify-self: start;
+    }
+
+    .watch-logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .watch-category-btn {
+        font-size: 12px;
+    }
+
+    .watch-alert-panel {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        padding: 9px;
+        border-radius: 14px;
+    }
+
+    .watch-alert-builder {
+        flex-wrap: wrap;
+    }
+
+    .watch-alert-side {
+        flex: 1 1 120px;
+        width: auto;
+        min-height: 38px;
+    }
+
+    .watch-alert-actions {
+        flex: 1 1 100%;
+        order: -1;
+    }
+
+    .watch-alert-actions button {
+        min-height: 36px;
+    }
+
+    .watch-alert-panel input {
+        flex: 1 1 150px;
+        width: auto;
+        min-height: 38px;
+    }
+
+    .watch-alert-controls {
+        margin-left: 0;
+    }
+
+    .watch-alert-save,
+    .watch-alert-close {
+        width: 38px;
+        height: 38px;
+    }
+
+    .watch-alert-status {
+        flex-basis: 100%;
+        white-space: normal;
+    }
+
+    .economic-calendar-head {
+        padding: 18px 14px 14px;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .economic-calendar-head h2 {
+        font-size: 20px;
+    }
+
+    .economic-calendar-head p {
+        line-height: 1.45;
+    }
+
+    .economic-calendar-filters {
+        padding: 10px;
+    }
+
+    .calendar-country-filters {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .calendar-country-filters label {
+        justify-content: center;
+        min-height: 42px;
+    }
+
+    .calendar-period-filters {
+        justify-content: flex-start;
+        padding: 4px;
+    }
+
+    .calendar-period-filters button {
+        min-height: 40px;
+    }
+
+    .economic-calendar-content {
+        overflow: visible;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .economic-calendar-table {
+        min-width: 0;
+        padding: 8px;
+    }
+
+    .economic-calendar-row-head {
+        display: none;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) {
+        grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr);
+        gap: 9px;
+        min-height: 0;
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1 / 3;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(3) {
+        grid-column: 2 / 4;
+        grid-row: 2;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(4) {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(n+5) {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding-top: 8px;
+        border-top: 1px solid #e3e8ef;
+        font-size: 13px;
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(5)::before {
+        content: "Actual";
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(6)::before {
+        content: "Forecast";
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(7)::before {
+        content: "Previous";
+    }
+
+    .economic-calendar-row:not(.economic-calendar-row-head) > span:nth-child(n+5)::before {
+        color: #8a97a8;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+}
+
+@media (max-width: 420px) {
+    .user-side-tab {
+        gap: 5px;
+        padding-inline: 7px;
+        font-size: 11px;
+    }
+
+    .user-side-tab svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .watch-category-row {
+        grid-auto-columns: minmax(140px, 72vw);
+    }
+
+    .watchlist-card .watch-result-copy strong {
+        font-size: 14px;
+    }
+
+    .watchlist-card .watch-result-copy small,
+    .watchlist-card .watch-company-updated,
+    .watchlist-card .watch-change {
+        font-size: 11px;
+    }
+
+    .watch-alert-actions button span:not(.watch-percent-mark) {
+        font-size: 9px;
     }
 }
