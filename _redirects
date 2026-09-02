@@ -60,9 +60,6 @@
 /create-alert               /create-dashboard         301!
 
 # Generated currency and article URLs
-/market-rates/:pair.html    /market-rates/:pair       301!
-/official-rates/:pair.html  /official-rates/:pair     301!
-/articles/:slug.html        /articles/:slug           301!
 /market-rates/*             /market-rates/:splat.html 200
 /official-rates/*           /official-rates/:splat.html 200
 /articles/*                 /articles/:splat.html     200
