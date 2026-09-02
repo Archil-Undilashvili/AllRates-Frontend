@@ -56,9 +56,15 @@
   </url>
   <url>
     <loc>https://allrates.ge/articles</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://allrates.ge/articles/ratom-yidulobs-erovnuli-banki-dolars-rezervebi</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
   </url>
   <url>
     <loc>https://allrates.ge/articles/ra-amodzraavebs-usdgel-kurss-saqartveloshi</loc>
