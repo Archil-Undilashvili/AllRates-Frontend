@@ -10,7 +10,9 @@ const pages = new Map([
 ]);
 exports.handler = async event => {
   if (!['GET','HEAD'].includes(event.httpMethod)) return {statusCode:405,headers:{Allow:'GET, HEAD'},body:''};
-  const file = pages.get(event.queryStringParameters?.page);
+  const requestPath = (event.path || new URL(event.rawUrl || 'https://allrates.ge/').pathname).replace(/\/$/,'') || '/';
+  const routePage = requestPath === '/' ? 'home' : requestPath.split('/').pop();
+  const file = pages.get(routePage) || pages.get(event.queryStringParameters?.page);
   if (!file) return {statusCode:404,body:'Not found'};
   const template = fs.readFileSync(path.join(process.env.ALLRATES_ROOT,file),'utf8');
   let html = template;
