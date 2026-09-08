@@ -1,0 +1,24 @@
+{
+  "name": "allrates-frontend",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-assets.js && node scripts/build-seo.js",
+    "build:offline": "node scripts/build-assets.js && node scripts/build-seo.js --offline",
+    "build:release": "node scripts/build-assets.js && node scripts/build-seo.js --strict && node scripts/seo-audit.js",
+    "build:production": "npm run build && npm test && node scripts/stage-production.js",
+    "test": "node scripts/seo-audit.js && node --test scripts/seo-regression.test.js",
+    "serve": "node local-server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "sharp": "^0.35.4"
+  },
+  "dependencies": {
+    "acorn": "^8.18.0",
+    "chart.js": "^4.5.1",
+    "linkedom": "^0.18.13"
+  }
+}

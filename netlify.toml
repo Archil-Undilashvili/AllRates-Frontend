@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build:production"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["acorn", "linkedom"]
+  included_files = ["index.html", "rates.html", "official.html", "official-rates/*.html", "js/main.js", "seo/page-snapshot.json"]
+
+[[headers]]
+  for = "/assets/optimized/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ka">
-<head>
+<head><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com" rel="preconnect">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
@@ -9,8 +9,8 @@
     <link rel="apple-touch-icon" href="/favicon-192.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>ვალუტის კალკულატორი - საუკეთესო კურსის პოვნა | AllRates.ge</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+
+    <link data-source="/css/style.css" rel="stylesheet" href="/assets/optimized/style-fd9d0f7f80.min.css">
     <style>
         .calc-page-layout {
             width: 100%;
@@ -50,7 +50,7 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             position: relative;
         }
-        
+
         .filter-section {
             margin-bottom: 20px;
         }
@@ -79,7 +79,7 @@
         .category-tabs::-webkit-scrollbar, .ccy-tabs::-webkit-scrollbar {
             display: none;
         }
-        
+
         .cat-tab, .ccy-tab {
             flex: 1;
             min-width: max-content;
@@ -186,7 +186,7 @@
         .calc-input::placeholder {
             color: var(--text-muted);
         }
-        
+
         .ccy-display {
             font-size: 1.3rem;
             font-weight: 700;
@@ -335,12 +335,12 @@
             font-weight: 700;
             width: 18px;
         }
-    
+
         /* Hide number arrows */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         input[type=number] {
             -moz-appearance: textfield;
@@ -472,7 +472,7 @@
     <meta property="og:description" content="ვალუტის კალკულატორი დოლარის, ევროს, ფუნტის, რუბლის და ლირის გადასაყვანად. მოძებნე საუკეთესო ყიდვა-გაყიდვის კურსი კომპანიებში.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://allrates.ge/calculator">
-    
+
     <!-- Hidden Structural Data for Google (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -493,9 +493,46 @@
 
       gtag('config', 'G-KFQ7LLZ9EF');
     </script>
+    <link data-source="/css/pair-pages.css" rel="stylesheet" href="/assets/optimized/pair-pages-3319e42feb.min.css">
 </head>
 <body>
-<script src="js/header.js"></script>
+<!-- STATIC_HEADER_START -->
+<div class="site-header">
+    <nav class="site-nav" aria-label="მთავარი ნავიგაცია">
+        <a href="/" class="site-brand" aria-label="AllRates.ge მთავარი გვერდი">
+            <span class="site-brand-main">
+                <svg class="site-logo" width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs><lineargradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f97316" /><stop offset="50%" stop-color="#a855f7" /><stop offset="100%" stop-color="#0ea5e9" /></lineargradient></defs>
+                    <path d="M 50 12 A 38 38 0 0 1 87.6 30 L 98 30 L 78 55 L 58 30 L 70 30 A 24 24 0 0 0 30 30 L 16 14 A 38 38 0 0 1 50 12 Z" fill="url(#logoGrad)" />
+                    <path d="M 50 88 A 38 38 0 0 1 12.4 70 L 2 70 L 22 45 L 42 70 L 30 70 A 24 24 0 0 0 70 70 L 84 86 A 38 38 0 0 1 50 88 Z" fill="url(#logoGrad)" />
+                </svg>
+                <span class="site-brand-text">AllRates<span>.ge</span><span class="site-beta-label">(Beta)</span></span>
+            </span>
+            <span class="site-brand-tagline">ბიზნეს და საბანკო პლატფორმა</span>
+        </a>
+        <button class="mobile-menu-toggle" type="button" aria-label="მენიუს გახსნა" aria-expanded="false" aria-controls="site-nav-links"><span></span><span></span><span></span></button>
+        <div class="site-nav-links" id="site-nav-links">
+            <a href="/" class="nav-link" data-page="index"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5" /><path d="M5 10.5V20h5v-5h4v5h5v-9.5" /></svg>მთავარი</a>
+            <a href="/rates" class="nav-link nav-link-with-note" data-page="rates"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11" /><path d="M7 17h11" /><path d="m15 4 3 3-3 3" /><path d="m10 14-3 3 3 3" /></svg>შეადარე კურსები <span>საუკეთესო კურსი</span></a>
+            <a href="/sawvavis-fasebi" class="nav-link nav-link-gas" data-page="sawvavis-fasebi"><svg class="nav-gas-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7a2 2 0 0 1 2 2v16H5V5a2 2 0 0 1 2-2Z" /><path d="M8 6h5v5H8V6Z" /></svg>საწვავის ფასები</a>
+            <a href="/analytics" class="nav-link" data-page="analytics"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16M7 15l4-5 4 3 5-7" /></svg>ანალიტიკა</a>
+            <div class="nav-dropdown nav-calculators">
+                <button class="nav-link nav-dropdown-toggle" type="button" data-page="calculators" aria-expanded="false"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M8 7h8M8 11h.01M12 11h.01M16 11h.01" /></svg>კალკულატორები<svg class="nav-dropdown-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg></button>
+                <div class="nav-dropdown-menu" role="menu"><a href="/calculator" class="nav-dropdown-item" data-page="calculator" role="menuitem">კონვერტაციის კალკულატორი</a><a href="/loan-calculator" class="nav-dropdown-item" data-page="loan-calculator" role="menuitem">სესხის კალკულატორი</a><a href="/loan-comparison" class="nav-dropdown-item" data-page="loan-comparison" role="menuitem">სესხების შედარება</a><a href="/deposit-calculator" class="nav-dropdown-item" data-page="deposit-calculator" role="menuitem">დეპოზიტის კალკულატორი</a><a href="/inflation-calculator" class="nav-dropdown-item" data-page="inflation-calculator" role="menuitem">ინფლაციის კალკულატორი</a></div>
+            </div>
+            <a href="/official" class="nav-link nav-link-with-note" data-page="official"><img src="/Logos/nbg_logo_cropped.png" alt="" class="nav-link-logo">ოფიციალური კურსები <span class="nav-download-note">ჩამოტვირთე XLS</span></a>
+            <a href="/articles" class="nav-link" data-page="articles"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5z" /><path d="M8 12h8M8 16h8" /></svg>სტატიები</a>
+            <a href="/about" class="nav-link" data-page="about"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5" /><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3.5 3.5 0 0 1 0 7M18 15a5 5 0 0 1 3 5" /></svg>ჩვენს შესახებ</a>
+            <a href="/contact" class="nav-link" data-page="contact"><svg class="nav-link-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>კონტაქტი</a>
+            <button id="authBtn" class="auth-nav-btn">ავტორიზაცია</button>
+        </div>
+    </nav>
+</div>
+<script src="/js/auth.js?v=3"></script>
+<script defer data-source="/js/header-controller.js" src="/assets/optimized/header-controller-3cb5f1001e.min.js"></script>
+
+<!-- STATIC_HEADER_END -->
+<div class="seo-page-heading"><h1>ვალუტის კონვერტაციის კალკულატორი</h1><p>გადაიყვანე თანხა ოფიციალური ან კომერციული კურსით და შეადარე შედეგი.</p></div>
 <div class="page-section" style="width: 100%;">
     <div style="text-align: center; margin-bottom: 1.5rem; margin-top: 0.5rem;">
         <span style="display: inline-block; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--btn-bg); font-weight: 600; background: #eff6ff; padding: 4px 12px; border-radius: 12px; margin-bottom: 0.5rem;">კალკულატორი</span>
@@ -509,7 +546,7 @@
         <!-- Calculator Main -->
         <div class="calc-main">
             <div class="calc-container">
-                
+
                 <div class="filter-section">
                     <label class="section-label">კატეგორია</label>
                     <div class="category-tabs" id="calc-category-tabs">
@@ -548,7 +585,7 @@
                     <!-- Swap Button -->
                     <button class="swap-btn" id="swap-btn" title="შებრუნება">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                         </svg>
                     </button>
 
@@ -703,15 +740,15 @@
 
     let nbgRates = { GEL: 1 };
     let commercialRates = [];
-    
-    let lastEdited = 'top'; 
+
+    let lastEdited = 'top';
     let valTopCcy = 'USD';
     let valBottomCcy = 'GEL';
 
     const inputTop = document.getElementById('input-top');
     const inputBottom = document.getElementById('input-bottom');
     let selectedCategory = 'all';
-    
+
     const categoryTabs = document.querySelectorAll('.cat-tab');
     categoryTabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -886,7 +923,7 @@
                 commercialRates = commercialRates.filter(item => getBaseCompany(item.company) !== 'kursige');
                 commercialRates.push(kursigeLiveRate);
             }
-            
+
             updateAll();
         } catch (e) {
             console.error(e);
@@ -922,14 +959,14 @@
                 if (!c[keySellTop]) return;
                 costTopInGel = c[keySellTop];
             }
-            
+
             let valueBottomInGel = 1;
             if (ccyBottom !== 'GEL') {
                 const keyBuyBottom = ccyBottom.toLowerCase() + 'Buy';
                 if (!c[keyBuyBottom]) return;
                 valueBottomInGel = c[keyBuyBottom];
             }
-            
+
             let finalRate = costTopInGel / valueBottomInGel;
 
             const baseKey = getBaseCompany(c.company);
@@ -966,7 +1003,7 @@
         }
 
         const topRates = getTopRates(ccyTop, ccyBottom, cat);
-        
+
         if (topRates.length === 0) {
             rateDisplay.innerText = "კურსი არ მოიძებნა";
             inputTop.value = "";
@@ -996,7 +1033,7 @@
 
         let baseCcy, quoteCcy;
         let isReversedForDisplay = false;
-        
+
         if (currencyPriority[ccyTop] < currencyPriority[ccyBottom]) {
             baseCcy = ccyTop;
             quoteCcy = ccyBottom;
@@ -1012,7 +1049,7 @@
             <span style="color: var(--text-muted);">1 ${baseCcy} =</span>
             <span>${displayRate < 0.01 ? displayRate.toFixed(4) : displayRate.toFixed(4)} ${quoteCcy}</span>
         `;
-        
+
         let sourceLabel = cat === 'official' ? 'ოფიციალური კურსი' : (bestOption.base === 'nbg' ? 'ეროვნული ბანკი' : (COMPANY_NAMES_KA[bestOption.base] || 'კომერციული ბანკი'));
         if (cat === 'all' || cat === 'banks' || cat === 'mfos' || cat === 'kiosks') {
             rateSourceText.innerText = "საუკეთესო: " + (bestOption.originalName.split(' ')[0]);
@@ -1033,7 +1070,7 @@
 
         ratesArr.forEach((item, index) => {
             const logoPath = LOGOS[item.base] || 'Logos/logo.jpg';
-            
+
             let val = isReversedForDisplay ? (1 / item.rate) : item.rate;
             let formatted = val < 0.01 ? val.toFixed(4) : val.toFixed(4);
 
@@ -1044,10 +1081,10 @@
             div.style.textDecoration = 'none';
             div.style.color = 'inherit';
             div.className = 'top10-item';
-            
-            let logoClass = "company-logo"; 
+
+            let logoClass = "company-logo";
             if (item.base === "kursige") logoClass += " logo-kursige";
-            
+
             let html = `
                 <div class="top10-company">
                     <span class="rank-number">${index + 1}</span>
@@ -1058,7 +1095,7 @@
             // Check if it's buy or sell based on user actions. But since it's just a generalized final rate calculation:
             // We can color it dynamically depending on if user is buying or selling the bottom currency relative to the top currency.
             // A simple approach: use the primary color, but user asked for red/green for rates.
-            // Let's use the --buy-color since they are providing options. Wait, user said "მწვანე და წითელი ფერები კურსებისთვის". 
+            // Let's use the --buy-color since they are providing options. Wait, user said "მწვანე და წითელი ფერები კურსებისთვის".
             // If the user inputs GEL and gets USD, they are buying USD. If they input USD and get GEL, they are selling USD.
             // Let's color the rate green as it's the "best" rates, or color them green/red based on direction.
             // Actually, we can just use the buy-color (green) for the rate value since these are the top rates and higher/lower is already sorted for the user's benefit.
@@ -1086,7 +1123,7 @@
         const temp = valTopCcy;
         valTopCcy = valBottomCcy;
         valBottomCcy = temp;
-        
+
         renderCcyTabs();
         updateAll();
     });
@@ -1096,6 +1133,17 @@
 </script>
 
             <!-- Footer Section -->
-<script src="js/footer.js?v=4"></script>
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>

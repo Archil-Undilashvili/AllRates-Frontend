@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="AllRates.ge">
+  <defs>
+    <linearGradient id="bg" x1="128" y1="128" x2="896" y2="896" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f97316"/>
+      <stop offset="0.5" stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="240" y1="240" x2="784" y2="784" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dbeafe"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="220" fill="#0f172a"/>
+  <circle cx="512" cy="512" r="394" fill="url(#bg)"/>
+  <circle cx="512" cy="512" r="304" fill="#0f172a"/>
+  <path d="M512 192c128 0 240 74 293 181h91L741 565 586 373h101c-43-54-106-85-175-85-101 0-186 64-219 154L208 389c53-117 170-197 304-197Z" fill="url(#mark)"/>
+  <path d="M512 832c-128 0-240-74-293-181h-91l155-192 155 192H337c43 54 106 85 175 85 101 0 186-64 219-154l85 53c-53 117-170 197-304 197Z" fill="url(#mark)"/>
+</svg>

@@ -35,11 +35,18 @@ function setLiveInnerText(id, text, key = id) {
 }
 
 const IS_LOCAL_FRONTEND = ['localhost', '127.0.0.1', ''].includes(window.location.hostname) || window.location.protocol === 'file:';
+const INITIAL_PAGE_SNAPSHOT = (() => {try{return JSON.parse(document.getElementById('initial-page-snapshot')?.textContent || '{}');}catch{return {};}})();
+const consumedSnapshotSources = new Set();
+function consumeInitialSnapshot(source) {
+    if (consumedSnapshotSources.has(source) || !INITIAL_PAGE_SNAPSHOT[source]) return null;
+    consumedSnapshotSources.add(source);
+    return INITIAL_PAGE_SNAPSHOT[source];
+}
 const API_SHEETS_DATA_URL = IS_LOCAL_FRONTEND
-    ? 'http://localhost:3000/api/data'
+    ? '/api/spot-snapshot/sheets'
     : 'https://allrates-backend-api.onrender.com/api/data';
 const API_RATES_URL = IS_LOCAL_FRONTEND
-    ? 'http://localhost:3000/api/rates/latest'
+    ? '/api/spot-snapshot/market'
     : 'https://allrates-backend-api.onrender.com/api/rates/latest';
 const API_RATES_FALLBACK_URL = 'https://allrates-backend-api.onrender.com/api/rates/latest';
 const API_GAS_URL = 'https://allrates-backend-api.onrender.com/api/gas/latest';
@@ -125,6 +132,8 @@ async function fetchJsonWithFallback(urls, options = {}) {
 }
 
 async function fetchSheetsData() {
+    const initial=consumeInitialSnapshot('sheets');
+    if(initial)return initial;
     return fetchJsonWithFallback([
         API_SHEETS_DATA_URL,
         IS_LOCAL_FRONTEND ? 'https://allrates-backend-api.onrender.com/api/data' : null
@@ -215,6 +224,8 @@ async function fetchSheetsData() {
         }
 
         async function fetchRatesJsonWithFallback(urls) {
+            const initial=consumeInitialSnapshot('market');
+            if(initial)return initial;
             let lastError = null;
             for (const url of [...new Set(urls.filter(Boolean))]) {
                 try {
@@ -568,20 +579,26 @@ async function fetchSheetsData() {
 
         function getForexAnalyticsUrl(pair) {
             const pairCode = normalizeForexPairCode(pair) || 'EURUSD';
-            const pagePath = IS_LOCAL_FRONTEND ? 'valutis-kursebi-dges.html' : '/valutis-kursebi-dges';
-            return `${pagePath}?pair=${encodeURIComponent(pairCode)}&period=1w#official-analytics-chart`;
+            return `/analytics?category=forex&asset=${encodeURIComponent(pairCode)}#asset-chart-title`;
         }
 
         function hydrateForexRateLinks(container = document.getElementById('intl-rates-container')) {
             if (!container) return;
-            container.querySelectorAll('.intl-rate-item').forEach(item => {
+            container.querySelectorAll('.intl-rate-item').forEach(original => {
+                let item = original;
                 const pairText = item.querySelector('.intl-pair')?.textContent || '';
                 const pairCode = normalizeForexPairCode(item.dataset.forexPair || pairText);
                 if (pairCode.length !== 6) return;
                 item.classList.add('forex-rate-link');
                 item.dataset.forexPair = pairCode;
-                item.setAttribute('role', 'button');
-                item.setAttribute('tabindex', '0');
+                if(item.tagName !== 'A') {
+                    const link=document.createElement('a');
+                    for(const attribute of item.attributes)link.setAttribute(attribute.name,attribute.value);
+                    link.append(...item.childNodes);item.replaceWith(link);item=link;
+                }
+                item.href=getForexAnalyticsUrl(pairCode);
+                item.style.textDecoration='none';item.style.color='inherit';
+                item.removeAttribute('role');item.removeAttribute('tabindex');
                 item.setAttribute('title', `NBG სტატისტიკაში ${pairCode.slice(0, 3)}/${pairCode.slice(3)} გრაფიკის ნახვა`);
             });
         }
@@ -634,6 +651,7 @@ async function fetchSheetsData() {
             container.addEventListener('click', event => {
                 const item = event.target.closest('.forex-rate-link[data-forex-pair]');
                 if (!item || !container.contains(item)) return;
+                if(item.tagName==='A')return;
                 openPair(item);
             });
 
@@ -641,6 +659,7 @@ async function fetchSheetsData() {
                 if (event.key !== 'Enter' && event.key !== ' ') return;
                 const item = event.target.closest('.forex-rate-link[data-forex-pair]');
                 if (!item || !container.contains(item)) return;
+                if(item.tagName==='A')return;
                 event.preventDefault();
                 openPair(item);
             });
@@ -1682,7 +1701,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 }
             } catch (_) {}
 
-            const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h');
+            const response = await fetch(IS_LOCAL_FRONTEND ? '/api/spot-snapshot/cryptoMeta' : 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h');
             if (!response.ok) throw new Error(`CoinGecko HTTP ${response.status}`);
             const items = await response.json();
             const normalized = (Array.isArray(items) ? items : [])
@@ -1750,7 +1769,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         async function fetchCrypto() {
             try {
                 const [res, marketCaps] = await Promise.all([
-                    fetch('https://api.binance.com/api/v3/ticker/24hr'),
+                    fetch(IS_LOCAL_FRONTEND ? '/api/spot-snapshot/crypto' : 'https://api.binance.com/api/v3/ticker/24hr'),
                     getCryptoMarketCapsSafe()
                 ]);
                 if (!res.ok) return;
@@ -1860,7 +1879,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                     : `<span class="crypto-token-initial">${item.symbol.charAt(0)}</span>`;
 
                 return `
-                    <div class="intl-rate-item crypto-rate-item">
+                    <a class="intl-rate-item crypto-rate-item forex-rate-link" style="text-decoration:none;color:inherit" href="/analytics?category=crypto&amp;asset=${encodeURIComponent(String(item.symbol).toUpperCase())}#asset-chart-title">
                         <span class="intl-pair crypto-token-name" data-crypto-search="${`${item.name} ${item.symbol}`.toLowerCase()}">
                             ${logoHtml}
                             <span class="crypto-token-copy">
@@ -1872,7 +1891,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                             <span class="crypto-change" style="color: ${changeColor};">${changeText}</span>
                             ${marketCapText ? `<span class="crypto-market-cap">MC ${marketCapText}</span>` : '<span class="crypto-market-cap"></span>'}
                         </span>
-                    </div>
+                    </a>
                 `;
             }).join('');
             filterMarketList('crypto-rates-list', document.getElementById('crypto-search-input')?.value || '');
@@ -2168,8 +2187,9 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
                 const previousDate = previousBusinessDate(today);
                 setHomeOfficialDateNote(today);
                 
+                const initial = consumeInitialSnapshot('official');
                 const [res, previousRes] = await Promise.all([
-                    fetch(`${API_NBG_URL}?date=${formattedDate}`),
+                    initial ? Promise.resolve({ok:true,json:async()=>initial}) : fetch(`${API_NBG_URL}?date=${formattedDate}`),
                     fetch(`${API_NBG_URL}?date=${previousDate}`)
                 ]);
                 if (!res.ok) return;
@@ -2638,6 +2658,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         }
 
         function initNbgCharts() {
+            if (!document.getElementById('home-nbg-chart-panel') && !document.getElementById('home-eurusd-chart-panel')) return;
             if (typeof Chart === 'undefined') return;
             clearStaleNbgChartCache();
 
@@ -3600,6 +3621,7 @@ if (item['Pair (Popular)'] && item['Rate (Popular)']) {
         }
 
         function loadCachedData() {
+            if (INITIAL_PAGE_SNAPSHOT.market || INITIAL_PAGE_SNAPSHOT.official) return;
             try {
                 const cachedIntlRatesHtml = localStorage.getItem(CACHE_INTL_RATES_HTML_KEY);
                 const intlContainer = document.querySelector('.intl-rates-list');

@@ -1,0 +1,240 @@
+{
+  "images": {
+    "/Logos/articles/00-2026-09-02-nbg-dollar-reserves.png": {
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "src": "/assets/optimized/00-2026-09-02-nbg-dollar-reserves-a670265fbc-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/00-2026-09-02-nbg-dollar-reserves-a670265fbc-1280.webp",
+          "width": 1280
+        },
+        {
+          "src": "/assets/optimized/00-2026-09-02-nbg-dollar-reserves-a670265fbc-1672.webp",
+          "width": 1672
+        }
+      ]
+    },
+    "/Logos/articles/00-2026-09-01-usdgel-seven-factors.png": {
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "src": "/assets/optimized/00-2026-09-01-usdgel-seven-factors-a12dac02e1-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/00-2026-09-01-usdgel-seven-factors-a12dac02e1-1280.webp",
+          "width": 1280
+        },
+        {
+          "src": "/assets/optimized/00-2026-09-01-usdgel-seven-factors-a12dac02e1-1672.webp",
+          "width": 1672
+        }
+      ]
+    },
+    "/Logos/articles/00-2026-08-31-ecb-eurusd-eurgel.png": {
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "src": "/assets/optimized/00-2026-08-31-ecb-eurusd-eurgel-11ef8da61d-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/00-2026-08-31-ecb-eurusd-eurgel-11ef8da61d-1280.webp",
+          "width": 1280
+        },
+        {
+          "src": "/assets/optimized/00-2026-08-31-ecb-eurusd-eurgel-11ef8da61d-1672.webp",
+          "width": 1672
+        }
+      ]
+    },
+    "/Logos/articles/00-2026-08-30-bonds-selected-poster.png": {
+      "width": 2110,
+      "height": 1186,
+      "variants": [
+        {
+          "src": "/assets/optimized/00-2026-08-30-bonds-selected-poster-905d26b885-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/00-2026-08-30-bonds-selected-poster-905d26b885-1280.webp",
+          "width": 1280
+        },
+        {
+          "src": "/assets/optimized/00-2026-08-30-bonds-selected-poster-905d26b885-2110.webp",
+          "width": 2110
+        }
+      ]
+    },
+    "/Logos/articles/00-2026-08-28-jackson-hole-fx-market.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/00-2026-08-28-jackson-hole-fx-market-26c84e76c6-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/00-2026-08-28-jackson-hole-fx-market-26c84e76c6-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/01-2026-08-24-dollar-gold-bitcoin.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/01-2026-08-24-dollar-gold-bitcoin-cf255de8cb-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/01-2026-08-24-dollar-gold-bitcoin-cf255de8cb-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/02-2026-08-16-how-fx-rates-are-set.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/02-2026-08-16-how-fx-rates-are-set-e8ec28b353-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/02-2026-08-16-how-fx-rates-are-set-e8ec28b353-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/03-2026-08-08-oil-to-pump-price-chain.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/03-2026-08-08-oil-to-pump-price-chain-89f8c05b9d-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/03-2026-08-08-oil-to-pump-price-chain-89f8c05b9d-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/04-2026-08-07-coinbase-gel-decimal-error.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/04-2026-08-07-coinbase-gel-decimal-error-074a162447-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/04-2026-08-07-coinbase-gel-decimal-error-074a162447-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/07-2026-08-03-intraday-rate-change.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/07-2026-08-03-intraday-rate-change-72e460f36f-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/07-2026-08-03-intraday-rate-change-72e460f36f-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/08-2026-07-31-fomo-pause.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/08-2026-07-31-fomo-pause-c3aa47dfb3-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/08-2026-07-31-fomo-pause-c3aa47dfb3-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/09-2026-07-30-fed-rate-market-reaction.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/09-2026-07-30-fed-rate-market-reaction-618d0ccda6-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/09-2026-07-30-fed-rate-market-reaction-618d0ccda6-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/2026-08-30-bond-price-yield-chart.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/2026-08-30-bond-price-yield-chart-875f582733-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/2026-08-30-bond-price-yield-chart-875f582733-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/2026-08-30-us-treasury-yield-curve.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/2026-08-30-us-treasury-yield-curve-7c62688b2b-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/2026-08-30-us-treasury-yield-curve-7c62688b2b-1200.webp",
+          "width": 1200
+        }
+      ]
+    },
+    "/Logos/articles/2026-08-30-georgia-bond-market-growth.png": {
+      "width": 1200,
+      "height": 675,
+      "variants": [
+        {
+          "src": "/assets/optimized/2026-08-30-georgia-bond-market-growth-ba867aa90a-640.webp",
+          "width": 640
+        },
+        {
+          "src": "/assets/optimized/2026-08-30-georgia-bond-market-growth-ba867aa90a-1200.webp",
+          "width": 1200
+        }
+      ]
+    }
+  },
+  "assets": {
+    "/css/style.css": "/assets/optimized/style-fd9d0f7f80.min.css",
+    "/css/pair-pages.css": "/assets/optimized/pair-pages-3319e42feb.min.css",
+    "/js/main.js": "/assets/optimized/main-47988e010f.min.js",
+    "/js/pair-page.js": "/assets/optimized/pair-page-2280c2b8aa.min.js",
+    "/js/pair-comparison.js": "/assets/optimized/pair-comparison-eaccee230e.min.js",
+    "/js/header-controller.js": "/assets/optimized/header-controller-3cb5f1001e.min.js",
+    "/js/footer-controller.js": "/assets/optimized/footer-controller-ec7b409344.min.js",
+    "https://cdn.jsdelivr.net/npm/chart.js": "/assets/optimized/chart-48444a82d4.min.js"
+  }
+}

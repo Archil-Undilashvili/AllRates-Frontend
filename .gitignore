@@ -1,3 +1,5 @@
-.DS_Store
+node_modules/
+seo/*.tmp
+dist/
+.netlify/
 AllRates-Backend/
-Logos/linkedin/
