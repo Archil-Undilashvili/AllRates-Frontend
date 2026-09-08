@@ -6,7 +6,7 @@
     "build:offline": "node scripts/build-assets.js && node scripts/build-seo.js --offline",
     "build:release": "node scripts/build-assets.js && node scripts/build-seo.js --strict && node scripts/seo-audit.js",
     "build:production": "npm run build && npm test && node scripts/stage-production.js",
-    "test": "node scripts/seo-audit.js && node --test scripts/seo-regression.test.js",
+    "test": "node scripts/seo-audit.js && node --test scripts/*regression.test.js",
     "serve": "node local-server.js"
   },
   "engines": {
