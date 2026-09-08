@@ -8,7 +8,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["acorn", "linkedom"]
+  external_node_modules = ["acorn"]
   included_files = ["index.html", "rates.html", "official.html", "official-rates/*.html", "js/main.js", "seo/page-snapshot.json"]
 
 [[headers]]
